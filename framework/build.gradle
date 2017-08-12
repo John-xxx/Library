@@ -84,7 +84,7 @@ publish {
 
 /*
  ./gradlew clean build bintrayUpload -PbintrayUser={name} -PbintrayKey={key} -PdryRun=false
- PbintrayUser就是用户名
- PbintrayKey就是Bintray.com的key
- dryRun是一个配置参数，当为true的时候，会运行所有的环节，但是不会上传。
+ PbintrayUser 就是Bintray.com的用户名
+ PbintrayKey 就是Bintray.com的key
+ dryRun 是一个配置参数，当为true的时候，会运行所有的环节，但是不会上传。
 */
