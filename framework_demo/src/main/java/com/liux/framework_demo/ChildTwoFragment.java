@@ -8,11 +8,10 @@ import android.view.ViewGroup;
 import com.liux.framework.base.BaseFragment;
 
 /**
- * Created by Liux on 2017/8/9.
+ * Created by Liux on 2017/8/13.
  */
 
-public class MainOneFragment extends BaseFragment {
-
+public class ChildTwoFragment extends BaseFragment {
     @Override
     protected void onInitData(Bundle savedInstanceState) {
 
@@ -20,7 +19,7 @@ public class MainOneFragment extends BaseFragment {
 
     @Override
     protected View onInitView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
-        View view = inflater.inflate(R.layout.fragment_main_one, container, false);
+        View view = inflater.inflate(R.layout.fragment_child_two, container, false);
         return view;
     }
 

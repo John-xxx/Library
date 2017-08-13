@@ -7,7 +7,7 @@ import android.os.Parcelable;
  * 地理位置点属性封装 <br>
  * Created by Liux on 2016/12/2.
  */
-public class PositionBean implements Parcelable {
+public class PointBean implements Parcelable {
     // 对应百度ID
     private int bdid;
     // 地理位置代码
@@ -43,7 +43,7 @@ public class PositionBean implements Parcelable {
         return title;
     }
 
-    public PositionBean setTitle(String title) {
+    public PointBean setTitle(String title) {
         this.title = title;
         return this;
     }
@@ -52,7 +52,7 @@ public class PositionBean implements Parcelable {
         return bdid;
     }
 
-    public PositionBean setBdid(int bdid) {
+    public PointBean setBdid(int bdid) {
         this.bdid = bdid;
         return this;
     }
@@ -61,7 +61,7 @@ public class PositionBean implements Parcelable {
         return code;
     }
 
-    public PositionBean setCode(int code) {
+    public PointBean setCode(int code) {
         this.code = code;
         return this;
     }
@@ -70,7 +70,7 @@ public class PositionBean implements Parcelable {
         return lat;
     }
 
-    public PositionBean setLat(double lat) {
+    public PointBean setLat(double lat) {
         this.lat = lat;
         return this;
     }
@@ -79,7 +79,7 @@ public class PositionBean implements Parcelable {
         return lon;
     }
 
-    public PositionBean setLon(double lon) {
+    public PointBean setLon(double lon) {
         this.lon = lon;
         return this;
     }
@@ -88,7 +88,7 @@ public class PositionBean implements Parcelable {
         return city;
     }
 
-    public PositionBean setCity(String city) {
+    public PointBean setCity(String city) {
         this.city = city;
         return this;
     }
@@ -97,7 +97,7 @@ public class PositionBean implements Parcelable {
         return type;
     }
 
-    public PositionBean setType(int type) {
+    public PointBean setType(int type) {
         this.type = type;
         return this;
     }
@@ -106,7 +106,7 @@ public class PositionBean implements Parcelable {
         return superior;
     }
 
-    public PositionBean setSuperior(int superior) {
+    public PointBean setSuperior(int superior) {
         this.superior = superior;
         return this;
     }
@@ -115,7 +115,7 @@ public class PositionBean implements Parcelable {
         return zoom;
     }
 
-    public PositionBean setZoom(int zoom) {
+    public PointBean setZoom(int zoom) {
         this.zoom = zoom;
         return this;
     }
@@ -124,7 +124,7 @@ public class PositionBean implements Parcelable {
         return address;
     }
 
-    public PositionBean setAddress(String address) {
+    public PointBean setAddress(String address) {
         this.address = address;
         return this;
     }
@@ -133,7 +133,7 @@ public class PositionBean implements Parcelable {
         return mode;
     }
 
-    public PositionBean setMode(String mode) {
+    public PointBean setMode(String mode) {
         this.mode = mode;
         return this;
     }
@@ -142,7 +142,7 @@ public class PositionBean implements Parcelable {
         return direction;
     }
 
-    public PositionBean setDirection(float direction) {
+    public PointBean setDirection(float direction) {
         this.direction = direction;
         return this;
     }
@@ -151,7 +151,7 @@ public class PositionBean implements Parcelable {
         return accuracy;
     }
 
-    public PositionBean setAccuracy(float accuracy) {
+    public PointBean setAccuracy(float accuracy) {
         this.accuracy = accuracy;
         return this;
     }
@@ -160,7 +160,7 @@ public class PositionBean implements Parcelable {
         return altitude;
     }
 
-    public PositionBean setAltitude(double altitude) {
+    public PointBean setAltitude(double altitude) {
         this.altitude = altitude;
         return this;
     }
@@ -169,7 +169,7 @@ public class PositionBean implements Parcelable {
         return speed;
     }
 
-    public PositionBean setSpeed(float speed) {
+    public PointBean setSpeed(float speed) {
         this.speed = speed;
         return this;
     }
@@ -198,10 +198,10 @@ public class PositionBean implements Parcelable {
         dest.writeString(this.mode);
     }
 
-    public PositionBean() {
+    public PointBean() {
     }
 
-    protected PositionBean(Parcel in) {
+    protected PointBean(Parcel in) {
         this.bdid = in.readInt();
         this.code = in.readInt();
         this.superior = in.readInt();
@@ -219,15 +219,15 @@ public class PositionBean implements Parcelable {
         this.mode = in.readString();
     }
 
-    public static final Parcelable.Creator<PositionBean> CREATOR = new Parcelable.Creator<PositionBean>() {
+    public static final Parcelable.Creator<PointBean> CREATOR = new Parcelable.Creator<PointBean>() {
         @Override
-        public PositionBean createFromParcel(Parcel source) {
-            return new PositionBean(source);
+        public PointBean createFromParcel(Parcel source) {
+            return new PointBean(source);
         }
 
         @Override
-        public PositionBean[] newArray(int size) {
-            return new PositionBean[size];
+        public PointBean[] newArray(int size) {
+            return new PointBean[size];
         }
     };
 }

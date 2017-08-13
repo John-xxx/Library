@@ -1,10 +1,10 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
+    android:orientation="vertical"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:orientation="vertical"
-    tools:context="com.liux.framework_demo.MainActivity">
+    tools:context="com.liux.framework_demo.ChildActivity">
 
     <android.support.v4.view.ViewPager
         android:id="@+id/vp_content"
@@ -33,24 +33,6 @@
             android:layout_width="0dp"
             android:layout_height="match_parent"
             android:text="Two"
-            android:button="@null"
-            android:gravity="center" />
-
-        <RadioButton
-            android:id="@+id/rb_three"
-            android:layout_weight="1"
-            android:layout_width="0dp"
-            android:layout_height="match_parent"
-            android:text="Three"
-            android:button="@null"
-            android:gravity="center" />
-
-        <RadioButton
-            android:id="@+id/rb_four"
-            android:layout_weight="1"
-            android:layout_width="0dp"
-            android:layout_height="match_parent"
-            android:text="Four"
             android:button="@null"
             android:gravity="center" />
 

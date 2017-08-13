@@ -40,7 +40,7 @@ public class MainFourFragment extends BaseFragment {
 
     @Override
     protected View onInitView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
-        View view = inflater.inflate(R.layout.fragment_four, container, false);
+        View view = inflater.inflate(R.layout.fragment_main_four, container, false);
         unbinder = ButterKnife.bind(this, view);
 
         mMultipleAdapter = new MultipleAdapter<Object>()
@@ -133,7 +133,7 @@ public class MainFourFragment extends BaseFragment {
                 mMultipleAdapter.getDataSource().add(String.valueOf(System.currentTimeMillis() / 10000L));
                 break;
             case R.id.btn_add_integer:
-                mMultipleAdapter.getDataSource().add(Integer.valueOf((int) (System.currentTimeMillis() % 1502400000000L)));
+                mMultipleAdapter.getDataSource().add(Integer.valueOf((int) (System.currentTimeMillis() % 1502000000000L)));
                 break;
             case R.id.btn_del_first:
                 if (mMultipleAdapter.getDataSource().isEmpty()) return;

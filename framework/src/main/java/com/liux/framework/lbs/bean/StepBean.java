@@ -15,7 +15,7 @@ import java.util.List;
 
 public class StepBean implements Parcelable {
     // 节点内经纬度点
-    private List<PositionBean> point = new ArrayList<>();
+    private List<PointBean> point = new ArrayList<>();
     // 节点距离(米)
     private float distance;
     // 节点费用(元)
@@ -25,11 +25,11 @@ public class StepBean implements Parcelable {
     // 节点方向
     private float direction;
 
-    public List<PositionBean> getPoint() {
+    public List<PointBean> getPoint() {
         return point;
     }
 
-    public StepBean setPoint(List<PositionBean> point) {
+    public StepBean setPoint(List<PointBean> point) {
         this.point = point;
         return this;
     }
@@ -88,7 +88,7 @@ public class StepBean implements Parcelable {
     }
 
     protected StepBean(Parcel in) {
-        this.point = in.createTypedArrayList(PositionBean.CREATOR);
+        this.point = in.createTypedArrayList(PointBean.CREATOR);
         this.distance = in.readFloat();
         this.money = in.readDouble();
         this.time = in.readLong();

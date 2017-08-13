@@ -1,25 +1,25 @@
 package com.liux.framework_demo;
 
-import android.Manifest;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.annotation.IdRes;
-import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
 import android.support.v4.view.ViewPager;
 import android.widget.RadioGroup;
 
 import com.liux.framework.base.BaseActivity;
-import com.liux.framework.tool.PermissionTool;
 
-import java.util.List;
 import java.util.Map;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
 
-public class MainActivity extends BaseActivity {
+/**
+ * Created by Liux on 2017/8/13.
+ */
+
+public class ChildActivity extends BaseActivity {
 
     @BindView(R.id.vp_content)
     ViewPager vpContent;
@@ -27,15 +27,13 @@ public class MainActivity extends BaseActivity {
     RadioGroup rgSelector;
 
     Fragment[] mFragments = new Fragment[] {
-            new MainOneFragment(),
-            new MainTwoFragment(),
-            new MainThreeFragment(),
-            new MainFourFragment()
+            new ChildOneFragment(),
+            new ChildTwoFragment()
     };
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState, Intent intent) {
-        setContentView(R.layout.activity_main);
+        setContentView(R.layout.activity_child);
     }
 
     @Override
@@ -45,23 +43,7 @@ public class MainActivity extends BaseActivity {
 
     @Override
     protected void onInitView(@Nullable Bundle savedInstanceState) {
-        DefaultTitleBar titleBar = (DefaultTitleBar) getTitleBar();
-        titleBar
-                .hasBack(false)
-                .hasMore(true)
-                .setOnTitleBarListener(new DefaultTitleBar.OnTitleBarListener() {
-                    @Override
-                    public boolean onBack() {
-                        return false;
-                    }
 
-                    @Override
-                    public boolean onMore() {
-                        startActivity(new Intent(MainActivity.this, ChildActivity.class));
-                        return true;
-                    }
-                });
-        titleBar.getMoreText().setText("Child");
 
         ButterKnife.bind(this);
 
@@ -80,12 +62,6 @@ public class MainActivity extends BaseActivity {
                         break;
                     case 1:
                         rgSelector.check(R.id.rb_two);
-                        break;
-                    case 2:
-                        rgSelector.check(R.id.rb_three);
-                        break;
-                    case 3:
-                        rgSelector.check(R.id.rb_four);
                         break;
                 }
             }
@@ -106,12 +82,6 @@ public class MainActivity extends BaseActivity {
                     case R.id.rb_two:
                         vpContent.setCurrentItem(1);
                         break;
-                    case R.id.rb_three:
-                        vpContent.setCurrentItem(2);
-                        break;
-                    case R.id.rb_four:
-                        vpContent.setCurrentItem(3);
-                        break;
                 }
             }
         });
@@ -119,31 +89,16 @@ public class MainActivity extends BaseActivity {
 
     @Override
     protected void onLazyLoad() {
-        PermissionTool.with(this)
-                .permissions(Manifest.permission.CALL_PHONE)
-                .callback(new PermissionTool.OnPermissionCallback() {
-                    @Override
-                    public void onCallback(List<String> allow, List<String> reject, List<String> prohibit) {
 
-                    }
-                })
-                .request();
     }
 
     @Override
     protected void onRestoreData(Map<String, Object> data) {
-        long time = (long) data.get("time");
+
     }
 
     @Override
     protected void onSaveData(Map<String, Object> data) {
-        data.put("time", System.currentTimeMillis());
-    }
 
-    @Override
-    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
-        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
-
-        PermissionTool.onRequestResult(requestCode, permissions, grantResults);
     }
 }

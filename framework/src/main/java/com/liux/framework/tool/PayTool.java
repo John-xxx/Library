@@ -8,6 +8,11 @@ import android.text.TextUtils;
 
 public class PayTool {
 
+    /**
+     * 调试模式开关
+     */
+    public static boolean DEBUG = false;
+
     public class AliResult {
         // 结果状态码
         private String resultStatus;

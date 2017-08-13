@@ -38,7 +38,7 @@ public class MainThreeFragment extends BaseFragment {
 
     @Override
     protected View onInitView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
-        View view = inflater.inflate(R.layout.fragment_three, container, false);
+        View view = inflater.inflate(R.layout.fragment_main_three, container, false);
         unbinder = ButterKnife.bind(this, view);
 
         mSelectAdapter = new SelectAdapter<String>(android.R.layout.simple_list_item_1) {
