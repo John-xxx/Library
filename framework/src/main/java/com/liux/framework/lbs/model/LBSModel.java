@@ -15,10 +15,16 @@ import io.reactivex.FlowableSubscriber;
 public interface LBSModel {
 
     /**
-     * 快速单次网络定位
+     * 单次快速定位
      * @param subscriber
      */
     void quickLocation(FlowableSubscriber<PointBean> subscriber);
+
+    /**
+     * 单次精确定位
+     * @param subscriber
+     */
+    void accuracyLocation(FlowableSubscriber<PointBean> subscriber);
 
     /**
      * 开始持续定位
@@ -42,46 +48,54 @@ public interface LBSModel {
 
     /**
      * 逆向地理位置编码
-     * @param position
+     * @param pointBean
      * @param subscriber
      */
-    void reverseGeoCode(PointBean position, FlowableSubscriber<PointBean> subscriber);
+    void reverseGeoCode(PointBean pointBean, FlowableSubscriber<PointBean> subscriber);
 
     /**
      * 城市内检索兴趣点
      * @param city
      * @param keyword
-     * @param pange
+     * @param type
+     * @param page
+     * @param num
      * @param subscriber
      */
-    void queryCityPois(String city, String keyword, int pange, FlowableSubscriber<List<PointBean>> subscriber);
+    void queryCityPois(String city, String keyword, String type, int page, int num, FlowableSubscriber<List<PointBean>> subscriber);
 
     /**
      * 周边检索兴趣点
      * @param center
      * @param keyword
+     * @param type
      * @param page
+     * @param num
      * @param subscriber
      */
-    void queryNearbyPois(PointBean center, String keyword, int page, FlowableSubscriber<List<PointBean>> subscriber);
+    void queryNearbyPois(PointBean center, String keyword, String type, int page, int num, FlowableSubscriber<List<PointBean>> subscriber);
 
     /**
      * 区域范围内检索兴趣点<b>百度地图实现</b>
      * @param point_1
      * @param point_2
      * @param keyword
+     * @param type
      * @param page
+     * @param num
      * @param subscriber
      */
-    void queryRegionPois(PointBean point_1, PointBean point_2, String keyword, int page, FlowableSubscriber<List<PointBean>> subscriber);
+    void queryRegionPois(PointBean point_1, PointBean point_2, String keyword, String type, int page, int num, FlowableSubscriber<List<PointBean>> subscriber);
 
     /**
      * 沿途检索兴趣点<b>高德地图实现</b>
      * @param keyword
+     * @param type
      * @param page
+     * @param num
      * @param subscriber
      */
-    void queryEnroutePois(String keyword, int page, FlowableSubscriber<List<PointBean>> subscriber);
+    void queryEnroutePois(String keyword, String type, int page, int num, FlowableSubscriber<List<PointBean>> subscriber);
 
     /**
      * 驾车路径规划
@@ -91,7 +105,7 @@ public interface LBSModel {
      * @param policy
      * @param subscriber
      */
-    void queryDriverRoute(PointBean begin, PointBean end, List<PointBean> middle, int policy, FlowableSubscriber<RouteBean> subscriber);
+    void queryDriverRoute(PointBean begin, PointBean end, List<PointBean> middle, int policy, FlowableSubscriber<List<RouteBean>> subscriber);
 
     /**
      * 公交路线规划
@@ -101,7 +115,7 @@ public interface LBSModel {
      * @param policy
      * @param subscriber
      */
-    void queryBusRoute(PointBean begin, PointBean end, List<PointBean> middle, int policy, FlowableSubscriber<RouteBean> subscriber);
+    void queryBusRoute(PointBean begin, PointBean end, List<PointBean> middle, int policy, FlowableSubscriber<List<RouteBean>> subscriber);
 
     /**
      * 步行路线规划
@@ -111,7 +125,7 @@ public interface LBSModel {
      * @param policy
      * @param subscriber
      */
-    void queryWalkRoute(PointBean begin, PointBean end, List<PointBean> middle, int policy, FlowableSubscriber<RouteBean> subscriber);
+    void queryWalkRoute(PointBean begin, PointBean end, List<PointBean> middle, int policy, FlowableSubscriber<List<RouteBean>> subscriber);
 
     /**
      * 骑行路径规划
@@ -121,7 +135,7 @@ public interface LBSModel {
      * @param policy
      * @param subscriber
      */
-    void queryBikeRoute(PointBean begin, PointBean end, List<PointBean> middle, int policy, FlowableSubscriber<RouteBean> subscriber);
+    void queryBikeRoute(PointBean begin, PointBean end, List<PointBean> middle, int policy, FlowableSubscriber<List<RouteBean>> subscriber);
 
     /**
      * 行政区域范围查询
