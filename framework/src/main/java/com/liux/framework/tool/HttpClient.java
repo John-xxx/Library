@@ -12,7 +12,6 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -50,54 +49,61 @@ import retrofit2.converter.fastjson.FastJsonConverterFactory;
  * <br>
  * 2017-8-7 <br>
  * 基于RxJava2封装 <br>
+ * 2017-8-14 <br>
+ * 优化初始化逻辑
  * @author Liux
  */
+
 public class HttpClient {
-    private static String TAG = "HttpClient";
-
-    public static final HttpClient getInstance() {
-        if (!mInit) throw new NullPointerException("HttpClient not initialize.");
-        return Instance.mInstance;
+    private static volatile HttpClient mInstance;
+    public static HttpClient getInstance() {
+        if (mInstance == null) throw new NullPointerException("HttpClient has not been initialized");
+        return mInstance;
     }
-    private static class Instance {
-        private static final HttpClient mInstance = new HttpClient();
+    public static void initialize(Context context, String baseUrl) {
+        if (mInstance != null) return;
+        synchronized(HttpClient.class) {
+            if (mInstance != null) return;
+            mInstance = new HttpClient(context, baseUrl);
+        }
     }
 
-    private static boolean mInit = false;
+    private static String TAG = "[HttpClient]";
 
-    private static String mBaseUrl;
-    private static Context mContext;
-    private static Retrofit mRetrofit;
-    private static OkHttpClient mOkHttpClient;
+    private Context mContext;
+    private Retrofit mRetrofit;
+    private OkHttpClient mOkHttpClient;
 
-    private static OnCheckHeadersListener mOnCheckHeadersListener;
-    private static OnCheckParamsListener mOnCheckParamsListener;
+    private OnCheckHeadersListener mOnCheckHeadersListener;
+    private OnCheckParamsListener mOnCheckParamsListener;
 
-    /* Cookie管理器 */
-    private static CookieJar mCookieJar = new CookieJar() {
+    /* 简陋的Cookie管理器 */
+    private CookieJar mCookieJar = new CookieJar() {
+        private Map<String, List<Cookie>> mCookies = new HashMap<>();
 
-        private final Map<String, List<Cookie>> cookies = new HashMap<>();
         @Override
         public void saveFromResponse(HttpUrl httpUrl, List<Cookie> list) {
-            cookies.put(httpUrl.host(), list);
+            mCookies.put(httpUrl.host(), list);
         }
+
         @Override
         public List<Cookie> loadForRequest(HttpUrl httpUrl) {
-            List<Cookie> cookie = cookies.get(httpUrl.host());
+            List<Cookie> cookie = mCookies.get(httpUrl.host());
             return cookie != null ? cookie : new ArrayList<Cookie>();
         }
     };
 
     /* 应用拦截器 */
-    private static Interceptor mInterceptor = new Interceptor() {
+    private Interceptor mInterceptor = new Interceptor() {
         @Override
         public Response intercept(Chain chain) throws IOException {
             Request request = chain.request();
+            if (request == null) throw new IOException("Request is null");
 
-            Request.Builder requestBuilder = request.newBuilder();;
+            Request.Builder requestBuilder = request.newBuilder();
 
             /* 请求定制：自定义请求头 */
-            Map<String, String> headers = new HashMap();
+            Map<String, String> headers = new HashMap<>();
             // 移除Accept-Encoding请求头,OkHttp会自动添加
             // 手动添加时OkHttp不会自动解压响应数据
             // headers.put("Accept", "text/html,application/json,application/xhtml+xml,application/xml,image/*");
@@ -115,14 +121,12 @@ public class HttpClient {
 
             /* 请求体定制：自定义参数(针对文本型) */
             RequestBody requestBody = request.body();
-            if (mOnCheckParamsListener != null) {
-                if (request.method().equals("GET") ) {
-                    Map<String, String> params = new HashMap();
+            if (mOnCheckParamsListener != null && requestBody != null) {
+                if (request.method().toUpperCase().equals("GET") ) {
+                    Map<String, String> params = new HashMap<>();
                     Set<String> set = request.url().queryParameterNames();
-                    Iterator<String> iterator = set.iterator();
 
-                    while (iterator.hasNext()) {
-                        String name = iterator.next();
+                    for (String name : set) {
                         params.put(name, request.url().queryParameter(name));
                     }
 
@@ -134,9 +138,9 @@ public class HttpClient {
                         builder.addQueryParameter(param.getKey(), param.getValue());
                     }
                     requestBuilder.url(builder.build());
-                } else if (request.method().equals("POST")){
-                    if (request.body() instanceof RequestBody && request.body().contentLength() == 0) {
-                        Map<String, String> params = new HashMap();
+                } else if (request.method().toUpperCase().equals("POST")){
+                    if (requestBody.contentLength() == -1) {
+                        Map<String, String> params = new HashMap<>();
 
                         mOnCheckParamsListener.onCheckParams(request, params);
 
@@ -145,12 +149,14 @@ public class HttpClient {
                             bodyBuilder.addEncoded(entry.getKey(), entry.getValue());
                         }
                         requestBody = bodyBuilder.build();
-                    } else if (request.body() instanceof FormBody) {
-                        Map<String, String> params = new HashMap();
+                    } else if (requestBody instanceof FormBody) {
+                        Map<String, String> params = new HashMap<>();
                         FormBody oldFormBody = (FormBody) request.body();
 
-                        for (int i = 0; i < oldFormBody.size(); i++) {
-                            params.put(oldFormBody.name(i), oldFormBody.value(i));
+                        if (oldFormBody != null) {
+                            for (int i = 0; i < oldFormBody.size(); i++) {
+                                params.put(oldFormBody.name(i), oldFormBody.value(i));
+                            }
                         }
 
                         mOnCheckParamsListener.onCheckParams(request, params);
@@ -160,40 +166,45 @@ public class HttpClient {
                             bodyBuilder.addEncoded(entry.getKey(), entry.getValue());
                         }
                         requestBody = bodyBuilder.build();
-                    } else if (request.body() instanceof MultipartBody) {
-                        Map<String, String> params = new HashMap();
-                        List<MultipartBody.Part> oldParts = new ArrayList();
+                    } else if (requestBody instanceof MultipartBody) {
+                        Map<String, String> params = new HashMap<>();
+                        List<MultipartBody.Part> oldParts = new ArrayList<>();
                         MultipartBody oldMultipartBody = (MultipartBody) request.body();
 
-                        List<MultipartBody.Part> parts = oldMultipartBody.parts();
-                        for (MultipartBody.Part part : parts) {
-                            try {
-//                                /* Java反射出属性(适用于OkHttp3.5及之前版本) */
-//                                Field h = part.getClass().getDeclaredField("headers");
-//                                Field b = part.getClass().getDeclaredField("body");
-//                                h.setAccessible(true);
-//                                b.setAccessible(true);
-//                                /* 改变修饰符 */
-//                                //Field modifiersField = Field.class.getDeclaredFields()[0];
-//                                //modifiersField.setAccessible(true);
-//                                //modifiersField.setInt(h, Modifier.PUBLIC);
-//                                //modifiersField.setInt(b, Modifier.PUBLIC);
-//                                /* 取出值 */
-//                                Headers head  = (Headers)h.get(part);
-//                                RequestBody body  = (RequestBody)b.get(part);
-                                Headers head  = part.headers();
-                                RequestBody body  = part.body();
-                                if (body.contentType().equals(MediaType.parse("application/json; charset=UTF-8"))) {
-                                    Buffer buffer = new Buffer();
-                                    body.writeTo(buffer);
-                                    String key = head.value(0).substring(head.value(0).lastIndexOf("=") + 1).replace("\"", "");
-                                    String value = TextUtil.json2String(buffer.readUtf8());
-                                    params.put(key, value);
-                                } else {
-                                    oldParts.add(part);
+                        if (oldMultipartBody != null) {
+                            List<MultipartBody.Part> parts = oldMultipartBody.parts();
+                            if (parts != null) {
+                                for (MultipartBody.Part part : parts) {
+                                    try {
+                                        /* Java反射出属性(适用于OkHttp3.5及之前版本) */
+                                        // Field h = part.getClass().getDeclaredField("headers");
+                                        // Field b = part.getClass().getDeclaredField("body");
+                                        // h.setAccessible(true);
+                                        // b.setAccessible(true);
+                                        // /* 改变修饰符 */
+                                        // //Field modifiersField = Field.class.getDeclaredFields()[0];
+                                        // //modifiersField.setAccessible(true);
+                                        // //modifiersField.setInt(h, Modifier.PUBLIC);
+                                        // //modifiersField.setInt(b, Modifier.PUBLIC);
+                                        // /* 取出值 */
+                                        // Headers head  = (Headers)h.get(part);
+                                        // RequestBody body  = (RequestBody)b.get(part);
+                                        Headers head  = part.headers();
+                                        RequestBody body  = part.body();
+                                        MediaType type = body.contentType();
+                                        if (type != null && type.equals(MediaType.parse("application/json; charset=UTF-8"))) {
+                                            Buffer buffer = new Buffer();
+                                            body.writeTo(buffer);
+                                            String key = head.value(0).substring(head.value(0).lastIndexOf("=") + 1).replace("\"", "");
+                                            String value = TextUtil.json2String(buffer.readUtf8());
+                                            params.put(key, value);
+                                        } else {
+                                            oldParts.add(part);
+                                        }
+                                    } catch (Exception e) {
+                                        e.printStackTrace();
+                                    }
                                 }
-                            } catch (Exception e) {
-                                e.printStackTrace();
                             }
                         }
 
@@ -212,60 +223,60 @@ public class HttpClient {
             }
 
             request = requestBuilder.method(request.method(), requestBody).build();
+            // 请求前部分
 
             Response response = chain.proceed(request);
+            // 请求后部分
 
             return response;
         }
     };
 
     /* 网络拦截器,根本他吖的不能在这里修改参数!!! */
-    private static Interceptor mNetworkInterceptor = new Interceptor() {
+    private Interceptor mNetworkInterceptor = new Interceptor() {
         @Override
         public Response intercept(Chain chain) throws IOException {
             Request request = chain.request();
+            // 请求前部分
 
             Response response = chain.proceed(request);
+            // 请求后部分
 
             return response;
         }
     };
 
-    private HttpClient() {}
+    private HttpClient() {
 
-    /* 初始化OkHttpClient */
-    public static void initialize(Context context, String baseUrl) {
-        synchronized (HttpClient.class) {
-            if (mInit) return;
+    }
 
-            if (context == null) throw new IllegalStateException("Context required.");
-            if (baseUrl == null) throw new IllegalStateException("Base URL required.");
-            mBaseUrl = baseUrl;
-            mContext = context;
-            File cacheDir = mContext.getExternalCacheDir();
-            if (cacheDir == null || !cacheDir.exists()) cacheDir = mContext.getCacheDir();
+    private HttpClient(Context context, String baseUrl) {
+        if (context == null) throw new NullPointerException("Context required.");
+        if (baseUrl == null) throw new NullPointerException("Base URL required.");
 
-            mOkHttpClient = new OkHttpClient.Builder()
-                    .cookieJar(mCookieJar)
-                    .connectTimeout(10, TimeUnit.SECONDS)
-                    .writeTimeout(20, TimeUnit.SECONDS)
-                    .readTimeout(20, TimeUnit.SECONDS)
-                    .cache(new Cache(cacheDir.getAbsoluteFile(), 100 * 1024 * 1024))
-                    .retryOnConnectionFailure(true)
-                    .addInterceptor(mInterceptor)
-                    .addInterceptor(new HttpLoggingInterceptor().setLevel(HttpLoggingInterceptor.Level.BASIC))
-                    .addNetworkInterceptor(mNetworkInterceptor)
-                    .build();
+        mContext = context;
 
-            mRetrofit = new Retrofit.Builder()
-                    .baseUrl(mBaseUrl)
-                    .client(mOkHttpClient)
-                    .addConverterFactory(FastJsonConverterFactory.create())
-                    .addCallAdapterFactory(RxJava2CallAdapterFactory.create())
-                    .build();
+        File cacheDir = mContext.getExternalCacheDir();
+        if (cacheDir == null || !cacheDir.exists()) cacheDir = mContext.getCacheDir();
 
-            mInit = true;
-        }
+        mOkHttpClient = new OkHttpClient.Builder()
+                .cookieJar(mCookieJar)
+                .connectTimeout(10, TimeUnit.SECONDS)
+                .writeTimeout(20, TimeUnit.SECONDS)
+                .readTimeout(20, TimeUnit.SECONDS)
+                .cache(new Cache(cacheDir.getAbsoluteFile(), 100 * 1024 * 1024))
+                .retryOnConnectionFailure(true)
+                .addInterceptor(mInterceptor)
+                .addInterceptor(new HttpLoggingInterceptor().setLevel(HttpLoggingInterceptor.Level.BASIC))
+                .addNetworkInterceptor(mNetworkInterceptor)
+                .build();
+
+        mRetrofit = new Retrofit.Builder()
+                .baseUrl(baseUrl)
+                .client(mOkHttpClient)
+                .addConverterFactory(FastJsonConverterFactory.create())
+                .addCallAdapterFactory(RxJava2CallAdapterFactory.create())
+                .build();
     }
 
     /**
@@ -475,7 +486,7 @@ public class HttpClient {
 
         return MediaType.parse(type);
     }
-    private final static Map<String, String> mContentType = new HashMap();
+    private final static Map<String, String> mContentType = new HashMap<>();
     static {
         mContentType.put("hqx","application/mac-binhex40");
         mContentType.put("cpt","application/mac-compactpro");
