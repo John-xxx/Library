@@ -76,9 +76,9 @@ public interface LBSModel {
     void queryNearbyPois(PointBean center, String keyword, String type, int page, int num, FlowableSubscriber<List<PointBean>> subscriber);
 
     /**
-     * 区域范围内检索兴趣点<b>百度地图实现</b>
-     * @param point_1
-     * @param point_2
+     * 区域范围内检索兴趣点
+     * @param point_1 东北方向点
+     * @param point_2 西南方向点
      * @param keyword
      * @param type
      * @param page
@@ -86,16 +86,6 @@ public interface LBSModel {
      * @param subscriber
      */
     void queryRegionPois(PointBean point_1, PointBean point_2, String keyword, String type, int page, int num, FlowableSubscriber<List<PointBean>> subscriber);
-
-    /**
-     * 沿途检索兴趣点<b>高德地图实现</b>
-     * @param keyword
-     * @param type
-     * @param page
-     * @param num
-     * @param subscriber
-     */
-    void queryEnroutePois(String keyword, String type, int page, int num, FlowableSubscriber<List<PointBean>> subscriber);
 
     /**
      * 驾车路径规划
@@ -152,12 +142,4 @@ public interface LBSModel {
      * @param subscriber
      */
     void queryBusLines(String city, String name, FlowableSubscriber<Object> subscriber);
-
-    /**
-     * 公交站信息查询<b>高德地图实现</b>
-     * @param city
-     * @param name
-     * @param subscriber
-     */
-    void queryBusStation(String city, String name, FlowableSubscriber<PointBean> subscriber);
 }

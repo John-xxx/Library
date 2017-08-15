@@ -1,6 +1,7 @@
 package com.liux.framework.lbs.model.impl;
 
 import android.content.Context;
+import android.text.TextUtils;
 
 import com.baidu.location.BDAbstractLocationListener;
 import com.baidu.location.BDLocation;
@@ -8,14 +9,24 @@ import com.baidu.location.BDLocationListener;
 import com.baidu.location.LocationClient;
 import com.baidu.location.LocationClientOption;
 import com.baidu.mapapi.model.LatLng;
+import com.baidu.mapapi.model.LatLngBounds;
 import com.baidu.mapapi.search.core.PoiInfo;
 import com.baidu.mapapi.search.core.SearchResult;
+import com.baidu.mapapi.search.geocode.GeoCodeOption;
 import com.baidu.mapapi.search.geocode.GeoCodeResult;
 import com.baidu.mapapi.search.geocode.GeoCoder;
 import com.baidu.mapapi.search.geocode.OnGetGeoCoderResultListener;
 import com.baidu.mapapi.search.geocode.ReverseGeoCodeOption;
 import com.baidu.mapapi.search.geocode.ReverseGeoCodeResult;
+import com.baidu.mapapi.search.poi.OnGetPoiSearchResultListener;
+import com.baidu.mapapi.search.poi.PoiBoundSearchOption;
+import com.baidu.mapapi.search.poi.PoiCitySearchOption;
+import com.baidu.mapapi.search.poi.PoiDetailResult;
+import com.baidu.mapapi.search.poi.PoiIndoorResult;
+import com.baidu.mapapi.search.poi.PoiNearbySearchOption;
+import com.baidu.mapapi.search.poi.PoiResult;
 import com.baidu.mapapi.search.poi.PoiSearch;
+import com.baidu.mapapi.search.poi.PoiSortType;
 import com.baidu.mapapi.search.route.RoutePlanSearch;
 import com.liux.framework.lbs.bean.PointBean;
 import com.liux.framework.lbs.bean.RouteBean;
@@ -56,10 +67,6 @@ public class BaiduLBSModelImpl implements LBSModel {
 
     private Context mContext;
 
-    private GeoCoder mGeoCoder;
-    private PoiSearch mPoiSearch;
-    private RoutePlanSearch mRoutePlanSearch;
-
     private LocationClient mLocationClient;
     private LocationClientOption mLocationClientOption;
 
@@ -91,10 +98,6 @@ public class BaiduLBSModelImpl implements LBSModel {
 
     private BaiduLBSModelImpl(Context context) {
         mContext = context.getApplicationContext();
-
-        mGeoCoder = GeoCoder.newInstance();
-        mPoiSearch = PoiSearch.newInstance();
-        mRoutePlanSearch = RoutePlanSearch.newInstance();
 
         mLocationClient = new LocationClient(mContext);
 
@@ -245,7 +248,56 @@ public class BaiduLBSModelImpl implements LBSModel {
      */
     @Override
     public void geoCode(String city, String addr, FlowableSubscriber<PointBean> subscriber) {
+        Flowable.just(new String[] {city, addr})
+                .map(new Function<String[], GeoCodeOption>() {
+                    @Override
+                    public GeoCodeOption apply(@NonNull String[] strings) throws Exception {
+                        return new GeoCodeOption()
+                                .city(strings[0])
+                                .address(strings[1]);
+                    }
+                })
+                .switchMap(new Function<GeoCodeOption, Publisher<GeoCodeResult>>() {
+                    @Override
+                    public Publisher<GeoCodeResult> apply(@NonNull final GeoCodeOption geoCodeOption) throws Exception {
+                        return new Publisher<GeoCodeResult>() {
+                            @Override
+                            public void subscribe(final Subscriber<? super GeoCodeResult> subscriber) {
+                                final GeoCoder geoCoder = GeoCoder.newInstance();
+                                geoCoder.setOnGetGeoCodeResultListener(new OnGetGeoCoderResultListener() {
+                                    @Override
+                                    public void onGetGeoCodeResult(GeoCodeResult geoCodeResult) {
+                                        subscriber.onNext(geoCodeResult);
+                                        subscriber.onComplete();
+                                        geoCoder.destroy();
+                                    }
 
+                                    @Override
+                                    public void onGetReverseGeoCodeResult(ReverseGeoCodeResult reverseGeoCodeResult) {
+
+                                    }
+                                });
+                                geoCoder.geocode(geoCodeOption);
+                            }
+                        };
+                    }
+                })
+                .map(new Function<GeoCodeResult, PointBean>() {
+                    @Override
+                    public PointBean apply(@NonNull GeoCodeResult geoCodeResult) throws Exception {
+                        if (geoCodeResult == null || geoCodeResult.error != SearchResult.ERRORNO.NO_ERROR) {
+                            throw new NullPointerException("反向解码地理位置失败.");
+                        }
+                        LatLng ll = geoCodeResult.getLocation();
+                        return new PointBean()
+                                .setLat(ll.latitude)
+                                .setLon(ll.longitude)
+                                .setAddress(geoCodeResult.getAddress());
+                    }
+                })
+                .subscribeOn(Schedulers.io())
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe(subscriber);
     }
 
     /**
@@ -269,7 +321,8 @@ public class BaiduLBSModelImpl implements LBSModel {
                         return new Publisher<ReverseGeoCodeResult>() {
                             @Override
                             public void subscribe(final Subscriber<? super ReverseGeoCodeResult> s) {
-                                mGeoCoder.setOnGetGeoCodeResultListener(new OnGetGeoCoderResultListener() {
+                                final GeoCoder geoCoder = GeoCoder.newInstance();
+                                geoCoder.setOnGetGeoCodeResultListener(new OnGetGeoCoderResultListener() {
                                     @Override
                                     public void onGetGeoCodeResult(GeoCodeResult geoCodeResult) {
 
@@ -279,9 +332,10 @@ public class BaiduLBSModelImpl implements LBSModel {
                                     public void onGetReverseGeoCodeResult(ReverseGeoCodeResult reverseGeoCodeResult) {
                                         s.onNext(reverseGeoCodeResult);
                                         s.onComplete();
+                                        geoCoder.destroy();
                                     }
                                 });
-                                mGeoCoder.reverseGeoCode(reverseGeoCodeOption);
+                                geoCoder.reverseGeoCode(reverseGeoCodeOption);
                             }
                         };
                     }
@@ -353,8 +407,99 @@ public class BaiduLBSModelImpl implements LBSModel {
      * @param subscriber
      */
     @Override
-    public void queryCityPois(String city, String keyword, String type, int page, int num, FlowableSubscriber<List<PointBean>> subscriber) {
+    public void queryCityPois(final String city, final String keyword, final String type, final int page, final int num, FlowableSubscriber<List<PointBean>> subscriber) {
+        Flowable.just(new PoiCitySearchOption())
+                .map(new Function<PoiCitySearchOption, PoiCitySearchOption>() {
+                    @Override
+                    public PoiCitySearchOption apply(@NonNull PoiCitySearchOption poiCitySearchOption) throws Exception {
+                        String key = keyword;
+                        if (TextUtils.isEmpty(key) && !TextUtils.isEmpty(type)) {
+                            key = type;
+                        }
+                        return poiCitySearchOption
+                                .city(city)
+                                .keyword(key)
+                                .pageNum(page)
+                                .pageCapacity(num);
+                    }
+                })
+                .switchMap(new Function<PoiCitySearchOption, Publisher<PoiResult>>() {
+                    @Override
+                    public Publisher<PoiResult> apply(@NonNull final PoiCitySearchOption poiCitySearchOption) throws Exception {
+                        return new Publisher<PoiResult>() {
+                            @Override
+                            public void subscribe(final Subscriber<? super PoiResult> subscriber) {
+                                final PoiSearch poiSearch = PoiSearch.newInstance();
+                                poiSearch.setOnGetPoiSearchResultListener(new OnGetPoiSearchResultListener() {
+                                    @Override
+                                    public void onGetPoiResult(PoiResult poiResult) {
+                                        subscriber.onNext(poiResult);
+                                        subscriber.onComplete();
+                                        poiSearch.destroy();
+                                    }
 
+                                    @Override
+                                    public void onGetPoiDetailResult(PoiDetailResult poiDetailResult) {
+
+                                    }
+
+                                    @Override
+                                    public void onGetPoiIndoorResult(PoiIndoorResult poiIndoorResult) {
+
+                                    }
+                                });
+                                poiSearch.searchInCity(poiCitySearchOption);
+                            }
+                        };
+                    }
+                })
+                .map(new Function<PoiResult, List<PointBean>>() {
+                    @Override
+                    public List<PointBean> apply(@NonNull PoiResult poiResult) throws Exception {
+                        if (poiResult != null) {
+                            if (poiResult.error == SearchResult.ERRORNO.RESULT_NOT_FOUND) {
+                                throw new NullPointerException("检索结果为空,请核对关键字后重试.");
+                            }
+                            if (poiResult.error != SearchResult.ERRORNO.NO_ERROR) {
+                                throw new NullPointerException("检索结果为空,请核对关键字后重试.");
+                            }
+                        } else {
+                            throw new NullPointerException("检索结果为空,请检查网络连接.");
+                        }
+
+                        List<PointBean> pois = new ArrayList();
+                        for (PoiInfo poi : poiResult.getAllPoi()) {
+                            if (poi.type == PoiInfo.POITYPE.BUS_LINE || poi.type == PoiInfo.POITYPE.SUBWAY_LINE) {
+                                /* 忽略公交线路和地铁线路 */
+                                continue;
+                            }
+                            if (poi.city == null || poi.name == null || poi.address == null) {
+                                /* 忽略空值 */
+                                continue;
+                            }
+                            poi.city = poi.city.trim();
+                            poi.name = poi.name.trim();
+                            poi.address = poi.address.trim();
+                            if (poi.city.isEmpty() || poi.name.isEmpty() || poi.address.isEmpty()) {
+                                /* 忽略空值 */
+                                continue;
+                            }
+                            pois.add(new PointBean()
+                                    .setCity(poi.city)
+                                    .setLat(poi.location.latitude)
+                                    .setLon(poi.location.longitude)
+                                    .setTitle(poi.name)
+                                    .setAddress(poi.address));
+                        }
+                        if (pois.isEmpty()) {
+                            throw new NullPointerException("检索结果为空,请核对关键字后重试.");
+                        }
+                        return pois;
+                    }
+                })
+                .subscribeOn(Schedulers.io())
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe(subscriber);
     }
 
     /**
@@ -368,15 +513,108 @@ public class BaiduLBSModelImpl implements LBSModel {
      * @param subscriber
      */
     @Override
-    public void queryNearbyPois(PointBean center, String keyword, String type, int page, int num, FlowableSubscriber<List<PointBean>> subscriber) {
+    public void queryNearbyPois(PointBean center, final String keyword, final String type, final int page, final int num, FlowableSubscriber<List<PointBean>> subscriber) {
+        Flowable.just(center)
+                .map(new Function<PointBean, PoiNearbySearchOption>() {
+                    @Override
+                    public PoiNearbySearchOption apply(@NonNull PointBean pointBean) throws Exception {
+                        String key = keyword;
+                        if (TextUtils.isEmpty(key) && !TextUtils.isEmpty(type)) {
+                            key = type;
+                        }
+                        return new PoiNearbySearchOption()
+                                .location(new LatLng(pointBean.getLat(), pointBean.getLon()))
+                                .keyword(key)
+                                .radius(5000)
+                                .pageNum(page)
+                                .pageCapacity(num)
+                                .sortType(PoiSortType.distance_from_near_to_far);
+                    }
+                })
+                .switchMap(new Function<PoiNearbySearchOption, Publisher<PoiResult>>() {
+                    @Override
+                    public Publisher<PoiResult> apply(@NonNull final PoiNearbySearchOption poiNearbySearchOption) throws Exception {
+                        return new Publisher<PoiResult>() {
+                            @Override
+                            public void subscribe(final Subscriber<? super PoiResult> subscriber) {
+                                final PoiSearch poiSearch = PoiSearch.newInstance();
+                                poiSearch.setOnGetPoiSearchResultListener(new OnGetPoiSearchResultListener() {
+                                    @Override
+                                    public void onGetPoiResult(PoiResult poiResult) {
+                                        subscriber.onNext(poiResult);
+                                        subscriber.onComplete();
+                                        poiSearch.destroy();
+                                    }
 
+                                    @Override
+                                    public void onGetPoiDetailResult(PoiDetailResult poiDetailResult) {
+
+                                    }
+
+                                    @Override
+                                    public void onGetPoiIndoorResult(PoiIndoorResult poiIndoorResult) {
+
+                                    }
+                                });
+                                poiSearch.searchNearby(poiNearbySearchOption);
+                            }
+                        };
+                    }
+                })
+                .map(new Function<PoiResult, List<PointBean>>() {
+                    @Override
+                    public List<PointBean> apply(@NonNull PoiResult poiResult) throws Exception {
+                        if (poiResult != null) {
+                            if (poiResult.error == SearchResult.ERRORNO.RESULT_NOT_FOUND) {
+                                throw new NullPointerException("检索结果为空,请核对关键字后重试.");
+                            }
+                            if (poiResult.error != SearchResult.ERRORNO.NO_ERROR) {
+                                throw new NullPointerException("检索结果为空,请核对关键字后重试.");
+                            }
+                        } else {
+                            throw new NullPointerException("检索结果为空,请检查网络连接.");
+                        }
+
+                        List<PointBean> pois = new ArrayList();
+                        for (PoiInfo poi : poiResult.getAllPoi()) {
+                            if (poi.type == PoiInfo.POITYPE.BUS_LINE || poi.type == PoiInfo.POITYPE.SUBWAY_LINE) {
+                                /* 忽略公交线路和地铁线路 */
+                                continue;
+                            }
+                            if (poi.city == null || poi.name == null || poi.address == null) {
+                                /* 忽略空值 */
+                                continue;
+                            }
+                            poi.city = poi.city.trim();
+                            poi.name = poi.name.trim();
+                            poi.address = poi.address.trim();
+                            if (poi.city.isEmpty() || poi.name.isEmpty() || poi.address.isEmpty()) {
+                                /* 忽略空值 */
+                                continue;
+                            }
+                            pois.add(new PointBean()
+                                    .setCity(poi.city)
+                                    .setLat(poi.location.latitude)
+                                    .setLon(poi.location.longitude)
+                                    .setTitle(poi.name)
+                                    .setAddress(poi.address));
+                        }
+                        if (pois.isEmpty()) {
+                            throw new NullPointerException("检索结果为空,请核对关键字后重试.");
+                        }
+                        return pois;
+                    }
+                })
+                .subscribeOn(Schedulers.io())
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe(subscriber);
     }
 
     /**
-     * 区域范围内检索兴趣点<b>百度地图实现</b>
+     * 区域范围内检索兴趣点
      *
-     * @param point_1
-     * @param point_2
+     * @param point_1 东北方向点
+     * @param point_2 西南方向点
      * @param keyword
      * @param type
      * @param page
@@ -384,22 +622,102 @@ public class BaiduLBSModelImpl implements LBSModel {
      * @param subscriber
      */
     @Override
-    public void queryRegionPois(PointBean point_1, PointBean point_2, String keyword, String type, int page, int num, FlowableSubscriber<List<PointBean>> subscriber) {
+    public void queryRegionPois(PointBean point_1, PointBean point_2, final String keyword, final String type, final int page, final int num, FlowableSubscriber<List<PointBean>> subscriber) {
+        Flowable.just(new PointBean[] {point_1, point_2})
+                .map(new Function<PointBean[], PoiBoundSearchOption>() {
+                    @Override
+                    public PoiBoundSearchOption apply(@NonNull PointBean[] pointBeen) throws Exception {
+                        String key = keyword;
+                        if (TextUtils.isEmpty(key) && !TextUtils.isEmpty(type)) {
+                            key = type;
+                        }
+                        return new PoiBoundSearchOption()
+                                .bound(new LatLngBounds.Builder()
+                                        .include(new LatLng(pointBeen[0].getLat(), pointBeen[0].getLon()))
+                                        .include(new LatLng(pointBeen[1].getLat(), pointBeen[1].getLon()))
+                                        .build())
+                                .keyword(key)
+                                .pageNum(page)
+                                .pageCapacity(num);
+                    }
+                })
+                .switchMap(new Function<PoiBoundSearchOption, Publisher<PoiResult>>() {
+                    @Override
+                    public Publisher<PoiResult> apply(@NonNull final PoiBoundSearchOption poiBoundSearchOption) throws Exception {
+                        return new Publisher<PoiResult>() {
+                            @Override
+                            public void subscribe(final Subscriber<? super PoiResult> subscriber) {
+                                final PoiSearch poiSearch = PoiSearch.newInstance();
+                                poiSearch.setOnGetPoiSearchResultListener(new OnGetPoiSearchResultListener() {
+                                    @Override
+                                    public void onGetPoiResult(PoiResult poiResult) {
+                                        subscriber.onNext(poiResult);
+                                        subscriber.onComplete();
+                                        poiSearch.destroy();
+                                    }
 
-    }
+                                    @Override
+                                    public void onGetPoiDetailResult(PoiDetailResult poiDetailResult) {
 
-    /**
-     * 沿途检索兴趣点<b>高德地图实现</b>
-     *
-     * @param keyword
-     * @param type
-     * @param page
-     * @param num
-     * @param subscriber
-     */
-    @Override
-    public void queryEnroutePois(String keyword, String type, int page, int num, FlowableSubscriber<List<PointBean>> subscriber) {
+                                    }
 
+                                    @Override
+                                    public void onGetPoiIndoorResult(PoiIndoorResult poiIndoorResult) {
+
+                                    }
+                                });
+                                poiSearch.searchInBound(poiBoundSearchOption);
+                            }
+                        };
+                    }
+                })
+                .map(new Function<PoiResult, List<PointBean>>() {
+                    @Override
+                    public List<PointBean> apply(@NonNull PoiResult poiResult) throws Exception {
+                        if (poiResult != null) {
+                            if (poiResult.error == SearchResult.ERRORNO.RESULT_NOT_FOUND) {
+                                throw new NullPointerException("检索结果为空,请核对关键字后重试.");
+                            }
+                            if (poiResult.error != SearchResult.ERRORNO.NO_ERROR) {
+                                throw new NullPointerException("检索结果为空,请核对关键字后重试.");
+                            }
+                        } else {
+                            throw new NullPointerException("检索结果为空,请检查网络连接.");
+                        }
+
+                        List<PointBean> pois = new ArrayList();
+                        for (PoiInfo poi : poiResult.getAllPoi()) {
+                            if (poi.type == PoiInfo.POITYPE.BUS_LINE || poi.type == PoiInfo.POITYPE.SUBWAY_LINE) {
+                                /* 忽略公交线路和地铁线路 */
+                                continue;
+                            }
+                            if (poi.city == null || poi.name == null || poi.address == null) {
+                                /* 忽略空值 */
+                                continue;
+                            }
+                            poi.city = poi.city.trim();
+                            poi.name = poi.name.trim();
+                            poi.address = poi.address.trim();
+                            if (poi.city.isEmpty() || poi.name.isEmpty() || poi.address.isEmpty()) {
+                                /* 忽略空值 */
+                                continue;
+                            }
+                            pois.add(new PointBean()
+                                    .setCity(poi.city)
+                                    .setLat(poi.location.latitude)
+                                    .setLon(poi.location.longitude)
+                                    .setTitle(poi.name)
+                                    .setAddress(poi.address));
+                        }
+                        if (pois.isEmpty()) {
+                            throw new NullPointerException("检索结果为空,请核对关键字后重试.");
+                        }
+                        return pois;
+                    }
+                })
+                .subscribeOn(Schedulers.io())
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe(subscriber);
     }
 
     /**
@@ -479,18 +797,6 @@ public class BaiduLBSModelImpl implements LBSModel {
      */
     @Override
     public void queryBusLines(String city, String name, FlowableSubscriber<Object> subscriber) {
-
-    }
-
-    /**
-     * 公交站信息查询<b>高德地图实现</b>
-     *
-     * @param city
-     * @param name
-     * @param subscriber
-     */
-    @Override
-    public void queryBusStation(String city, String name, FlowableSubscriber<PointBean> subscriber) {
 
     }
 

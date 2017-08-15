@@ -1,6 +1,7 @@
 package com.liux.framework.lbs.model.impl;
 
 import android.content.Context;
+import android.graphics.Point;
 
 import com.amap.api.location.AMapLocation;
 import com.amap.api.location.AMapLocationClient;
@@ -9,11 +10,14 @@ import com.amap.api.location.AMapLocationListener;
 import com.amap.api.services.core.LatLonPoint;
 import com.amap.api.services.core.PoiItem;
 import com.amap.api.services.geocoder.AoiItem;
+import com.amap.api.services.geocoder.GeocodeAddress;
+import com.amap.api.services.geocoder.GeocodeQuery;
 import com.amap.api.services.geocoder.GeocodeSearch;
 import com.amap.api.services.geocoder.RegeocodeAddress;
 import com.amap.api.services.geocoder.RegeocodeQuery;
+import com.amap.api.services.nearby.NearbySearch;
+import com.amap.api.services.poisearch.PoiResult;
 import com.amap.api.services.poisearch.PoiSearch;
-import com.amap.api.services.route.RouteSearch;
 import com.liux.framework.lbs.bean.PointBean;
 import com.liux.framework.lbs.bean.RouteBean;
 import com.liux.framework.lbs.listener.OnLocationListener;
@@ -52,10 +56,6 @@ public class AMapLBSModelImpl implements LBSModel {
 
     private Context mContext;
 
-    private PoiSearch mPoiSearch;
-    private RouteSearch mRouteSearch;
-    private GeocodeSearch mGeocodeSearch;
-
     private AMapLocationClient mAMapLocationClient;
     private AMapLocationClientOption mAMapLocationClientOption;
 
@@ -87,10 +87,6 @@ public class AMapLBSModelImpl implements LBSModel {
 
     public AMapLBSModelImpl(Context context) {
         mContext = context.getApplicationContext();
-
-        mPoiSearch = new PoiSearch(mContext, null);
-        mRouteSearch = new RouteSearch(mContext);
-        mGeocodeSearch = new GeocodeSearch(mContext);
 
         mAMapLocationClient = new AMapLocationClient(mContext);
 
@@ -233,13 +229,39 @@ public class AMapLBSModelImpl implements LBSModel {
     /**
      * 地理位置编码
      *
-     * @param city
+     * @param city 城市编码/城市名称/行政区划代码
      * @param addr
      * @param subscriber
      */
     @Override
     public void geoCode(String city, String addr, FlowableSubscriber<PointBean> subscriber) {
-
+        Flowable.just(new String[] {city, addr})
+                .map(new Function<String[], GeocodeQuery>() {
+                    @Override
+                    public GeocodeQuery apply(@NonNull String[] strings) throws Exception {
+                        return new GeocodeQuery(strings[1], strings[0]);
+                    }
+                })
+                .map(new Function<GeocodeQuery, List<GeocodeAddress>>() {
+                    @Override
+                    public List<GeocodeAddress> apply(@NonNull GeocodeQuery geocodeQuery) throws Exception {
+                        return new GeocodeSearch(mContext).getFromLocationName(geocodeQuery);
+                    }
+                })
+                .map(new Function<List<GeocodeAddress>, PointBean>() {
+                    @Override
+                    public PointBean apply(@NonNull List<GeocodeAddress> geocodeAddresses) throws Exception {
+                        GeocodeAddress address = geocodeAddresses.get(0);
+                        return new PointBean()
+                                .setLat(address.getLatLonPoint().getLatitude())
+                                .setLon(address.getLatLonPoint().getLongitude())
+                                .setCity(address.getCity())
+                                .setAddress(address.getFormatAddress());
+                    }
+                })
+                .subscribeOn(Schedulers.io())
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe(subscriber);
     }
 
     /**
@@ -264,7 +286,7 @@ public class AMapLBSModelImpl implements LBSModel {
                 .map(new Function<RegeocodeQuery, RegeocodeAddress>() {
                     @Override
                     public RegeocodeAddress apply(@NonNull RegeocodeQuery regeocodeQuery) throws Exception {
-                        return mGeocodeSearch.getFromLocation(regeocodeQuery);
+                        return new GeocodeSearch(mContext).getFromLocation(regeocodeQuery);
                     }
                 })
                 .map(new Function<RegeocodeAddress, PointBean>() {
@@ -332,7 +354,49 @@ public class AMapLBSModelImpl implements LBSModel {
      * @param subscriber
      */
     @Override
-    public void queryCityPois(String city, String keyword, String type, int page, int num, FlowableSubscriber<List<PointBean>> subscriber) {
+    public void queryCityPois(String city, String keyword, String type, final int page, final int num, FlowableSubscriber<List<PointBean>> subscriber) {
+        Flowable.just(new String[] {city, keyword, type})
+                .map(new Function<String[], PoiSearch.Query>() {
+                    @Override
+                    public PoiSearch.Query apply(@NonNull String[] strings) throws Exception {
+                        // 第一个参数表示搜索字符串
+                        // 第二个参数表示poi搜索类型
+                        // 第三个参数表示poi搜索区域（空字符串代表全国）
+                        PoiSearch.Query query = new PoiSearch.Query(strings[1], strings[2], strings[0]);
+                        query.setPageNum(page);
+                        query.setPageSize(num);
+                        query.setCityLimit(true);
+                        return query;
+                    }
+                })
+                .map(new Function<PoiSearch.Query, PoiResult>() {
+                    @Override
+                    public PoiResult apply(@NonNull PoiSearch.Query query) throws Exception {
+                        return new PoiSearch(mContext, query).searchPOI();
+                    }
+                })
+                .map(new Function<PoiResult, List<PointBean>>() {
+                    @Override
+                    public List<PointBean> apply(PoiResult poiResult) {
+                        List<PointBean> infos = new ArrayList<>();
+                        List<PoiItem> pois = poiResult.getPois();
+                        for (PoiItem item : pois) {
+                            infos.add(new PointBean()
+                                    .setCity(item.getCityName())
+                                    .setLat(item.getLatLonPoint().getLatitude())
+                                    .setLon(item.getLatLonPoint().getLongitude())
+                                    .setTitle(item.getTitle())
+                                    .setAddress(item.getSnippet()));
+                        }
+                        if (page == 0 && infos.isEmpty()) {
+                            throw new NullPointerException("POI搜索结果为空,请检查关键词后重试.");
+                        }
+                        return infos;
+                    }
+                })
+                .subscribeOn(Schedulers.io())
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe(subscriber);
 
     }
 
@@ -347,15 +411,58 @@ public class AMapLBSModelImpl implements LBSModel {
      * @param subscriber
      */
     @Override
-    public void queryNearbyPois(PointBean center, String keyword, String type, int page, int num, FlowableSubscriber<List<PointBean>> subscriber) {
-
+    public void queryNearbyPois(final PointBean center, String keyword, String type, final int page, final int num, FlowableSubscriber<List<PointBean>> subscriber) {
+        Flowable.just(new String[] {keyword, type})
+                .map(new Function<String[], PoiSearch.Query>() {
+                    @Override
+                    public PoiSearch.Query apply(@NonNull String[] strings) throws Exception {
+                        // 第一个参数表示搜索字符串
+                        // 第二个参数表示poi搜索类型
+                        // 第三个参数表示poi搜索区域（空字符串代表全国）
+                        PoiSearch.Query query = new PoiSearch.Query(strings[0], strings[1], "");
+                        query.setPageNum(page);
+                        query.setPageSize(num);
+                        query.setCityLimit(true);
+                        return query;
+                    }
+                })
+                .map(new Function<PoiSearch.Query, PoiResult>() {
+                    @Override
+                    public PoiResult apply(@NonNull PoiSearch.Query query) throws Exception {
+                        PoiSearch poiSearch = new PoiSearch(mContext, query);
+                        poiSearch.setBound(new PoiSearch.SearchBound(new LatLonPoint(center.getLat(), center.getLon()), 5000, true));
+                        return poiSearch.searchPOI();
+                    }
+                })
+                .map(new Function<PoiResult, List<PointBean>>() {
+                    @Override
+                    public List<PointBean> apply(PoiResult poiResult) {
+                        List<PointBean> infos = new ArrayList<>();
+                        List<PoiItem> pois = poiResult.getPois();
+                        for (PoiItem item : pois) {
+                            infos.add(new PointBean()
+                                    .setCity(item.getCityName())
+                                    .setLat(item.getLatLonPoint().getLatitude())
+                                    .setLon(item.getLatLonPoint().getLongitude())
+                                    .setTitle(item.getTitle())
+                                    .setAddress(item.getSnippet()));
+                        }
+                        if (page == 0 && infos.isEmpty()) {
+                            throw new NullPointerException("POI搜索结果为空,请检查关键词后重试.");
+                        }
+                        return infos;
+                    }
+                })
+                .subscribeOn(Schedulers.io())
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe(subscriber);
     }
 
     /**
-     * 区域范围内检索兴趣点<b>百度地图实现</b>
+     * 区域范围内检索兴趣点
      *
-     * @param point_1
-     * @param point_2
+     * @param point_1 东北方向点
+     * @param point_2 西南方向点
      * @param keyword
      * @param type
      * @param page
@@ -363,22 +470,54 @@ public class AMapLBSModelImpl implements LBSModel {
      * @param subscriber
      */
     @Override
-    public void queryRegionPois(PointBean point_1, PointBean point_2, String keyword, String type, int page, int num, FlowableSubscriber<List<PointBean>> subscriber) {
-
-    }
-
-    /**
-     * 沿途检索兴趣点<b>高德地图实现</b>
-     *
-     * @param keyword
-     * @param type
-     * @param page
-     * @param num
-     * @param subscriber
-     */
-    @Override
-    public void queryEnroutePois(String keyword, String type, int page, int num, FlowableSubscriber<List<PointBean>> subscriber) {
-
+    public void queryRegionPois(final PointBean point_1, final PointBean point_2, String keyword, String type, final int page, final int num, FlowableSubscriber<List<PointBean>> subscriber) {
+        Flowable.just(new String[] {keyword, type})
+                .map(new Function<String[], PoiSearch.Query>() {
+                    @Override
+                    public PoiSearch.Query apply(@NonNull String[] strings) throws Exception {
+                        // 第一个参数表示搜索字符串
+                        // 第二个参数表示poi搜索类型
+                        // 第三个参数表示poi搜索区域（空字符串代表全国）
+                        PoiSearch.Query query = new PoiSearch.Query(strings[0], strings[1], "");
+                        query.setPageNum(page);
+                        query.setPageSize(num);
+                        query.setCityLimit(true);
+                        return query;
+                    }
+                })
+                .map(new Function<PoiSearch.Query, PoiResult>() {
+                    @Override
+                    public PoiResult apply(@NonNull PoiSearch.Query query) throws Exception {
+                        PoiSearch poiSearch = new PoiSearch(mContext, query);
+                        poiSearch.setBound(new PoiSearch.SearchBound(
+                                new LatLonPoint(point_1.getLat(), point_1.getLon()),
+                                new LatLonPoint(point_2.getLat(), point_2.getLon())
+                        ));
+                        return poiSearch.searchPOI();
+                    }
+                })
+                .map(new Function<PoiResult, List<PointBean>>() {
+                    @Override
+                    public List<PointBean> apply(PoiResult poiResult) {
+                        List<PointBean> infos = new ArrayList<>();
+                        List<PoiItem> pois = poiResult.getPois();
+                        for (PoiItem item : pois) {
+                            infos.add(new PointBean()
+                                    .setCity(item.getCityName())
+                                    .setLat(item.getLatLonPoint().getLatitude())
+                                    .setLon(item.getLatLonPoint().getLongitude())
+                                    .setTitle(item.getTitle())
+                                    .setAddress(item.getSnippet()));
+                        }
+                        if (page == 0 && infos.isEmpty()) {
+                            throw new NullPointerException("POI搜索结果为空,请检查关键词后重试.");
+                        }
+                        return infos;
+                    }
+                })
+                .subscribeOn(Schedulers.io())
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe(subscriber);
     }
 
     /**
@@ -458,18 +597,6 @@ public class AMapLBSModelImpl implements LBSModel {
      */
     @Override
     public void queryBusLines(String city, String name, FlowableSubscriber<Object> subscriber) {
-
-    }
-
-    /**
-     * 公交站信息查询<b>高德地图实现</b>
-     *
-     * @param city
-     * @param name
-     * @param subscriber
-     */
-    @Override
-    public void queryBusStation(String city, String name, FlowableSubscriber<PointBean> subscriber) {
 
     }
 
