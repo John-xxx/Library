@@ -12,6 +12,10 @@ import com.baidu.mapapi.model.LatLng;
 import com.baidu.mapapi.model.LatLngBounds;
 import com.baidu.mapapi.search.core.PoiInfo;
 import com.baidu.mapapi.search.core.SearchResult;
+import com.baidu.mapapi.search.district.DistrictResult;
+import com.baidu.mapapi.search.district.DistrictSearch;
+import com.baidu.mapapi.search.district.DistrictSearchOption;
+import com.baidu.mapapi.search.district.OnGetDistricSearchResultListener;
 import com.baidu.mapapi.search.geocode.GeoCodeOption;
 import com.baidu.mapapi.search.geocode.GeoCodeResult;
 import com.baidu.mapapi.search.geocode.GeoCoder;
@@ -27,9 +31,23 @@ import com.baidu.mapapi.search.poi.PoiNearbySearchOption;
 import com.baidu.mapapi.search.poi.PoiResult;
 import com.baidu.mapapi.search.poi.PoiSearch;
 import com.baidu.mapapi.search.poi.PoiSortType;
+import com.baidu.mapapi.search.route.BikingRoutePlanOption;
+import com.baidu.mapapi.search.route.BikingRouteResult;
+import com.baidu.mapapi.search.route.DrivingRouteLine;
+import com.baidu.mapapi.search.route.DrivingRoutePlanOption;
+import com.baidu.mapapi.search.route.DrivingRouteResult;
+import com.baidu.mapapi.search.route.IndoorRouteResult;
+import com.baidu.mapapi.search.route.MassTransitRouteResult;
+import com.baidu.mapapi.search.route.OnGetRoutePlanResultListener;
+import com.baidu.mapapi.search.route.PlanNode;
 import com.baidu.mapapi.search.route.RoutePlanSearch;
+import com.baidu.mapapi.search.route.TransitRoutePlanOption;
+import com.baidu.mapapi.search.route.TransitRouteResult;
+import com.baidu.mapapi.search.route.WalkingRoutePlanOption;
+import com.baidu.mapapi.search.route.WalkingRouteResult;
 import com.liux.framework.lbs.bean.PointBean;
 import com.liux.framework.lbs.bean.RouteBean;
+import com.liux.framework.lbs.bean.StepBean;
 import com.liux.framework.lbs.listener.OnLocationListener;
 import com.liux.framework.lbs.model.LBSModel;
 
@@ -730,8 +748,133 @@ public class BaiduLBSModelImpl implements LBSModel {
      * @param subscriber
      */
     @Override
-    public void queryDriverRoute(PointBean begin, PointBean end, List<PointBean> middle, int policy, FlowableSubscriber<List<RouteBean>> subscriber) {
+    public void queryDriverRoute(final PointBean begin, final PointBean end, final List<PointBean> middle, int policy, FlowableSubscriber<List<RouteBean>> subscriber) {
+        Flowable.just(policy)
+                .map(new Function<Integer, DrivingRoutePlanOption.DrivingPolicy>() {
+                    @Override
+                    public DrivingRoutePlanOption.DrivingPolicy apply(@NonNull Integer integer) throws Exception {
+                        DrivingRoutePlanOption.DrivingPolicy drivingPolicy;
+                        switch (integer) {
+                            case 0:
+                                drivingPolicy = DrivingRoutePlanOption.DrivingPolicy.ECAR_TIME_FIRST;
+                                break;
+                            case 1:
+                                drivingPolicy = DrivingRoutePlanOption.DrivingPolicy.ECAR_DIS_FIRST;
+                                break;
+                            case 2:
+                                drivingPolicy = DrivingRoutePlanOption.DrivingPolicy.ECAR_FEE_FIRST;
+                                break;
+                            case 3:
+                                drivingPolicy = DrivingRoutePlanOption.DrivingPolicy.ECAR_AVOID_JAM;
+                                break;
+                            default:
+                                throw new IllegalStateException("policy ");
+                        }
+                        return drivingPolicy;
+                    }
+                })
+                .map(new Function<DrivingRoutePlanOption.DrivingPolicy, DrivingRoutePlanOption>() {
+                    @Override
+                    public DrivingRoutePlanOption apply(@NonNull DrivingRoutePlanOption.DrivingPolicy drivingPolicy) throws Exception {
+                        List<PlanNode> planNodes = new ArrayList<PlanNode>();
+                        if (middle != null) {
+                            for (PointBean point : middle) {
+                                planNodes.add(PlanNode.withLocation(new LatLng(point.getLat(), point.getLon())));
+                            }
+                        }
+                        return new DrivingRoutePlanOption()
+                                .from(PlanNode.withLocation(new LatLng(begin.getLat(), begin.getLon())))
+                                .to(PlanNode.withLocation(new LatLng(end.getLat(), end.getLon())))
+                                .passBy(planNodes.isEmpty() ? null : planNodes)
+                                .policy(drivingPolicy)
+                                .trafficPolicy(DrivingRoutePlanOption.DrivingTrafficPolicy.ROUTE_PATH);
+                    }
+                })
+                .switchMap(new Function<DrivingRoutePlanOption, Publisher<DrivingRouteResult>>() {
+                    @Override
+                    public Publisher<DrivingRouteResult> apply(@NonNull final DrivingRoutePlanOption drivingRoutePlanOption) throws Exception {
+                        return new Publisher<DrivingRouteResult>() {
+                            @Override
+                            public void subscribe(final Subscriber<? super DrivingRouteResult> subscriber) {
+                                final RoutePlanSearch routePlanSearch = RoutePlanSearch.newInstance();
+                                routePlanSearch.setOnGetRoutePlanResultListener(new OnGetRoutePlanResultListener() {
+                                    @Override
+                                    public void onGetWalkingRouteResult(WalkingRouteResult walkingRouteResult) {
 
+                                    }
+
+                                    @Override
+                                    public void onGetTransitRouteResult(TransitRouteResult transitRouteResult) {
+
+                                    }
+
+                                    @Override
+                                    public void onGetMassTransitRouteResult(MassTransitRouteResult massTransitRouteResult) {
+
+                                    }
+
+                                    @Override
+                                    public void onGetDrivingRouteResult(DrivingRouteResult drivingRouteResult) {
+                                        subscriber.onNext(drivingRouteResult);
+                                        subscriber.onComplete();
+                                        routePlanSearch.destroy();
+                                    }
+
+                                    @Override
+                                    public void onGetIndoorRouteResult(IndoorRouteResult indoorRouteResult) {
+
+                                    }
+
+                                    @Override
+                                    public void onGetBikingRouteResult(BikingRouteResult bikingRouteResult) {
+
+                                    }
+                                });
+                                routePlanSearch.drivingSearch(drivingRoutePlanOption);
+                            }
+                        };
+                    }
+                })
+                .map(new Function<DrivingRouteResult, List<RouteBean>>() {
+                    @Override
+                    public List<RouteBean> apply(@NonNull DrivingRouteResult drivingRouteResult) throws Exception {
+                        if (drivingRouteResult != null) {
+                            if (drivingRouteResult.error != SearchResult.ERRORNO.NO_ERROR) {
+                                throw new NullPointerException("获取路径信息失败,请检查网络连接.");
+                            }
+                        } else {
+                            throw new NullPointerException("获取路径信息失败.");
+                        }
+
+                        List<RouteBean> routes = new ArrayList<RouteBean>();
+
+                        for (DrivingRouteLine line : drivingRouteResult.getRouteLines()) {
+                            List<StepBean> steps = new ArrayList<>();
+                            for (DrivingRouteLine.DrivingStep step : line.getAllStep()) {
+                                StepBean bean = new StepBean()
+                                        .setTime((long) step.getDuration())
+                                        .setMoney(0.0)
+                                        .setDistance(step.getDistance());
+                                for (LatLng point : step.getWayPoints()) {
+                                    bean.getPoint().add(new PointBean()
+                                            .setLat(point.latitude)
+                                            .setLon(point.longitude));
+                                }
+                                steps.add(bean);
+                            }
+                            routes.add(new RouteBean()
+                                    .setStep(steps)
+                                    .setTime(line.getDuration())
+                                    .setMoney(0.0)
+                                    .setDistance(line.getDistance()));
+                        }
+
+                        return routes;
+                    }
+                })
+                .subscribeOn(Schedulers.io())
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe(subscriber);
     }
 
     /**
@@ -745,7 +888,28 @@ public class BaiduLBSModelImpl implements LBSModel {
      */
     @Override
     public void queryBusRoute(PointBean begin, PointBean end, List<PointBean> middle, int policy, FlowableSubscriber<List<RouteBean>> subscriber) {
-
+        Flowable.just(policy)
+                .map(new Function<Integer, TransitRoutePlanOption>() {
+                    @Override
+                    public TransitRoutePlanOption apply(@NonNull Integer integer) throws Exception {
+                        return null;
+                    }
+                })
+                .switchMap(new Function<TransitRoutePlanOption, Publisher<TransitRouteResult>>() {
+                    @Override
+                    public Publisher<TransitRouteResult> apply(@NonNull TransitRoutePlanOption transitRoutePlanOption) throws Exception {
+                        return null;
+                    }
+                })
+                .map(new Function<TransitRouteResult, List<RouteBean>>() {
+                    @Override
+                    public List<RouteBean> apply(@NonNull TransitRouteResult transitRouteResult) throws Exception {
+                        return null;
+                    }
+                })
+                .subscribeOn(Schedulers.io())
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe(subscriber);
     }
 
     /**
@@ -759,7 +923,28 @@ public class BaiduLBSModelImpl implements LBSModel {
      */
     @Override
     public void queryWalkRoute(PointBean begin, PointBean end, List<PointBean> middle, int policy, FlowableSubscriber<List<RouteBean>> subscriber) {
-
+        Flowable.just(policy)
+                .map(new Function<Integer, WalkingRoutePlanOption>() {
+                    @Override
+                    public WalkingRoutePlanOption apply(@NonNull Integer integer) throws Exception {
+                        return null;
+                    }
+                })
+                .switchMap(new Function<WalkingRoutePlanOption, Publisher<WalkingRouteResult>>() {
+                    @Override
+                    public Publisher<WalkingRouteResult> apply(@NonNull WalkingRoutePlanOption walkingRoutePlanOption) throws Exception {
+                        return null;
+                    }
+                })
+                .map(new Function<WalkingRouteResult, List<RouteBean>>() {
+                    @Override
+                    public List<RouteBean> apply(@NonNull WalkingRouteResult walkingRouteResult) throws Exception {
+                        return null;
+                    }
+                })
+                .subscribeOn(Schedulers.io())
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe(subscriber);
     }
 
     /**
@@ -773,7 +958,28 @@ public class BaiduLBSModelImpl implements LBSModel {
      */
     @Override
     public void queryBikeRoute(PointBean begin, PointBean end, List<PointBean> middle, int policy, FlowableSubscriber<List<RouteBean>> subscriber) {
-
+        Flowable.just(policy)
+                .map(new Function<Integer, BikingRoutePlanOption>() {
+                    @Override
+                    public BikingRoutePlanOption apply(@NonNull Integer integer) throws Exception {
+                        return null;
+                    }
+                })
+                .switchMap(new Function<BikingRoutePlanOption, Publisher<BikingRouteResult>>() {
+                    @Override
+                    public Publisher<BikingRouteResult> apply(@NonNull BikingRoutePlanOption bikingRoutePlanOption) throws Exception {
+                        return null;
+                    }
+                })
+                .map(new Function<BikingRouteResult, List<RouteBean>>() {
+                    @Override
+                    public List<RouteBean> apply(@NonNull BikingRouteResult bikingRouteResult) throws Exception {
+                        return null;
+                    }
+                })
+                .subscribeOn(Schedulers.io())
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe(subscriber);
     }
 
     /**
@@ -784,8 +990,59 @@ public class BaiduLBSModelImpl implements LBSModel {
      * @param subscriber
      */
     @Override
-    public void queryAdministrativeRegion(String city, String name, FlowableSubscriber<List<PointBean>> subscriber) {
+    public void queryAdministrativeRegion(String city, String name, FlowableSubscriber<List<List<PointBean>>> subscriber) {
+        Flowable.just(new String[] {city, name})
+                .map(new Function<String[], DistrictSearchOption>() {
+                    @Override
+                    public DistrictSearchOption apply(@NonNull String[] strings) throws Exception {
+                        return new DistrictSearchOption()
+                                .cityName(strings[0])
+                                .districtName(strings[1]);
+                    }
+                })
+                .switchMap(new Function<DistrictSearchOption, Publisher<DistrictResult>>() {
+                    @Override
+                    public Publisher<DistrictResult> apply(@NonNull final DistrictSearchOption districtSearchOption) throws Exception {
+                        return new Publisher<DistrictResult>() {
+                            @Override
+                            public void subscribe(final Subscriber<? super DistrictResult> subscriber) {
+                                final DistrictSearch districtSearch = DistrictSearch.newInstance();
+                                districtSearch.setOnDistrictSearchListener(new OnGetDistricSearchResultListener() {
+                                    @Override
+                                    public void onGetDistrictResult(DistrictResult districtResult) {
+                                        subscriber.onNext(districtResult);
+                                        subscriber.onComplete();
+                                        districtSearch.destroy();
+                                    }
+                                });
+                                districtSearch.searchDistrict(districtSearchOption);
+                            }
+                        };
+                    }
+                })
+                .map(new Function<DistrictResult, List<List<PointBean>>>() {
+                    @Override
+                    public List<List<PointBean>> apply(@NonNull DistrictResult districtResult) throws Exception {
+                        List<List<PointBean>> areas = new ArrayList<List<PointBean>>();
 
+                        List<List<LatLng>> polyLines = districtResult.getPolylines();
+
+                        for (List<LatLng> area : polyLines) {
+                            List<PointBean> points = new ArrayList<PointBean>();
+
+                            for (LatLng ll : area) {
+                                points.add(new PointBean().setLat(ll.latitude).setLon(ll.longitude));
+                            }
+
+                            areas.add(points);
+                        }
+
+                        return areas;
+                    }
+                })
+                .subscribeOn(Schedulers.io())
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe(subscriber);
     }
 
     /**

@@ -133,7 +133,7 @@ public interface LBSModel {
      * @param name
      * @param subscriber
      */
-    void queryAdministrativeRegion(String city, String name, FlowableSubscriber<List<PointBean>> subscriber);
+    void queryAdministrativeRegion(String city, String name, FlowableSubscriber<List<List<PointBean>>> subscriber);
 
     /**
      * 公交线路查询

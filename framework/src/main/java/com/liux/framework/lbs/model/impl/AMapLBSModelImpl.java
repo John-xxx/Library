@@ -9,6 +9,10 @@ import com.amap.api.location.AMapLocationClientOption;
 import com.amap.api.location.AMapLocationListener;
 import com.amap.api.services.core.LatLonPoint;
 import com.amap.api.services.core.PoiItem;
+import com.amap.api.services.district.DistrictItem;
+import com.amap.api.services.district.DistrictResult;
+import com.amap.api.services.district.DistrictSearch;
+import com.amap.api.services.district.DistrictSearchQuery;
 import com.amap.api.services.geocoder.AoiItem;
 import com.amap.api.services.geocoder.GeocodeAddress;
 import com.amap.api.services.geocoder.GeocodeQuery;
@@ -18,6 +22,12 @@ import com.amap.api.services.geocoder.RegeocodeQuery;
 import com.amap.api.services.nearby.NearbySearch;
 import com.amap.api.services.poisearch.PoiResult;
 import com.amap.api.services.poisearch.PoiSearch;
+import com.amap.api.services.route.BusRouteResult;
+import com.amap.api.services.route.District;
+import com.amap.api.services.route.DriveRouteResult;
+import com.amap.api.services.route.RideRouteResult;
+import com.amap.api.services.route.RouteSearch;
+import com.amap.api.services.route.WalkRouteResult;
 import com.liux.framework.lbs.bean.PointBean;
 import com.liux.framework.lbs.bean.RouteBean;
 import com.liux.framework.lbs.listener.OnLocationListener;
@@ -531,7 +541,28 @@ public class AMapLBSModelImpl implements LBSModel {
      */
     @Override
     public void queryDriverRoute(PointBean begin, PointBean end, List<PointBean> middle, int policy, FlowableSubscriber<List<RouteBean>> subscriber) {
-
+        Flowable.just(policy)
+                .map(new Function<Integer, RouteSearch.DriveRouteQuery>() {
+                    @Override
+                    public RouteSearch.DriveRouteQuery apply(@NonNull Integer integer) throws Exception {
+                        return null;
+                    }
+                })
+                .map(new Function<RouteSearch.DriveRouteQuery, DriveRouteResult>() {
+                    @Override
+                    public DriveRouteResult apply(@NonNull RouteSearch.DriveRouteQuery driveRouteQuery) throws Exception {
+                        return null;
+                    }
+                })
+                .map(new Function<DriveRouteResult, List<RouteBean>>() {
+                    @Override
+                    public List<RouteBean> apply(@NonNull DriveRouteResult driveRouteResult) throws Exception {
+                        return null;
+                    }
+                })
+                .subscribeOn(Schedulers.io())
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe(subscriber);
     }
 
     /**
@@ -545,7 +576,28 @@ public class AMapLBSModelImpl implements LBSModel {
      */
     @Override
     public void queryBusRoute(PointBean begin, PointBean end, List<PointBean> middle, int policy, FlowableSubscriber<List<RouteBean>> subscriber) {
-
+        Flowable.just(policy)
+                .map(new Function<Integer, RouteSearch.BusRouteQuery>() {
+                    @Override
+                    public RouteSearch.BusRouteQuery apply(@NonNull Integer integer) throws Exception {
+                        return null;
+                    }
+                })
+                .map(new Function<RouteSearch.BusRouteQuery, BusRouteResult>() {
+                    @Override
+                    public BusRouteResult apply(@NonNull RouteSearch.BusRouteQuery busRouteQuery) throws Exception {
+                        return null;
+                    }
+                })
+                .map(new Function<BusRouteResult, List<RouteBean>>() {
+                    @Override
+                    public List<RouteBean> apply(@NonNull BusRouteResult busRouteResult) throws Exception {
+                        return null;
+                    }
+                })
+                .subscribeOn(Schedulers.io())
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe(subscriber);
     }
 
     /**
@@ -559,7 +611,28 @@ public class AMapLBSModelImpl implements LBSModel {
      */
     @Override
     public void queryWalkRoute(PointBean begin, PointBean end, List<PointBean> middle, int policy, FlowableSubscriber<List<RouteBean>> subscriber) {
-
+        Flowable.just(policy)
+                .map(new Function<Integer, RouteSearch.WalkRouteQuery>() {
+                    @Override
+                    public RouteSearch.WalkRouteQuery apply(@NonNull Integer integer) throws Exception {
+                        return null;
+                    }
+                })
+                .map(new Function<RouteSearch.WalkRouteQuery, WalkRouteResult>() {
+                    @Override
+                    public WalkRouteResult apply(@NonNull RouteSearch.WalkRouteQuery walkRouteQuery) throws Exception {
+                        return null;
+                    }
+                })
+                .map(new Function<WalkRouteResult, List<RouteBean>>() {
+                    @Override
+                    public List<RouteBean> apply(@NonNull WalkRouteResult walkRouteResult) throws Exception {
+                        return null;
+                    }
+                })
+                .subscribeOn(Schedulers.io())
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe(subscriber);
     }
 
     /**
@@ -573,7 +646,28 @@ public class AMapLBSModelImpl implements LBSModel {
      */
     @Override
     public void queryBikeRoute(PointBean begin, PointBean end, List<PointBean> middle, int policy, FlowableSubscriber<List<RouteBean>> subscriber) {
-
+        Flowable.just(policy)
+                .map(new Function<Integer, RouteSearch.RideRouteQuery>() {
+                    @Override
+                    public RouteSearch.RideRouteQuery apply(@NonNull Integer integer) throws Exception {
+                        return null;
+                    }
+                })
+                .map(new Function<RouteSearch.RideRouteQuery, RideRouteResult>() {
+                    @Override
+                    public RideRouteResult apply(@NonNull RouteSearch.RideRouteQuery rideRouteQuery) throws Exception {
+                        return null;
+                    }
+                })
+                .map(new Function<RideRouteResult, List<RouteBean>>() {
+                    @Override
+                    public List<RouteBean> apply(@NonNull RideRouteResult rideRouteResult) throws Exception {
+                        return null;
+                    }
+                })
+                .subscribeOn(Schedulers.io())
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe(subscriber);
     }
 
     /**
@@ -584,8 +678,34 @@ public class AMapLBSModelImpl implements LBSModel {
      * @param subscriber
      */
     @Override
-    public void queryAdministrativeRegion(String city, String name, FlowableSubscriber<List<PointBean>> subscriber) {
-
+    public void queryAdministrativeRegion(String city, String name, FlowableSubscriber<List<List<PointBean>>> subscriber) {
+        Flowable.just(new String[] {city, name})
+                .map(new Function<String[], DistrictSearchQuery>() {
+                    @Override
+                    public DistrictSearchQuery apply(@NonNull String[] strings) throws Exception {
+                        DistrictSearchQuery districtSearchQuery = new DistrictSearchQuery();
+                        districtSearchQuery.setKeywords(strings[1]);
+                        districtSearchQuery.setShowBoundary(true);
+                        return districtSearchQuery;
+                    }
+                })
+                .map(new Function<DistrictSearchQuery, DistrictResult>() {
+                    @Override
+                    public DistrictResult apply(@NonNull DistrictSearchQuery districtSearchQuery) throws Exception {
+                        DistrictSearch districtSearch = new DistrictSearch(mContext);
+                        districtSearch.setQuery(districtSearchQuery);
+                        return districtSearch.searchDistrict();
+                    }
+                })
+                .map(new Function<DistrictResult, List<List<PointBean>>>() {
+                    @Override
+                    public List<List<PointBean>> apply(@NonNull DistrictResult districtResult) throws Exception {
+                        return null;
+                    }
+                })
+                .subscribeOn(Schedulers.io())
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe(subscriber);
     }
 
     /**
