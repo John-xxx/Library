@@ -48,10 +48,10 @@ public interface LBSModel {
 
     /**
      * 逆向地理位置编码
-     * @param pointBean
+     * @param point
      * @param subscriber
      */
-    void reverseGeoCode(PointBean pointBean, FlowableSubscriber<PointBean> subscriber);
+    void reverseGeoCode(PointBean point, FlowableSubscriber<PointBean> subscriber);
 
     /**
      * 城市内检索兴趣点
@@ -97,35 +97,35 @@ public interface LBSModel {
      */
     void queryDriverRoute(PointBean begin, PointBean end, List<PointBean> middle, int policy, FlowableSubscriber<List<RouteBean>> subscriber);
 
-    /**
-     * 公交路线规划
-     * @param begin
-     * @param end
-     * @param middle
-     * @param policy
-     * @param subscriber
-     */
-    void queryBusRoute(PointBean begin, PointBean end, List<PointBean> middle, int policy, FlowableSubscriber<List<RouteBean>> subscriber);
-
-    /**
-     * 步行路线规划
-     * @param begin
-     * @param end
-     * @param middle
-     * @param policy
-     * @param subscriber
-     */
-    void queryWalkRoute(PointBean begin, PointBean end, List<PointBean> middle, int policy, FlowableSubscriber<List<RouteBean>> subscriber);
-
-    /**
-     * 骑行路径规划
-     * @param begin
-     * @param end
-     * @param middle
-     * @param policy
-     * @param subscriber
-     */
-    void queryBikeRoute(PointBean begin, PointBean end, List<PointBean> middle, int policy, FlowableSubscriber<List<RouteBean>> subscriber);
+//    /**
+//     * 公交路线规划
+//     * @param begin
+//     * @param end
+//     * @param middle
+//     * @param policy
+//     * @param subscriber
+//     */
+//    void queryBusRoute(PointBean begin, PointBean end, List<PointBean> middle, int policy, FlowableSubscriber<List<RouteBean>> subscriber);
+//
+//    /**
+//     * 步行路线规划
+//     * @param begin
+//     * @param end
+//     * @param middle
+//     * @param policy
+//     * @param subscriber
+//     */
+//    void queryWalkRoute(PointBean begin, PointBean end, List<PointBean> middle, int policy, FlowableSubscriber<List<RouteBean>> subscriber);
+//
+//    /**
+//     * 骑行路径规划
+//     * @param begin
+//     * @param end
+//     * @param middle
+//     * @param policy
+//     * @param subscriber
+//     */
+//    void queryBikeRoute(PointBean begin, PointBean end, List<PointBean> middle, int policy, FlowableSubscriber<List<RouteBean>> subscriber);
 
     /**
      * 行政区域范围查询
@@ -134,12 +134,4 @@ public interface LBSModel {
      * @param subscriber
      */
     void queryAdministrativeRegion(String city, String name, FlowableSubscriber<List<List<PointBean>>> subscriber);
-
-    /**
-     * 公交线路查询
-     * @param city
-     * @param name
-     * @param subscriber
-     */
-    void queryBusLines(String city, String name, FlowableSubscriber<Object> subscriber);
 }

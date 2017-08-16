@@ -7,6 +7,8 @@ import com.amap.api.location.AMapLocation;
 import com.amap.api.location.AMapLocationClient;
 import com.amap.api.location.AMapLocationClientOption;
 import com.amap.api.location.AMapLocationListener;
+import com.amap.api.maps.model.LatLng;
+import com.amap.api.services.core.AMapException;
 import com.amap.api.services.core.LatLonPoint;
 import com.amap.api.services.core.PoiItem;
 import com.amap.api.services.district.DistrictItem;
@@ -24,12 +26,15 @@ import com.amap.api.services.poisearch.PoiResult;
 import com.amap.api.services.poisearch.PoiSearch;
 import com.amap.api.services.route.BusRouteResult;
 import com.amap.api.services.route.District;
+import com.amap.api.services.route.DrivePath;
 import com.amap.api.services.route.DriveRouteResult;
+import com.amap.api.services.route.DriveStep;
 import com.amap.api.services.route.RideRouteResult;
 import com.amap.api.services.route.RouteSearch;
 import com.amap.api.services.route.WalkRouteResult;
 import com.liux.framework.lbs.bean.PointBean;
 import com.liux.framework.lbs.bean.RouteBean;
+import com.liux.framework.lbs.bean.StepBean;
 import com.liux.framework.lbs.listener.OnLocationListener;
 import com.liux.framework.lbs.model.LBSModel;
 
@@ -540,24 +545,67 @@ public class AMapLBSModelImpl implements LBSModel {
      * @param subscriber
      */
     @Override
-    public void queryDriverRoute(PointBean begin, PointBean end, List<PointBean> middle, int policy, FlowableSubscriber<List<RouteBean>> subscriber) {
+    public void queryDriverRoute(final PointBean begin, final PointBean end, final List<PointBean> middle, int policy, FlowableSubscriber<List<RouteBean>> subscriber) {
         Flowable.just(policy)
                 .map(new Function<Integer, RouteSearch.DriveRouteQuery>() {
                     @Override
                     public RouteSearch.DriveRouteQuery apply(@NonNull Integer integer) throws Exception {
-                        return null;
+                        RouteSearch.FromAndTo fromAndTo = new RouteSearch.FromAndTo(
+                                new LatLonPoint(begin.getLat(), begin.getLon()),
+                                new LatLonPoint(end.getLat(), end.getLon())
+                        );
+
+                        List<LatLonPoint> passed = null;
+                        if (middle != null && !middle.isEmpty()) {
+                            passed = new ArrayList<LatLonPoint>();
+                            for (PointBean point : middle) {
+                                passed.add(new LatLonPoint(point.getLat(), point.getLon()));
+                            }
+                        }
+
+                        return new RouteSearch.DriveRouteQuery(fromAndTo, integer, passed, null, "");
                     }
                 })
                 .map(new Function<RouteSearch.DriveRouteQuery, DriveRouteResult>() {
                     @Override
                     public DriveRouteResult apply(@NonNull RouteSearch.DriveRouteQuery driveRouteQuery) throws Exception {
-                        return null;
+                        return new RouteSearch(mContext).calculateDriveRoute(driveRouteQuery);
                     }
                 })
                 .map(new Function<DriveRouteResult, List<RouteBean>>() {
                     @Override
                     public List<RouteBean> apply(@NonNull DriveRouteResult driveRouteResult) throws Exception {
-                        return null;
+                        if (driveRouteResult == null ||
+                                driveRouteResult.getPaths() == null ||
+                                driveRouteResult.getPaths().isEmpty()) {
+                            throw new NullPointerException("路径计算失败,请检查网络后重试.");
+                        }
+
+                        List<RouteBean> routes = new ArrayList<RouteBean>();
+
+                        for (DrivePath path : driveRouteResult.getPaths()) {
+                            List<StepBean> steps = new ArrayList<>();
+
+                            for (DriveStep step : path.getSteps()) {
+                                StepBean bean = new StepBean()
+                                        .setTime((long) step.getDuration())
+                                        .setMoney(step.getTolls())
+                                        .setDistance(step.getDistance());
+                                for (LatLonPoint point : step.getPolyline()) {
+                                    bean.getPoint().add(new PointBean()
+                                            .setLat(point.getLatitude())
+                                            .setLon(point.getLongitude()));
+                                }
+                                steps.add(bean);
+                            }
+
+                            routes.add(new RouteBean()
+                                    .setStep(steps)
+                                    .setTime(path.getDuration())
+                                    .setMoney(path.getTolls())
+                                    .setDistance(path.getDistance()));
+                        }
+                        return routes;
                     }
                 })
                 .subscribeOn(Schedulers.io())
@@ -574,7 +622,7 @@ public class AMapLBSModelImpl implements LBSModel {
      * @param policy
      * @param subscriber
      */
-    @Override
+//    @Override
     public void queryBusRoute(PointBean begin, PointBean end, List<PointBean> middle, int policy, FlowableSubscriber<List<RouteBean>> subscriber) {
         Flowable.just(policy)
                 .map(new Function<Integer, RouteSearch.BusRouteQuery>() {
@@ -609,7 +657,7 @@ public class AMapLBSModelImpl implements LBSModel {
      * @param policy
      * @param subscriber
      */
-    @Override
+//    @Override
     public void queryWalkRoute(PointBean begin, PointBean end, List<PointBean> middle, int policy, FlowableSubscriber<List<RouteBean>> subscriber) {
         Flowable.just(policy)
                 .map(new Function<Integer, RouteSearch.WalkRouteQuery>() {
@@ -644,7 +692,7 @@ public class AMapLBSModelImpl implements LBSModel {
      * @param policy
      * @param subscriber
      */
-    @Override
+//    @Override
     public void queryBikeRoute(PointBean begin, PointBean end, List<PointBean> middle, int policy, FlowableSubscriber<List<RouteBean>> subscriber) {
         Flowable.just(policy)
                 .map(new Function<Integer, RouteSearch.RideRouteQuery>() {
@@ -700,24 +748,39 @@ public class AMapLBSModelImpl implements LBSModel {
                 .map(new Function<DistrictResult, List<List<PointBean>>>() {
                     @Override
                     public List<List<PointBean>> apply(@NonNull DistrictResult districtResult) throws Exception {
-                        return null;
+                        if (districtResult.getAMapException() == null || districtResult.getAMapException().getErrorCode() != AMapException.CODE_AMAP_SUCCESS) {
+                            throw new NullPointerException(districtResult.getAMapException().getErrorMessage());
+                        }
+
+                        DistrictItem item = districtResult.getDistrict().get(0);
+                        String[] polyStr = item.districtBoundary();
+                        if (polyStr == null || polyStr.length == 0) {
+                            throw new NullPointerException("查询结果为空");
+                        }
+
+                        List<List<PointBean>> areas = new ArrayList<List<PointBean>>();
+
+                        for (String str : polyStr) {
+
+                            String[] lls = str.split(";");
+                            List<PointBean> area = new ArrayList<PointBean>();
+                            for (String ll :lls) {
+                                String[] latlng = ll.split(",");
+                                area.add(new PointBean()
+                                        .setLat(Double.parseDouble(latlng[0]))
+                                        .setLon(Double.parseDouble(latlng[1]))
+                                );
+                            }
+
+                            areas.add(area);
+                        }
+
+                        return areas;
                     }
                 })
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe(subscriber);
-    }
-
-    /**
-     * 公交线路查询
-     *
-     * @param city
-     * @param name
-     * @param subscriber
-     */
-    @Override
-    public void queryBusLines(String city, String name, FlowableSubscriber<Object> subscriber) {
-
     }
 
     private PointBean AMapLocation2PointBean(AMapLocation aMapLocation) {

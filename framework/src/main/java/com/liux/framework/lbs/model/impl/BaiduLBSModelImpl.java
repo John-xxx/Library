@@ -5,7 +5,6 @@ import android.text.TextUtils;
 
 import com.baidu.location.BDAbstractLocationListener;
 import com.baidu.location.BDLocation;
-import com.baidu.location.BDLocationListener;
 import com.baidu.location.LocationClient;
 import com.baidu.location.LocationClientOption;
 import com.baidu.mapapi.model.LatLng;
@@ -59,7 +58,6 @@ import java.util.List;
 
 import io.reactivex.Flowable;
 import io.reactivex.FlowableSubscriber;
-import io.reactivex.Scheduler;
 import io.reactivex.android.schedulers.AndroidSchedulers;
 import io.reactivex.annotations.NonNull;
 import io.reactivex.functions.Function;
@@ -321,12 +319,12 @@ public class BaiduLBSModelImpl implements LBSModel {
     /**
      * 逆向地理位置编码
      *
-     * @param pointBean
+     * @param point
      * @param subscriber
      */
     @Override
-    public void reverseGeoCode(PointBean pointBean, FlowableSubscriber<PointBean> subscriber) {
-        Flowable.just(pointBean)
+    public void reverseGeoCode(PointBean point, FlowableSubscriber<PointBean> subscriber) {
+        Flowable.just(point)
                 .map(new Function<PointBean, ReverseGeoCodeOption>() {
                     @Override
                     public ReverseGeoCodeOption apply(@NonNull PointBean pointBean) throws Exception {
@@ -886,7 +884,7 @@ public class BaiduLBSModelImpl implements LBSModel {
      * @param policy
      * @param subscriber
      */
-    @Override
+//    @Override
     public void queryBusRoute(PointBean begin, PointBean end, List<PointBean> middle, int policy, FlowableSubscriber<List<RouteBean>> subscriber) {
         Flowable.just(policy)
                 .map(new Function<Integer, TransitRoutePlanOption>() {
@@ -898,7 +896,12 @@ public class BaiduLBSModelImpl implements LBSModel {
                 .switchMap(new Function<TransitRoutePlanOption, Publisher<TransitRouteResult>>() {
                     @Override
                     public Publisher<TransitRouteResult> apply(@NonNull TransitRoutePlanOption transitRoutePlanOption) throws Exception {
-                        return null;
+                        return new Publisher<TransitRouteResult>() {
+                            @Override
+                            public void subscribe(Subscriber<? super TransitRouteResult> subscriber) {
+
+                            }
+                        };
                     }
                 })
                 .map(new Function<TransitRouteResult, List<RouteBean>>() {
@@ -921,7 +924,7 @@ public class BaiduLBSModelImpl implements LBSModel {
      * @param policy
      * @param subscriber
      */
-    @Override
+//    @Override
     public void queryWalkRoute(PointBean begin, PointBean end, List<PointBean> middle, int policy, FlowableSubscriber<List<RouteBean>> subscriber) {
         Flowable.just(policy)
                 .map(new Function<Integer, WalkingRoutePlanOption>() {
@@ -933,7 +936,12 @@ public class BaiduLBSModelImpl implements LBSModel {
                 .switchMap(new Function<WalkingRoutePlanOption, Publisher<WalkingRouteResult>>() {
                     @Override
                     public Publisher<WalkingRouteResult> apply(@NonNull WalkingRoutePlanOption walkingRoutePlanOption) throws Exception {
-                        return null;
+                        return new Publisher<WalkingRouteResult>() {
+                            @Override
+                            public void subscribe(Subscriber<? super WalkingRouteResult> subscriber) {
+
+                            }
+                        };
                     }
                 })
                 .map(new Function<WalkingRouteResult, List<RouteBean>>() {
@@ -956,7 +964,7 @@ public class BaiduLBSModelImpl implements LBSModel {
      * @param policy
      * @param subscriber
      */
-    @Override
+//    @Override
     public void queryBikeRoute(PointBean begin, PointBean end, List<PointBean> middle, int policy, FlowableSubscriber<List<RouteBean>> subscriber) {
         Flowable.just(policy)
                 .map(new Function<Integer, BikingRoutePlanOption>() {
@@ -968,7 +976,12 @@ public class BaiduLBSModelImpl implements LBSModel {
                 .switchMap(new Function<BikingRoutePlanOption, Publisher<BikingRouteResult>>() {
                     @Override
                     public Publisher<BikingRouteResult> apply(@NonNull BikingRoutePlanOption bikingRoutePlanOption) throws Exception {
-                        return null;
+                        return new Publisher<BikingRouteResult>() {
+                            @Override
+                            public void subscribe(Subscriber<? super BikingRouteResult> subscriber) {
+
+                            }
+                        };
                     }
                 })
                 .map(new Function<BikingRouteResult, List<RouteBean>>() {
@@ -1043,18 +1056,6 @@ public class BaiduLBSModelImpl implements LBSModel {
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe(subscriber);
-    }
-
-    /**
-     * 公交线路查询
-     *
-     * @param city
-     * @param name
-     * @param subscriber
-     */
-    @Override
-    public void queryBusLines(String city, String name, FlowableSubscriber<Object> subscriber) {
-
     }
 
     private PointBean BDLocation2PointBean(BDLocation location) {
