@@ -37,6 +37,8 @@ import com.liux.framework.lbs.model.LBSModel;
 import java.util.ArrayList;
 import java.util.List;
 
+import io.reactivex.ObservableEmitter;
+import io.reactivex.ObservableOnSubscribe;
 import io.reactivex.Observer;
 import io.reactivex.Observable;
 import io.reactivex.ObservableSource;
@@ -84,7 +86,7 @@ public class AMapLBSModelImpl implements LBSModel {
                 if (pointBean != null) {
                     listener.onSucceed(pointBean);
                 } else {
-                    listener.onFailure();
+                    listener.onFailure("定位失败,原因:" + aMapLocation.getErrorInfo());
                 }
             }
         }
@@ -155,7 +157,7 @@ public class AMapLBSModelImpl implements LBSModel {
         location(aMapLocationClientOption, observer);
     }
 
-    private void location(AMapLocationClientOption aMapLocationClientOption, Observer<PointBean> observer) {
+    private void location(AMapLocationClientOption aMapLocationClientOption, final Observer<PointBean> observer) {
         if (mAMapLocationClient.isStarted()) {
             AMapLocation aMapLocation = mAMapLocationClient.getLastKnownLocation();
             PointBean pointBean = AMapLocation2PointBean(aMapLocation);
@@ -169,9 +171,9 @@ public class AMapLBSModelImpl implements LBSModel {
                 .switchMap(new Function<AMapLocationClientOption, ObservableSource<AMapLocation>>() {
                     @Override
                     public ObservableSource<AMapLocation> apply(@NonNull final AMapLocationClientOption aMapLocationClientOption) throws Exception {
-                        return new Observable<AMapLocation>() {
+                        return Observable.create(new ObservableOnSubscribe<AMapLocation>() {
                             @Override
-                            protected void subscribeActual(final Observer<? super AMapLocation> observer) {
+                            public void subscribe(@NonNull final ObservableEmitter<AMapLocation> observableEmitter) throws Exception {
                                 final AMapLocationClient aMapLocationClient = new AMapLocationClient(mContext);
                                 aMapLocationClient.setLocationOption(aMapLocationClientOption);
                                 aMapLocationClient.setLocationListener(new AMapLocationListener() {
@@ -180,18 +182,13 @@ public class AMapLBSModelImpl implements LBSModel {
                                         aMapLocationClient.unRegisterLocationListener(this);
                                         aMapLocationClient.stopLocation();
                                         aMapLocationClient.onDestroy();
-                                        // AMapLocationClient 在回调时已经 try 掉异常了,需要手动传递
-                                        try {
-                                            observer.onNext(aMapLocation);
-                                            observer.onComplete();
-                                        } catch (Exception e) {
-                                            observer.onError(e);
-                                        }
+                                        observableEmitter.onNext(aMapLocation);
+                                        observableEmitter.onComplete();
                                     }
                                 });
                                 aMapLocationClient.startLocation();
                             }
-                        };
+                        });
                     }
                 })
                 .map(new Function<AMapLocation, PointBean>() {
@@ -199,7 +196,7 @@ public class AMapLBSModelImpl implements LBSModel {
                     public PointBean apply(@NonNull AMapLocation aMapLocation) throws Exception {
                         PointBean pointBean = AMapLocation2PointBean(aMapLocation);
                         if (pointBean == null) {
-                            throw new NullPointerException("定位失败,请检查网络连接.");
+                            throw new NullPointerException("定位失败,原因:" + aMapLocation.getErrorInfo());
                         }
                         return pointBean;
                     }
@@ -221,7 +218,9 @@ public class AMapLBSModelImpl implements LBSModel {
         if (mOnLocationListeners.isEmpty()) {
             mAMapLocationClient.startLocation();
         }
-        mOnLocationListeners.add(listener);
+        if (!mOnLocationListeners.contains(listener)) {
+            mOnLocationListeners.add(listener);
+        }
     }
 
     /**
@@ -504,8 +503,8 @@ public class AMapLBSModelImpl implements LBSModel {
                     public PoiResult apply(@NonNull PoiSearch.Query query) throws Exception {
                         PoiSearch poiSearch = new PoiSearch(mContext, query);
                         poiSearch.setBound(new PoiSearch.SearchBound(
-                                new LatLonPoint(point_1.getLat(), point_1.getLon()),
-                                new LatLonPoint(point_2.getLat(), point_2.getLon())
+                                new LatLonPoint(point_2.getLat(), point_2.getLon()),
+                                new LatLonPoint(point_1.getLat(), point_1.getLon())
                         ));
                         return poiSearch.searchPOI();
                     }
@@ -747,7 +746,8 @@ public class AMapLBSModelImpl implements LBSModel {
                 .map(new Function<DistrictResult, List<List<PointBean>>>() {
                     @Override
                     public List<List<PointBean>> apply(@NonNull DistrictResult districtResult) throws Exception {
-                        if (districtResult.getAMapException() == null || districtResult.getAMapException().getErrorCode() != AMapException.CODE_AMAP_SUCCESS) {
+                        if (districtResult.getDistrict() == null ||
+                                (districtResult.getAMapException() != null && districtResult.getAMapException().getErrorCode() != AMapException.CODE_AMAP_SUCCESS)) {
                             throw new NullPointerException(districtResult.getAMapException().getErrorMessage());
                         }
 

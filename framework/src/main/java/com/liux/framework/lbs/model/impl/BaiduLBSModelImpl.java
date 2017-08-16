@@ -54,6 +54,8 @@ import java.util.ArrayList;
 import java.util.List;
 
 import io.reactivex.Observable;
+import io.reactivex.ObservableEmitter;
+import io.reactivex.ObservableOnSubscribe;
 import io.reactivex.ObservableSource;
 import io.reactivex.Observer;
 import io.reactivex.android.schedulers.AndroidSchedulers;
@@ -100,7 +102,7 @@ public class BaiduLBSModelImpl implements LBSModel {
                 if (pointBean != null) {
                     listener.onSucceed(pointBean);
                 } else {
-                    listener.onFailure();
+                    listener.onFailure("定位失败,原因:");
                 }
             }
         }
@@ -173,7 +175,7 @@ public class BaiduLBSModelImpl implements LBSModel {
         location(locationClientOption, observer);
     }
 
-    private void location(LocationClientOption locationClientOption, Observer<PointBean> observer) {
+    private void location(LocationClientOption locationClientOption, final Observer<PointBean> observer) {
         if (mLocationClient.isStarted()) {
             BDLocation bdLocation = mLocationClient.getLastKnownLocation();
             PointBean pointBean = BDLocation2PointBean(bdLocation);
@@ -187,9 +189,9 @@ public class BaiduLBSModelImpl implements LBSModel {
                 .switchMap(new Function<LocationClientOption, ObservableSource<BDLocation>>() {
                     @Override
                     public ObservableSource<BDLocation> apply(@NonNull final LocationClientOption locationClientOption) throws Exception {
-                        return new Observable<BDLocation>() {
+                        return Observable.create(new ObservableOnSubscribe<BDLocation>() {
                             @Override
-                            protected void subscribeActual(final Observer<? super BDLocation> observer) {
+                            public void subscribe(@NonNull final ObservableEmitter<BDLocation> observableEmitter) throws Exception {
                                 final LocationClient locationClient = new LocationClient(mContext);
                                 locationClient.setLocOption(locationClientOption);
                                 locationClient.registerLocationListener(new BDAbstractLocationListener() {
@@ -197,13 +199,13 @@ public class BaiduLBSModelImpl implements LBSModel {
                                     public void onReceiveLocation(BDLocation bdLocation) {
                                         locationClient.unRegisterLocationListener(this);
                                         locationClient.stop();
-                                        observer.onNext(bdLocation);
-                                        observer.onComplete();
+                                        observableEmitter.onNext(bdLocation);
+                                        observableEmitter.onComplete();
                                     }
                                 });
                                 locationClient.start();
                             }
-                        };
+                        });
                     }
                 })
                 .map(new Function<BDLocation, PointBean>() {
@@ -234,7 +236,9 @@ public class BaiduLBSModelImpl implements LBSModel {
             mLocationClient.restart();
             mLocationClient.requestLocation();
         }
-        mOnLocationListeners.add(listener);
+        if (!mOnLocationListeners.contains(listener)) {
+            mOnLocationListeners.add(listener);
+        }
     }
 
     /**
@@ -261,7 +265,7 @@ public class BaiduLBSModelImpl implements LBSModel {
      * @param observer
      */
     @Override
-    public void geoCode(String city, String addr, Observer<PointBean> observer) {
+    public void geoCode(String city, String addr, final Observer<PointBean> observer) {
         Observable.just(new String[] {city, addr})
                 .map(new Function<String[], GeoCodeOption>() {
                     @Override
@@ -274,16 +278,16 @@ public class BaiduLBSModelImpl implements LBSModel {
                 .switchMap(new Function<GeoCodeOption, ObservableSource<GeoCodeResult>>() {
                     @Override
                     public ObservableSource<GeoCodeResult> apply(@NonNull final GeoCodeOption geoCodeOption) throws Exception {
-                        return new Observable<GeoCodeResult>() {
+                        return Observable.create(new ObservableOnSubscribe<GeoCodeResult>() {
                             @Override
-                            protected void subscribeActual(final Observer<? super GeoCodeResult> observer) {
+                            public void subscribe(@NonNull final ObservableEmitter<GeoCodeResult> observableEmitter) throws Exception {
                                 final GeoCoder geoCoder = GeoCoder.newInstance();
                                 geoCoder.setOnGetGeoCodeResultListener(new OnGetGeoCoderResultListener() {
                                     @Override
                                     public void onGetGeoCodeResult(GeoCodeResult geoCodeResult) {
-                                        observer.onNext(geoCodeResult);
-                                        observer.onComplete();
                                         geoCoder.destroy();
+                                        observableEmitter.onNext(geoCodeResult);
+                                        observableEmitter.onComplete();
                                     }
 
                                     @Override
@@ -293,14 +297,14 @@ public class BaiduLBSModelImpl implements LBSModel {
                                 });
                                 geoCoder.geocode(geoCodeOption);
                             }
-                        };
+                        });
                     }
                 })
                 .map(new Function<GeoCodeResult, PointBean>() {
                     @Override
                     public PointBean apply(@NonNull GeoCodeResult geoCodeResult) throws Exception {
                         if (geoCodeResult == null || geoCodeResult.error != SearchResult.ERRORNO.NO_ERROR) {
-                            throw new NullPointerException("反向解码地理位置失败.");
+                            throw new NullPointerException("反向解码地理位置失败：" + geoCodeResult.error.name());
                         }
                         LatLng ll = geoCodeResult.getLocation();
                         return new PointBean()
@@ -321,7 +325,7 @@ public class BaiduLBSModelImpl implements LBSModel {
      * @param observer
      */
     @Override
-    public void reverseGeoCode(PointBean point, Observer<PointBean> observer) {
+    public void reverseGeoCode(PointBean point, final Observer<PointBean> observer) {
         Observable.just(point)
                 .map(new Function<PointBean, ReverseGeoCodeOption>() {
                     @Override
@@ -332,9 +336,9 @@ public class BaiduLBSModelImpl implements LBSModel {
                 .switchMap(new Function<ReverseGeoCodeOption, ObservableSource<ReverseGeoCodeResult>>() {
                     @Override
                     public ObservableSource<ReverseGeoCodeResult> apply(@NonNull final ReverseGeoCodeOption reverseGeoCodeOption) throws Exception {
-                        return new Observable<ReverseGeoCodeResult>() {
+                        return Observable.create(new ObservableOnSubscribe<ReverseGeoCodeResult>() {
                             @Override
-                            protected void subscribeActual(final Observer<? super ReverseGeoCodeResult> observer) {
+                            public void subscribe(@NonNull final ObservableEmitter<ReverseGeoCodeResult> observableEmitter) throws Exception {
                                 final GeoCoder geoCoder = GeoCoder.newInstance();
                                 geoCoder.setOnGetGeoCodeResultListener(new OnGetGeoCoderResultListener() {
                                     @Override
@@ -344,21 +348,21 @@ public class BaiduLBSModelImpl implements LBSModel {
 
                                     @Override
                                     public void onGetReverseGeoCodeResult(ReverseGeoCodeResult reverseGeoCodeResult) {
-                                        observer.onNext(reverseGeoCodeResult);
-                                        observer.onComplete();
                                         geoCoder.destroy();
+                                        observableEmitter.onNext(reverseGeoCodeResult);
+                                        observableEmitter.onComplete();
                                     }
                                 });
                                 geoCoder.reverseGeoCode(reverseGeoCodeOption);
                             }
-                        };
+                        });
                     }
                 })
                 .map(new Function<ReverseGeoCodeResult, PointBean>() {
                     @Override
                     public PointBean apply(ReverseGeoCodeResult result) {
                         if (result == null || result.error != SearchResult.ERRORNO.NO_ERROR) {
-                            throw new NullPointerException("反向解码地理位置失败.");
+                            throw new NullPointerException("反向解码地理位置失败：" + result.error.name());
                         }
 
                         String city = null, title = null, address = null;
@@ -421,7 +425,7 @@ public class BaiduLBSModelImpl implements LBSModel {
      * @param observer
      */
     @Override
-    public void queryCityPois(final String city, final String keyword, final String type, final int page, final int num, Observer<List<PointBean>> observer) {
+    public void queryCityPois(final String city, final String keyword, final String type, final int page, final int num, final Observer<List<PointBean>> observer) {
         Observable.just(new PoiCitySearchOption())
                 .map(new Function<PoiCitySearchOption, PoiCitySearchOption>() {
                     @Override
@@ -440,16 +444,16 @@ public class BaiduLBSModelImpl implements LBSModel {
                 .switchMap(new Function<PoiCitySearchOption, ObservableSource<PoiResult>>() {
                     @Override
                     public ObservableSource<PoiResult> apply(@NonNull final PoiCitySearchOption poiCitySearchOption) throws Exception {
-                        return new Observable<PoiResult>() {
+                        return Observable.create(new ObservableOnSubscribe<PoiResult>() {
                             @Override
-                            protected void subscribeActual(final Observer<? super PoiResult> observer) {
+                            public void subscribe(@NonNull final ObservableEmitter<PoiResult> observableEmitter) throws Exception {
                                 final PoiSearch poiSearch = PoiSearch.newInstance();
                                 poiSearch.setOnGetPoiSearchResultListener(new OnGetPoiSearchResultListener() {
                                     @Override
                                     public void onGetPoiResult(PoiResult poiResult) {
-                                        observer.onNext(poiResult);
-                                        observer.onComplete();
                                         poiSearch.destroy();
+                                        observableEmitter.onNext(poiResult);
+                                        observableEmitter.onComplete();
                                     }
 
                                     @Override
@@ -464,18 +468,15 @@ public class BaiduLBSModelImpl implements LBSModel {
                                 });
                                 poiSearch.searchInCity(poiCitySearchOption);
                             }
-                        };
+                        });
                     }
                 })
                 .map(new Function<PoiResult, List<PointBean>>() {
                     @Override
                     public List<PointBean> apply(@NonNull PoiResult poiResult) throws Exception {
                         if (poiResult != null) {
-                            if (poiResult.error == SearchResult.ERRORNO.RESULT_NOT_FOUND) {
-                                throw new NullPointerException("检索结果为空,请核对关键字后重试.");
-                            }
                             if (poiResult.error != SearchResult.ERRORNO.NO_ERROR) {
-                                throw new NullPointerException("检索结果为空,请核对关键字后重试.");
+                                throw new NullPointerException("检索结果为空：" + poiResult.error.name());
                             }
                         } else {
                             throw new NullPointerException("检索结果为空,请检查网络连接.");
@@ -527,7 +528,7 @@ public class BaiduLBSModelImpl implements LBSModel {
      * @param observer
      */
     @Override
-    public void queryNearbyPois(PointBean center, final String keyword, final String type, final int page, final int num, Observer<List<PointBean>> observer) {
+    public void queryNearbyPois(PointBean center, final String keyword, final String type, final int page, final int num, final Observer<List<PointBean>> observer) {
         Observable.just(center)
                 .map(new Function<PointBean, PoiNearbySearchOption>() {
                     @Override
@@ -548,16 +549,16 @@ public class BaiduLBSModelImpl implements LBSModel {
                 .switchMap(new Function<PoiNearbySearchOption, ObservableSource<PoiResult>>() {
                     @Override
                     public ObservableSource<PoiResult> apply(@NonNull final PoiNearbySearchOption poiNearbySearchOption) throws Exception {
-                        return new Observable<PoiResult>() {
+                        return Observable.create(new ObservableOnSubscribe<PoiResult>() {
                             @Override
-                            protected void subscribeActual(final Observer<? super PoiResult> observer) {
+                            public void subscribe(@NonNull final ObservableEmitter<PoiResult> observableEmitter) throws Exception {
                                 final PoiSearch poiSearch = PoiSearch.newInstance();
                                 poiSearch.setOnGetPoiSearchResultListener(new OnGetPoiSearchResultListener() {
                                     @Override
                                     public void onGetPoiResult(PoiResult poiResult) {
-                                        observer.onNext(poiResult);
-                                        observer.onComplete();
                                         poiSearch.destroy();
+                                        observableEmitter.onNext(poiResult);
+                                        observableEmitter.onComplete();
                                     }
 
                                     @Override
@@ -572,18 +573,15 @@ public class BaiduLBSModelImpl implements LBSModel {
                                 });
                                 poiSearch.searchNearby(poiNearbySearchOption);
                             }
-                        };
+                        });
                     }
                 })
                 .map(new Function<PoiResult, List<PointBean>>() {
                     @Override
                     public List<PointBean> apply(@NonNull PoiResult poiResult) throws Exception {
                         if (poiResult != null) {
-                            if (poiResult.error == SearchResult.ERRORNO.RESULT_NOT_FOUND) {
-                                throw new NullPointerException("检索结果为空,请核对关键字后重试.");
-                            }
                             if (poiResult.error != SearchResult.ERRORNO.NO_ERROR) {
-                                throw new NullPointerException("检索结果为空,请核对关键字后重试.");
+                                throw new NullPointerException("检索结果为空：" + poiResult.error.name());
                             }
                         } else {
                             throw new NullPointerException("检索结果为空,请检查网络连接.");
@@ -658,16 +656,16 @@ public class BaiduLBSModelImpl implements LBSModel {
                 .switchMap(new Function<PoiBoundSearchOption, ObservableSource<PoiResult>>() {
                     @Override
                     public ObservableSource<PoiResult> apply(@NonNull final PoiBoundSearchOption poiBoundSearchOption) throws Exception {
-                        return new Observable<PoiResult>() {
+                        return Observable.create(new ObservableOnSubscribe<PoiResult>() {
                             @Override
-                            protected void subscribeActual(final Observer<? super PoiResult> observer) {
+                            public void subscribe(@NonNull final ObservableEmitter<PoiResult> observableEmitter) throws Exception {
                                 final PoiSearch poiSearch = PoiSearch.newInstance();
                                 poiSearch.setOnGetPoiSearchResultListener(new OnGetPoiSearchResultListener() {
                                     @Override
                                     public void onGetPoiResult(PoiResult poiResult) {
-                                        observer.onNext(poiResult);
-                                        observer.onComplete();
                                         poiSearch.destroy();
+                                        observableEmitter.onNext(poiResult);
+                                        observableEmitter.onComplete();
                                     }
 
                                     @Override
@@ -682,18 +680,15 @@ public class BaiduLBSModelImpl implements LBSModel {
                                 });
                                 poiSearch.searchInBound(poiBoundSearchOption);
                             }
-                        };
+                        });
                     }
                 })
                 .map(new Function<PoiResult, List<PointBean>>() {
                     @Override
                     public List<PointBean> apply(@NonNull PoiResult poiResult) throws Exception {
                         if (poiResult != null) {
-                            if (poiResult.error == SearchResult.ERRORNO.RESULT_NOT_FOUND) {
-                                throw new NullPointerException("检索结果为空,请核对关键字后重试.");
-                            }
                             if (poiResult.error != SearchResult.ERRORNO.NO_ERROR) {
-                                throw new NullPointerException("检索结果为空,请核对关键字后重试.");
+                                throw new NullPointerException("检索结果为空：" + poiResult.error.name());
                             }
                         } else {
                             throw new NullPointerException("检索结果为空,请检查网络连接.");
@@ -744,7 +739,7 @@ public class BaiduLBSModelImpl implements LBSModel {
      * @param observer
      */
     @Override
-    public void queryDriverRoute(final PointBean begin, final PointBean end, final List<PointBean> middle, int policy, Observer<List<RouteBean>> observer) {
+    public void queryDriverRoute(final PointBean begin, final PointBean end, final List<PointBean> middle, int policy, final Observer<List<RouteBean>> observer) {
         Observable.just(policy)
                 .map(new Function<Integer, DrivingRoutePlanOption.DrivingPolicy>() {
                     @Override
@@ -789,9 +784,9 @@ public class BaiduLBSModelImpl implements LBSModel {
                 .switchMap(new Function<DrivingRoutePlanOption, ObservableSource<DrivingRouteResult>>() {
                     @Override
                     public ObservableSource<DrivingRouteResult> apply(@NonNull final DrivingRoutePlanOption drivingRoutePlanOption) throws Exception {
-                        return new Observable<DrivingRouteResult>() {
+                        return Observable.create(new ObservableOnSubscribe<DrivingRouteResult>() {
                             @Override
-                            protected void subscribeActual(final Observer<? super DrivingRouteResult> observer) {
+                            public void subscribe(@NonNull final ObservableEmitter<DrivingRouteResult> observableEmitter) throws Exception {
                                 final RoutePlanSearch routePlanSearch = RoutePlanSearch.newInstance();
                                 routePlanSearch.setOnGetRoutePlanResultListener(new OnGetRoutePlanResultListener() {
                                     @Override
@@ -811,9 +806,9 @@ public class BaiduLBSModelImpl implements LBSModel {
 
                                     @Override
                                     public void onGetDrivingRouteResult(DrivingRouteResult drivingRouteResult) {
-                                        observer.onNext(drivingRouteResult);
-                                        observer.onComplete();
                                         routePlanSearch.destroy();
+                                        observableEmitter.onNext(drivingRouteResult);
+                                        observableEmitter.onComplete();
                                     }
 
                                     @Override
@@ -828,7 +823,7 @@ public class BaiduLBSModelImpl implements LBSModel {
                                 });
                                 routePlanSearch.drivingSearch(drivingRoutePlanOption);
                             }
-                        };
+                        });
                     }
                 })
                 .map(new Function<DrivingRouteResult, List<RouteBean>>() {
@@ -836,7 +831,7 @@ public class BaiduLBSModelImpl implements LBSModel {
                     public List<RouteBean> apply(@NonNull DrivingRouteResult drivingRouteResult) throws Exception {
                         if (drivingRouteResult != null) {
                             if (drivingRouteResult.error != SearchResult.ERRORNO.NO_ERROR) {
-                                throw new NullPointerException("获取路径信息失败,请检查网络连接.");
+                                throw new NullPointerException("查询路径信息失败：" + drivingRouteResult.error.name());
                             }
                         } else {
                             throw new NullPointerException("获取路径信息失败.");
@@ -894,12 +889,12 @@ public class BaiduLBSModelImpl implements LBSModel {
                 .switchMap(new Function<TransitRoutePlanOption, ObservableSource<TransitRouteResult>>() {
                     @Override
                     public ObservableSource<TransitRouteResult> apply(@NonNull TransitRoutePlanOption transitRoutePlanOption) throws Exception {
-                        return new Observable<TransitRouteResult>() {
+                        return Observable.create(new ObservableOnSubscribe<TransitRouteResult>() {
                             @Override
-                            protected void subscribeActual(Observer<? super TransitRouteResult> observer) {
+                            public void subscribe(@NonNull ObservableEmitter<TransitRouteResult> observableEmitter) throws Exception {
 
                             }
-                        };
+                        });
                     }
                 })
                 .map(new Function<TransitRouteResult, List<RouteBean>>() {
@@ -934,12 +929,12 @@ public class BaiduLBSModelImpl implements LBSModel {
                 .switchMap(new Function<WalkingRoutePlanOption, ObservableSource<WalkingRouteResult>>() {
                     @Override
                     public ObservableSource<WalkingRouteResult> apply(@NonNull WalkingRoutePlanOption walkingRoutePlanOption) throws Exception {
-                        return new Observable<WalkingRouteResult>() {
+                        return Observable.create(new ObservableOnSubscribe<WalkingRouteResult>() {
                             @Override
-                            protected void subscribeActual(Observer<? super WalkingRouteResult> observer) {
+                            public void subscribe(@NonNull ObservableEmitter<WalkingRouteResult> observableEmitter) throws Exception {
 
                             }
-                        };
+                        });
                     }
                 })
                 .map(new Function<WalkingRouteResult, List<RouteBean>>() {
@@ -974,12 +969,12 @@ public class BaiduLBSModelImpl implements LBSModel {
                 .switchMap(new Function<BikingRoutePlanOption, ObservableSource<BikingRouteResult>>() {
                     @Override
                     public ObservableSource<BikingRouteResult> apply(@NonNull BikingRoutePlanOption bikingRoutePlanOption) throws Exception {
-                        return new Observable<BikingRouteResult>() {
+                        return Observable.create(new ObservableOnSubscribe<BikingRouteResult>() {
                             @Override
-                            protected void subscribeActual(Observer<? super BikingRouteResult> observer) {
+                            public void subscribe(@NonNull ObservableEmitter<BikingRouteResult> observableEmitter) throws Exception {
 
                             }
-                        };
+                        });
                     }
                 })
                 .map(new Function<BikingRouteResult, List<RouteBean>>() {
@@ -1001,7 +996,7 @@ public class BaiduLBSModelImpl implements LBSModel {
      * @param observer
      */
     @Override
-    public void queryAdministrativeRegion(String city, String name, Observer<List<List<PointBean>>> observer) {
+    public void queryAdministrativeRegion(String city, String name, final Observer<List<List<PointBean>>> observer) {
         Observable.just(new String[] {city, name})
                 .map(new Function<String[], DistrictSearchOption>() {
                     @Override
@@ -1014,26 +1009,35 @@ public class BaiduLBSModelImpl implements LBSModel {
                 .switchMap(new Function<DistrictSearchOption, ObservableSource<DistrictResult>>() {
                     @Override
                     public ObservableSource<DistrictResult> apply(@NonNull final DistrictSearchOption districtSearchOption) throws Exception {
-                        return new Observable<DistrictResult>() {
+                        return Observable.create(new ObservableOnSubscribe<DistrictResult>() {
                             @Override
-                            protected void subscribeActual(final Observer<? super DistrictResult> observer) {
+                            public void subscribe(@NonNull final ObservableEmitter<DistrictResult> observableEmitter) throws Exception {
+
                                 final DistrictSearch districtSearch = DistrictSearch.newInstance();
                                 districtSearch.setOnDistrictSearchListener(new OnGetDistricSearchResultListener() {
                                     @Override
                                     public void onGetDistrictResult(DistrictResult districtResult) {
-                                        observer.onNext(districtResult);
-                                        observer.onComplete();
                                         districtSearch.destroy();
+                                        observableEmitter.onNext(districtResult);
+                                        observableEmitter.onComplete();
                                     }
                                 });
                                 districtSearch.searchDistrict(districtSearchOption);
                             }
-                        };
+                        });
                     }
                 })
                 .map(new Function<DistrictResult, List<List<PointBean>>>() {
                     @Override
                     public List<List<PointBean>> apply(@NonNull DistrictResult districtResult) throws Exception {
+                        if (districtResult != null) {
+                            if (districtResult.error != SearchResult.ERRORNO.NO_ERROR) {
+                                throw new NullPointerException("获取边界信息失败：" + districtResult.error.name());
+                            }
+                        } else {
+                            throw new NullPointerException("获取边界信息失败.");
+                        }
+
                         List<List<PointBean>> areas = new ArrayList<List<PointBean>>();
 
                         List<List<LatLng>> polyLines = districtResult.getPolylines();

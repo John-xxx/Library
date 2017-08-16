@@ -10,5 +10,5 @@ public interface OnLocationListener {
 
     void onSucceed(PointBean position);
 
-    void onFailure();
+    void onFailure(String msg);
 }

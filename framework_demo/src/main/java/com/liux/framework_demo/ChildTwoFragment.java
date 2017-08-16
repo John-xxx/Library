@@ -17,6 +17,7 @@ import com.liux.framework.lbs.model.LBSModel;
 import com.liux.framework.lbs.model.impl.AMapLBSModelImpl;
 import com.liux.framework.lbs.model.impl.BaiduLBSModelImpl;
 import com.liux.framework.tool.PermissionTool;
+import com.liux.framework.util.DeviceUtil;
 
 import java.util.List;
 
@@ -47,8 +48,8 @@ public class ChildTwoFragment extends BaseFragment {
         }
 
         @Override
-        public void onFailure() {
-            Toast.makeText(getContext(), "高德持续定位失败", Toast.LENGTH_SHORT).show();
+        public void onFailure(String msg) {
+            Toast.makeText(getContext(), "高德持续定位失败 " + msg, Toast.LENGTH_SHORT).show();
         }
     };
 
@@ -59,8 +60,8 @@ public class ChildTwoFragment extends BaseFragment {
         }
 
         @Override
-        public void onFailure() {
-            Toast.makeText(getContext(), "百度持续定位失败", Toast.LENGTH_SHORT).show();
+        public void onFailure(String msg) {
+            Toast.makeText(getContext(), "百度持续定位失败 " + msg, Toast.LENGTH_SHORT).show();
         }
     };
 
@@ -119,9 +120,12 @@ public class ChildTwoFragment extends BaseFragment {
                     .callback(new PermissionTool.OnPermissionCallback() {
                         @Override
                         public void onCallback(List<String> allow, List<String> reject, List<String> prohibit) {
-                            if (!reject.isEmpty() || !prohibit.isEmpty()) {
-                                Toast.makeText(getContext(), "请求定位权限没有成功,无法进行操作.", Toast.LENGTH_SHORT).show();
-                                return;
+                            // MIUI 要扯淡一点
+                            if (!DeviceUtil.isMIUI()) {
+                                if (!reject.isEmpty() || !prohibit.isEmpty()) {
+                                    Toast.makeText(getContext(), "请求定位权限没有成功,无法进行操作.", Toast.LENGTH_SHORT).show();
+                                    return;
+                                }
                             }
                             permission = true;
                         }
@@ -176,7 +180,7 @@ public class ChildTwoFragment extends BaseFragment {
                 mAMapLBSModel.geoCode("成都", "倪家桥站", new DisposableObserver<PointBean>() {
                     @Override
                     public void onNext(PointBean pointBean) {
-                        Toast.makeText(getContext(), String.format("高德地理位置编码成功:%s_%s", pointBean.getTitle(), pointBean.getAddress()), Toast.LENGTH_SHORT).show();
+                        Toast.makeText(getContext(), String.format("高德地理位置编码成功:%s", pointBean.getAddress()), Toast.LENGTH_SHORT).show();
                     }
 
                     @Override
@@ -227,7 +231,7 @@ public class ChildTwoFragment extends BaseFragment {
                 });
                 break;
             case R.id.btn_nearby_poi_amap:
-                mAMapLBSModel.queryNearbyPois(new PointBean().setLat(30.542385).setLon(104.067652), "倪家桥", null, 0, 10, new DisposableObserver<List<PointBean>>() {
+                mAMapLBSModel.queryNearbyPois(new PointBean().setLat(30.542385).setLon(104.067652), "天府三街", null, 0, 10, new DisposableObserver<List<PointBean>>() {
                     @Override
                     public void onNext(List<PointBean> pointBeen) {
                         Toast.makeText(getContext(), String.format("高德周边检索成功:%s", pointBeen.toString()), Toast.LENGTH_SHORT).show();
@@ -279,7 +283,7 @@ public class ChildTwoFragment extends BaseFragment {
                         new DisposableObserver<List<RouteBean>>() {
                             @Override
                             public void onNext(List<RouteBean> routeBeen) {
-                                Toast.makeText(getContext(), String.format("高德驾车路径规划失败:%s", routeBeen.toString()), Toast.LENGTH_SHORT).show();
+                                Toast.makeText(getContext(), String.format("高德驾车路径规划成功:%s", routeBeen.toString()), Toast.LENGTH_SHORT).show();
                             }
 
                             @Override
@@ -358,7 +362,7 @@ public class ChildTwoFragment extends BaseFragment {
                 mBaiduLBSModel.geoCode("成都", "倪家桥站", new DisposableObserver<PointBean>() {
                     @Override
                     public void onNext(PointBean pointBean) {
-                        Toast.makeText(getContext(), String.format("百度地理位置编码成功:%s_%s", pointBean.getTitle(), pointBean.getAddress()), Toast.LENGTH_SHORT).show();
+                        Toast.makeText(getContext(), String.format("百度地理位置编码成功:%s", pointBean.getAddress()), Toast.LENGTH_SHORT).show();
                     }
 
                     @Override
@@ -409,7 +413,7 @@ public class ChildTwoFragment extends BaseFragment {
                 });
                 break;
             case R.id.btn_nearby_poi_baidu:
-                mBaiduLBSModel.queryNearbyPois(new PointBean().setLat(30.542385).setLon(104.067652), "倪家桥", null, 0, 10, new DisposableObserver<List<PointBean>>() {
+                mBaiduLBSModel.queryNearbyPois(new PointBean().setLat(30.542385).setLon(104.067652), "天府三街", null, 0, 10, new DisposableObserver<List<PointBean>>() {
                     @Override
                     public void onNext(List<PointBean> pointBeen) {
                         Toast.makeText(getContext(), String.format("百度周边检索成功:%s", pointBeen.toString()), Toast.LENGTH_SHORT).show();
@@ -461,7 +465,7 @@ public class ChildTwoFragment extends BaseFragment {
                         new DisposableObserver<List<RouteBean>>() {
                             @Override
                             public void onNext(List<RouteBean> routeBeen) {
-                                Toast.makeText(getContext(), String.format("百度驾车路径规划失败:%s", routeBeen.toString()), Toast.LENGTH_SHORT).show();
+                                Toast.makeText(getContext(), String.format("百度驾车路径规划成功:%s", routeBeen.toString()), Toast.LENGTH_SHORT).show();
                             }
 
                             @Override
