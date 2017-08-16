@@ -34,7 +34,7 @@ wechat-sdk-android-without-mta-1.3.4
 ---
 - AppCompat-v7_25.3.1
 - RecyclerView-v7_25.3.1
-- RxJava2_2.1.2
+- RxJava2_2.1.3
 - OkHttp3_3.8.1
 - Retrofit2_2.3.0
 - Glide4_4.0

@@ -1,13 +1,11 @@
 package com.liux.framework.lbs.model.impl;
 
 import android.content.Context;
-import android.graphics.Point;
 
 import com.amap.api.location.AMapLocation;
 import com.amap.api.location.AMapLocationClient;
 import com.amap.api.location.AMapLocationClientOption;
 import com.amap.api.location.AMapLocationListener;
-import com.amap.api.maps.model.LatLng;
 import com.amap.api.services.core.AMapException;
 import com.amap.api.services.core.LatLonPoint;
 import com.amap.api.services.core.PoiItem;
@@ -21,11 +19,9 @@ import com.amap.api.services.geocoder.GeocodeQuery;
 import com.amap.api.services.geocoder.GeocodeSearch;
 import com.amap.api.services.geocoder.RegeocodeAddress;
 import com.amap.api.services.geocoder.RegeocodeQuery;
-import com.amap.api.services.nearby.NearbySearch;
 import com.amap.api.services.poisearch.PoiResult;
 import com.amap.api.services.poisearch.PoiSearch;
 import com.amap.api.services.route.BusRouteResult;
-import com.amap.api.services.route.District;
 import com.amap.api.services.route.DrivePath;
 import com.amap.api.services.route.DriveRouteResult;
 import com.amap.api.services.route.DriveStep;
@@ -38,14 +34,12 @@ import com.liux.framework.lbs.bean.StepBean;
 import com.liux.framework.lbs.listener.OnLocationListener;
 import com.liux.framework.lbs.model.LBSModel;
 
-import org.reactivestreams.Publisher;
-import org.reactivestreams.Subscriber;
-
 import java.util.ArrayList;
 import java.util.List;
 
-import io.reactivex.Flowable;
-import io.reactivex.FlowableSubscriber;
+import io.reactivex.Observer;
+import io.reactivex.Observable;
+import io.reactivex.ObservableSource;
 import io.reactivex.android.schedulers.AndroidSchedulers;
 import io.reactivex.annotations.NonNull;
 import io.reactivex.functions.Function;
@@ -96,11 +90,11 @@ public class AMapLBSModelImpl implements LBSModel {
         }
     };
 
-    public AMapLBSModelImpl() {
+    private AMapLBSModelImpl() {
 
     }
 
-    public AMapLBSModelImpl(Context context) {
+    private AMapLBSModelImpl(Context context) {
         mContext = context.getApplicationContext();
 
         mAMapLocationClient = new AMapLocationClient(mContext);
@@ -138,46 +132,46 @@ public class AMapLBSModelImpl implements LBSModel {
     /**
      * 快速单次网络定位
      *
-     * @param subscriber
+     * @param observer
      */
     @Override
-    public void quickLocation(FlowableSubscriber<PointBean> subscriber) {
+    public void quickLocation(Observer<PointBean> observer) {
         AMapLocationClientOption aMapLocationClientOption = mAMapLocationClientOption.clone();
         aMapLocationClientOption.setOnceLocation(true);
         aMapLocationClientOption.setGpsFirst(false);
-        location(aMapLocationClientOption, subscriber);
+        location(aMapLocationClientOption, observer);
     }
 
     /**
      * 单次精确定位
      *
-     * @param subscriber
+     * @param observer
      */
     @Override
-    public void accuracyLocation(FlowableSubscriber<PointBean> subscriber) {
+    public void accuracyLocation(Observer<PointBean> observer) {
         AMapLocationClientOption aMapLocationClientOption = mAMapLocationClientOption.clone();
         aMapLocationClientOption.setOnceLocation(true);
         aMapLocationClientOption.setGpsFirst(true);
-        location(aMapLocationClientOption, subscriber);
+        location(aMapLocationClientOption, observer);
     }
 
-    private void location(AMapLocationClientOption aMapLocationClientOption, FlowableSubscriber<PointBean> subscriber) {
+    private void location(AMapLocationClientOption aMapLocationClientOption, Observer<PointBean> observer) {
         if (mAMapLocationClient.isStarted()) {
             AMapLocation aMapLocation = mAMapLocationClient.getLastKnownLocation();
             PointBean pointBean = AMapLocation2PointBean(aMapLocation);
             if (pointBean != null) {
-                subscriber.onNext(pointBean);
-                subscriber.onComplete();
+                observer.onNext(pointBean);
+                observer.onComplete();
                 return;
             }
         }
-        Flowable.just(aMapLocationClientOption)
-                .switchMap(new Function<AMapLocationClientOption, Publisher<AMapLocation>>() {
+        Observable.just(aMapLocationClientOption)
+                .switchMap(new Function<AMapLocationClientOption, ObservableSource<AMapLocation>>() {
                     @Override
-                    public Publisher<AMapLocation> apply(@NonNull final AMapLocationClientOption aMapLocationClientOption) throws Exception {
-                        return new Publisher<AMapLocation>() {
+                    public ObservableSource<AMapLocation> apply(@NonNull final AMapLocationClientOption aMapLocationClientOption) throws Exception {
+                        return new Observable<AMapLocation>() {
                             @Override
-                            public void subscribe(final Subscriber<? super AMapLocation> s) {
+                            protected void subscribeActual(final Observer<? super AMapLocation> observer) {
                                 final AMapLocationClient aMapLocationClient = new AMapLocationClient(mContext);
                                 aMapLocationClient.setLocationOption(aMapLocationClientOption);
                                 aMapLocationClient.setLocationListener(new AMapLocationListener() {
@@ -186,8 +180,13 @@ public class AMapLBSModelImpl implements LBSModel {
                                         aMapLocationClient.unRegisterLocationListener(this);
                                         aMapLocationClient.stopLocation();
                                         aMapLocationClient.onDestroy();
-                                        s.onNext(aMapLocation);
-                                        s.onComplete();
+                                        // AMapLocationClient 在回调时已经 try 掉异常了,需要手动传递
+                                        try {
+                                            observer.onNext(aMapLocation);
+                                            observer.onComplete();
+                                        } catch (Exception e) {
+                                            observer.onError(e);
+                                        }
                                     }
                                 });
                                 aMapLocationClient.startLocation();
@@ -207,7 +206,7 @@ public class AMapLBSModelImpl implements LBSModel {
                 })
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
-                .subscribe(subscriber);
+                .subscribe(observer);
     }
 
     /**
@@ -246,11 +245,11 @@ public class AMapLBSModelImpl implements LBSModel {
      *
      * @param city 城市编码/城市名称/行政区划代码
      * @param addr
-     * @param subscriber
+     * @param observer
      */
     @Override
-    public void geoCode(String city, String addr, FlowableSubscriber<PointBean> subscriber) {
-        Flowable.just(new String[] {city, addr})
+    public void geoCode(String city, String addr, Observer<PointBean> observer) {
+        Observable.just(new String[] {city, addr})
                 .map(new Function<String[], GeocodeQuery>() {
                     @Override
                     public GeocodeQuery apply(@NonNull String[] strings) throws Exception {
@@ -276,18 +275,18 @@ public class AMapLBSModelImpl implements LBSModel {
                 })
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
-                .subscribe(subscriber);
+                .subscribe(observer);
     }
 
     /**
      * 逆向地理位置编码
      *
      * @param pointBean
-     * @param subscriber
+     * @param observer
      */
     @Override
-    public void reverseGeoCode(final PointBean pointBean, FlowableSubscriber<PointBean> subscriber) {
-        Flowable.just(pointBean)
+    public void reverseGeoCode(final PointBean pointBean, Observer<PointBean> observer) {
+        Observable.just(pointBean)
                 .map(new Function<PointBean, RegeocodeQuery>() {
                     @Override
                     public RegeocodeQuery apply(@NonNull PointBean pointBean) throws Exception {
@@ -355,7 +354,7 @@ public class AMapLBSModelImpl implements LBSModel {
                 })
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
-                .subscribe(subscriber);
+                .subscribe(observer);
     }
 
     /**
@@ -366,11 +365,11 @@ public class AMapLBSModelImpl implements LBSModel {
      * @param type
      * @param page
      * @param num
-     * @param subscriber
+     * @param observer
      */
     @Override
-    public void queryCityPois(String city, String keyword, String type, final int page, final int num, FlowableSubscriber<List<PointBean>> subscriber) {
-        Flowable.just(new String[] {city, keyword, type})
+    public void queryCityPois(String city, String keyword, String type, final int page, final int num, Observer<List<PointBean>> observer) {
+        Observable.just(new String[] {city, keyword, type})
                 .map(new Function<String[], PoiSearch.Query>() {
                     @Override
                     public PoiSearch.Query apply(@NonNull String[] strings) throws Exception {
@@ -411,7 +410,7 @@ public class AMapLBSModelImpl implements LBSModel {
                 })
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
-                .subscribe(subscriber);
+                .subscribe(observer);
 
     }
 
@@ -423,11 +422,11 @@ public class AMapLBSModelImpl implements LBSModel {
      * @param type
      * @param page
      * @param num
-     * @param subscriber
+     * @param observer
      */
     @Override
-    public void queryNearbyPois(final PointBean center, String keyword, String type, final int page, final int num, FlowableSubscriber<List<PointBean>> subscriber) {
-        Flowable.just(new String[] {keyword, type})
+    public void queryNearbyPois(final PointBean center, String keyword, String type, final int page, final int num, Observer<List<PointBean>> observer) {
+        Observable.just(new String[] {keyword, type})
                 .map(new Function<String[], PoiSearch.Query>() {
                     @Override
                     public PoiSearch.Query apply(@NonNull String[] strings) throws Exception {
@@ -470,7 +469,7 @@ public class AMapLBSModelImpl implements LBSModel {
                 })
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
-                .subscribe(subscriber);
+                .subscribe(observer);
     }
 
     /**
@@ -482,11 +481,11 @@ public class AMapLBSModelImpl implements LBSModel {
      * @param type
      * @param page
      * @param num
-     * @param subscriber
+     * @param observer
      */
     @Override
-    public void queryRegionPois(final PointBean point_1, final PointBean point_2, String keyword, String type, final int page, final int num, FlowableSubscriber<List<PointBean>> subscriber) {
-        Flowable.just(new String[] {keyword, type})
+    public void queryRegionPois(final PointBean point_1, final PointBean point_2, String keyword, String type, final int page, final int num, Observer<List<PointBean>> observer) {
+        Observable.just(new String[] {keyword, type})
                 .map(new Function<String[], PoiSearch.Query>() {
                     @Override
                     public PoiSearch.Query apply(@NonNull String[] strings) throws Exception {
@@ -532,7 +531,7 @@ public class AMapLBSModelImpl implements LBSModel {
                 })
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
-                .subscribe(subscriber);
+                .subscribe(observer);
     }
 
     /**
@@ -542,11 +541,11 @@ public class AMapLBSModelImpl implements LBSModel {
      * @param end
      * @param middle
      * @param policy
-     * @param subscriber
+     * @param observer
      */
     @Override
-    public void queryDriverRoute(final PointBean begin, final PointBean end, final List<PointBean> middle, int policy, FlowableSubscriber<List<RouteBean>> subscriber) {
-        Flowable.just(policy)
+    public void queryDriverRoute(final PointBean begin, final PointBean end, final List<PointBean> middle, int policy, Observer<List<RouteBean>> observer) {
+        Observable.just(policy)
                 .map(new Function<Integer, RouteSearch.DriveRouteQuery>() {
                     @Override
                     public RouteSearch.DriveRouteQuery apply(@NonNull Integer integer) throws Exception {
@@ -610,7 +609,7 @@ public class AMapLBSModelImpl implements LBSModel {
                 })
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
-                .subscribe(subscriber);
+                .subscribe(observer);
     }
 
     /**
@@ -620,11 +619,11 @@ public class AMapLBSModelImpl implements LBSModel {
      * @param end
      * @param middle
      * @param policy
-     * @param subscriber
+     * @param observer
      */
 //    @Override
-    public void queryBusRoute(PointBean begin, PointBean end, List<PointBean> middle, int policy, FlowableSubscriber<List<RouteBean>> subscriber) {
-        Flowable.just(policy)
+    public void queryBusRoute(PointBean begin, PointBean end, List<PointBean> middle, int policy, Observer<List<RouteBean>> observer) {
+        Observable.just(policy)
                 .map(new Function<Integer, RouteSearch.BusRouteQuery>() {
                     @Override
                     public RouteSearch.BusRouteQuery apply(@NonNull Integer integer) throws Exception {
@@ -645,7 +644,7 @@ public class AMapLBSModelImpl implements LBSModel {
                 })
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
-                .subscribe(subscriber);
+                .subscribe(observer);
     }
 
     /**
@@ -655,11 +654,11 @@ public class AMapLBSModelImpl implements LBSModel {
      * @param end
      * @param middle
      * @param policy
-     * @param subscriber
+     * @param observer
      */
 //    @Override
-    public void queryWalkRoute(PointBean begin, PointBean end, List<PointBean> middle, int policy, FlowableSubscriber<List<RouteBean>> subscriber) {
-        Flowable.just(policy)
+    public void queryWalkRoute(PointBean begin, PointBean end, List<PointBean> middle, int policy, Observer<List<RouteBean>> observer) {
+        Observable.just(policy)
                 .map(new Function<Integer, RouteSearch.WalkRouteQuery>() {
                     @Override
                     public RouteSearch.WalkRouteQuery apply(@NonNull Integer integer) throws Exception {
@@ -680,7 +679,7 @@ public class AMapLBSModelImpl implements LBSModel {
                 })
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
-                .subscribe(subscriber);
+                .subscribe(observer);
     }
 
     /**
@@ -690,11 +689,11 @@ public class AMapLBSModelImpl implements LBSModel {
      * @param end
      * @param middle
      * @param policy
-     * @param subscriber
+     * @param observer
      */
 //    @Override
-    public void queryBikeRoute(PointBean begin, PointBean end, List<PointBean> middle, int policy, FlowableSubscriber<List<RouteBean>> subscriber) {
-        Flowable.just(policy)
+    public void queryBikeRoute(PointBean begin, PointBean end, List<PointBean> middle, int policy, Observer<List<RouteBean>> observer) {
+        Observable.just(policy)
                 .map(new Function<Integer, RouteSearch.RideRouteQuery>() {
                     @Override
                     public RouteSearch.RideRouteQuery apply(@NonNull Integer integer) throws Exception {
@@ -715,7 +714,7 @@ public class AMapLBSModelImpl implements LBSModel {
                 })
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
-                .subscribe(subscriber);
+                .subscribe(observer);
     }
 
     /**
@@ -723,11 +722,11 @@ public class AMapLBSModelImpl implements LBSModel {
      *
      * @param city
      * @param name
-     * @param subscriber
+     * @param observer
      */
     @Override
-    public void queryAdministrativeRegion(String city, String name, FlowableSubscriber<List<List<PointBean>>> subscriber) {
-        Flowable.just(new String[] {city, name})
+    public void queryAdministrativeRegion(String city, String name, Observer<List<List<PointBean>>> observer) {
+        Observable.just(new String[] {city, name})
                 .map(new Function<String[], DistrictSearchQuery>() {
                     @Override
                     public DistrictSearchQuery apply(@NonNull String[] strings) throws Exception {
@@ -780,7 +779,7 @@ public class AMapLBSModelImpl implements LBSModel {
                 })
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
-                .subscribe(subscriber);
+                .subscribe(observer);
     }
 
     private PointBean AMapLocation2PointBean(AMapLocation aMapLocation) {

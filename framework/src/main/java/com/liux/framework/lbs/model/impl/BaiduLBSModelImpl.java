@@ -50,14 +50,12 @@ import com.liux.framework.lbs.bean.StepBean;
 import com.liux.framework.lbs.listener.OnLocationListener;
 import com.liux.framework.lbs.model.LBSModel;
 
-import org.reactivestreams.Publisher;
-import org.reactivestreams.Subscriber;
-
 import java.util.ArrayList;
 import java.util.List;
 
-import io.reactivex.Flowable;
-import io.reactivex.FlowableSubscriber;
+import io.reactivex.Observable;
+import io.reactivex.ObservableSource;
+import io.reactivex.Observer;
 import io.reactivex.android.schedulers.AndroidSchedulers;
 import io.reactivex.annotations.NonNull;
 import io.reactivex.functions.Function;
@@ -152,46 +150,46 @@ public class BaiduLBSModelImpl implements LBSModel {
     /**
      * 快速单次网络定位
      *
-     * @param subscriber
+     * @param observer
      */
     @Override
-    public void quickLocation(FlowableSubscriber<PointBean> subscriber) {
+    public void quickLocation(Observer<PointBean> observer) {
         LocationClientOption locationClientOption = new LocationClientOption(mLocationClientOption);
         locationClientOption.setScanSpan(0);
         locationClientOption.setOpenGps(false);
-        location(locationClientOption, subscriber);
+        location(locationClientOption, observer);
     }
 
     /**
      * 单次精确定位
      *
-     * @param subscriber
+     * @param observer
      */
     @Override
-    public void accuracyLocation(FlowableSubscriber<PointBean> subscriber) {
+    public void accuracyLocation(Observer<PointBean> observer) {
         LocationClientOption locationClientOption = new LocationClientOption(mLocationClientOption);
         locationClientOption.setScanSpan(0);
         locationClientOption.setOpenGps(true);
-        location(locationClientOption, subscriber);
+        location(locationClientOption, observer);
     }
 
-    private void location(LocationClientOption locationClientOption, FlowableSubscriber<PointBean> subscriber) {
+    private void location(LocationClientOption locationClientOption, Observer<PointBean> observer) {
         if (mLocationClient.isStarted()) {
             BDLocation bdLocation = mLocationClient.getLastKnownLocation();
             PointBean pointBean = BDLocation2PointBean(bdLocation);
             if (pointBean != null) {
-                subscriber.onNext(pointBean);
-                subscriber.onComplete();
+                observer.onNext(pointBean);
+                observer.onComplete();
                 return;
             }
         }
-        Flowable.just(locationClientOption)
-                .switchMap(new Function<LocationClientOption, Publisher<BDLocation>>() {
+        Observable.just(locationClientOption)
+                .switchMap(new Function<LocationClientOption, ObservableSource<BDLocation>>() {
                     @Override
-                    public Publisher<BDLocation> apply(@NonNull final LocationClientOption locationClientOption) throws Exception {
-                        return new Publisher<BDLocation>() {
+                    public ObservableSource<BDLocation> apply(@NonNull final LocationClientOption locationClientOption) throws Exception {
+                        return new Observable<BDLocation>() {
                             @Override
-                            public void subscribe(final Subscriber<? super BDLocation> s) {
+                            protected void subscribeActual(final Observer<? super BDLocation> observer) {
                                 final LocationClient locationClient = new LocationClient(mContext);
                                 locationClient.setLocOption(locationClientOption);
                                 locationClient.registerLocationListener(new BDAbstractLocationListener() {
@@ -199,8 +197,8 @@ public class BaiduLBSModelImpl implements LBSModel {
                                     public void onReceiveLocation(BDLocation bdLocation) {
                                         locationClient.unRegisterLocationListener(this);
                                         locationClient.stop();
-                                        s.onNext(bdLocation);
-                                        s.onComplete();
+                                        observer.onNext(bdLocation);
+                                        observer.onComplete();
                                     }
                                 });
                                 locationClient.start();
@@ -220,7 +218,7 @@ public class BaiduLBSModelImpl implements LBSModel {
                 })
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
-                .subscribe(subscriber);
+                .subscribe(observer);
     }
 
     /**
@@ -260,11 +258,11 @@ public class BaiduLBSModelImpl implements LBSModel {
      *
      * @param city
      * @param addr
-     * @param subscriber
+     * @param observer
      */
     @Override
-    public void geoCode(String city, String addr, FlowableSubscriber<PointBean> subscriber) {
-        Flowable.just(new String[] {city, addr})
+    public void geoCode(String city, String addr, Observer<PointBean> observer) {
+        Observable.just(new String[] {city, addr})
                 .map(new Function<String[], GeoCodeOption>() {
                     @Override
                     public GeoCodeOption apply(@NonNull String[] strings) throws Exception {
@@ -273,18 +271,18 @@ public class BaiduLBSModelImpl implements LBSModel {
                                 .address(strings[1]);
                     }
                 })
-                .switchMap(new Function<GeoCodeOption, Publisher<GeoCodeResult>>() {
+                .switchMap(new Function<GeoCodeOption, ObservableSource<GeoCodeResult>>() {
                     @Override
-                    public Publisher<GeoCodeResult> apply(@NonNull final GeoCodeOption geoCodeOption) throws Exception {
-                        return new Publisher<GeoCodeResult>() {
+                    public ObservableSource<GeoCodeResult> apply(@NonNull final GeoCodeOption geoCodeOption) throws Exception {
+                        return new Observable<GeoCodeResult>() {
                             @Override
-                            public void subscribe(final Subscriber<? super GeoCodeResult> subscriber) {
+                            protected void subscribeActual(final Observer<? super GeoCodeResult> observer) {
                                 final GeoCoder geoCoder = GeoCoder.newInstance();
                                 geoCoder.setOnGetGeoCodeResultListener(new OnGetGeoCoderResultListener() {
                                     @Override
                                     public void onGetGeoCodeResult(GeoCodeResult geoCodeResult) {
-                                        subscriber.onNext(geoCodeResult);
-                                        subscriber.onComplete();
+                                        observer.onNext(geoCodeResult);
+                                        observer.onComplete();
                                         geoCoder.destroy();
                                     }
 
@@ -313,30 +311,30 @@ public class BaiduLBSModelImpl implements LBSModel {
                 })
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
-                .subscribe(subscriber);
+                .subscribe(observer);
     }
 
     /**
      * 逆向地理位置编码
      *
      * @param point
-     * @param subscriber
+     * @param observer
      */
     @Override
-    public void reverseGeoCode(PointBean point, FlowableSubscriber<PointBean> subscriber) {
-        Flowable.just(point)
+    public void reverseGeoCode(PointBean point, Observer<PointBean> observer) {
+        Observable.just(point)
                 .map(new Function<PointBean, ReverseGeoCodeOption>() {
                     @Override
                     public ReverseGeoCodeOption apply(@NonNull PointBean pointBean) throws Exception {
                         return new ReverseGeoCodeOption().location(new LatLng(pointBean.getLat(), pointBean.getLon()));
                     }
                 })
-                .switchMap(new Function<ReverseGeoCodeOption, Publisher<ReverseGeoCodeResult>>() {
+                .switchMap(new Function<ReverseGeoCodeOption, ObservableSource<ReverseGeoCodeResult>>() {
                     @Override
-                    public Publisher<ReverseGeoCodeResult> apply(@NonNull final ReverseGeoCodeOption reverseGeoCodeOption) throws Exception {
-                        return new Publisher<ReverseGeoCodeResult>() {
+                    public ObservableSource<ReverseGeoCodeResult> apply(@NonNull final ReverseGeoCodeOption reverseGeoCodeOption) throws Exception {
+                        return new Observable<ReverseGeoCodeResult>() {
                             @Override
-                            public void subscribe(final Subscriber<? super ReverseGeoCodeResult> s) {
+                            protected void subscribeActual(final Observer<? super ReverseGeoCodeResult> observer) {
                                 final GeoCoder geoCoder = GeoCoder.newInstance();
                                 geoCoder.setOnGetGeoCodeResultListener(new OnGetGeoCoderResultListener() {
                                     @Override
@@ -346,8 +344,8 @@ public class BaiduLBSModelImpl implements LBSModel {
 
                                     @Override
                                     public void onGetReverseGeoCodeResult(ReverseGeoCodeResult reverseGeoCodeResult) {
-                                        s.onNext(reverseGeoCodeResult);
-                                        s.onComplete();
+                                        observer.onNext(reverseGeoCodeResult);
+                                        observer.onComplete();
                                         geoCoder.destroy();
                                     }
                                 });
@@ -409,7 +407,7 @@ public class BaiduLBSModelImpl implements LBSModel {
                 })
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
-                .subscribe(subscriber);
+                .subscribe(observer);
     }
 
     /**
@@ -420,11 +418,11 @@ public class BaiduLBSModelImpl implements LBSModel {
      * @param type
      * @param page
      * @param num
-     * @param subscriber
+     * @param observer
      */
     @Override
-    public void queryCityPois(final String city, final String keyword, final String type, final int page, final int num, FlowableSubscriber<List<PointBean>> subscriber) {
-        Flowable.just(new PoiCitySearchOption())
+    public void queryCityPois(final String city, final String keyword, final String type, final int page, final int num, Observer<List<PointBean>> observer) {
+        Observable.just(new PoiCitySearchOption())
                 .map(new Function<PoiCitySearchOption, PoiCitySearchOption>() {
                     @Override
                     public PoiCitySearchOption apply(@NonNull PoiCitySearchOption poiCitySearchOption) throws Exception {
@@ -439,18 +437,18 @@ public class BaiduLBSModelImpl implements LBSModel {
                                 .pageCapacity(num);
                     }
                 })
-                .switchMap(new Function<PoiCitySearchOption, Publisher<PoiResult>>() {
+                .switchMap(new Function<PoiCitySearchOption, ObservableSource<PoiResult>>() {
                     @Override
-                    public Publisher<PoiResult> apply(@NonNull final PoiCitySearchOption poiCitySearchOption) throws Exception {
-                        return new Publisher<PoiResult>() {
+                    public ObservableSource<PoiResult> apply(@NonNull final PoiCitySearchOption poiCitySearchOption) throws Exception {
+                        return new Observable<PoiResult>() {
                             @Override
-                            public void subscribe(final Subscriber<? super PoiResult> subscriber) {
+                            protected void subscribeActual(final Observer<? super PoiResult> observer) {
                                 final PoiSearch poiSearch = PoiSearch.newInstance();
                                 poiSearch.setOnGetPoiSearchResultListener(new OnGetPoiSearchResultListener() {
                                     @Override
                                     public void onGetPoiResult(PoiResult poiResult) {
-                                        subscriber.onNext(poiResult);
-                                        subscriber.onComplete();
+                                        observer.onNext(poiResult);
+                                        observer.onComplete();
                                         poiSearch.destroy();
                                     }
 
@@ -515,7 +513,7 @@ public class BaiduLBSModelImpl implements LBSModel {
                 })
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
-                .subscribe(subscriber);
+                .subscribe(observer);
     }
 
     /**
@@ -526,11 +524,11 @@ public class BaiduLBSModelImpl implements LBSModel {
      * @param type
      * @param page
      * @param num
-     * @param subscriber
+     * @param observer
      */
     @Override
-    public void queryNearbyPois(PointBean center, final String keyword, final String type, final int page, final int num, FlowableSubscriber<List<PointBean>> subscriber) {
-        Flowable.just(center)
+    public void queryNearbyPois(PointBean center, final String keyword, final String type, final int page, final int num, Observer<List<PointBean>> observer) {
+        Observable.just(center)
                 .map(new Function<PointBean, PoiNearbySearchOption>() {
                     @Override
                     public PoiNearbySearchOption apply(@NonNull PointBean pointBean) throws Exception {
@@ -547,18 +545,18 @@ public class BaiduLBSModelImpl implements LBSModel {
                                 .sortType(PoiSortType.distance_from_near_to_far);
                     }
                 })
-                .switchMap(new Function<PoiNearbySearchOption, Publisher<PoiResult>>() {
+                .switchMap(new Function<PoiNearbySearchOption, ObservableSource<PoiResult>>() {
                     @Override
-                    public Publisher<PoiResult> apply(@NonNull final PoiNearbySearchOption poiNearbySearchOption) throws Exception {
-                        return new Publisher<PoiResult>() {
+                    public ObservableSource<PoiResult> apply(@NonNull final PoiNearbySearchOption poiNearbySearchOption) throws Exception {
+                        return new Observable<PoiResult>() {
                             @Override
-                            public void subscribe(final Subscriber<? super PoiResult> subscriber) {
+                            protected void subscribeActual(final Observer<? super PoiResult> observer) {
                                 final PoiSearch poiSearch = PoiSearch.newInstance();
                                 poiSearch.setOnGetPoiSearchResultListener(new OnGetPoiSearchResultListener() {
                                     @Override
                                     public void onGetPoiResult(PoiResult poiResult) {
-                                        subscriber.onNext(poiResult);
-                                        subscriber.onComplete();
+                                        observer.onNext(poiResult);
+                                        observer.onComplete();
                                         poiSearch.destroy();
                                     }
 
@@ -623,7 +621,7 @@ public class BaiduLBSModelImpl implements LBSModel {
                 })
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
-                .subscribe(subscriber);
+                .subscribe(observer);
     }
 
     /**
@@ -635,11 +633,11 @@ public class BaiduLBSModelImpl implements LBSModel {
      * @param type
      * @param page
      * @param num
-     * @param subscriber
+     * @param observer
      */
     @Override
-    public void queryRegionPois(PointBean point_1, PointBean point_2, final String keyword, final String type, final int page, final int num, FlowableSubscriber<List<PointBean>> subscriber) {
-        Flowable.just(new PointBean[] {point_1, point_2})
+    public void queryRegionPois(PointBean point_1, PointBean point_2, final String keyword, final String type, final int page, final int num, Observer<List<PointBean>> observer) {
+        Observable.just(new PointBean[] {point_1, point_2})
                 .map(new Function<PointBean[], PoiBoundSearchOption>() {
                     @Override
                     public PoiBoundSearchOption apply(@NonNull PointBean[] pointBeen) throws Exception {
@@ -657,18 +655,18 @@ public class BaiduLBSModelImpl implements LBSModel {
                                 .pageCapacity(num);
                     }
                 })
-                .switchMap(new Function<PoiBoundSearchOption, Publisher<PoiResult>>() {
+                .switchMap(new Function<PoiBoundSearchOption, ObservableSource<PoiResult>>() {
                     @Override
-                    public Publisher<PoiResult> apply(@NonNull final PoiBoundSearchOption poiBoundSearchOption) throws Exception {
-                        return new Publisher<PoiResult>() {
+                    public ObservableSource<PoiResult> apply(@NonNull final PoiBoundSearchOption poiBoundSearchOption) throws Exception {
+                        return new Observable<PoiResult>() {
                             @Override
-                            public void subscribe(final Subscriber<? super PoiResult> subscriber) {
+                            protected void subscribeActual(final Observer<? super PoiResult> observer) {
                                 final PoiSearch poiSearch = PoiSearch.newInstance();
                                 poiSearch.setOnGetPoiSearchResultListener(new OnGetPoiSearchResultListener() {
                                     @Override
                                     public void onGetPoiResult(PoiResult poiResult) {
-                                        subscriber.onNext(poiResult);
-                                        subscriber.onComplete();
+                                        observer.onNext(poiResult);
+                                        observer.onComplete();
                                         poiSearch.destroy();
                                     }
 
@@ -733,7 +731,7 @@ public class BaiduLBSModelImpl implements LBSModel {
                 })
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
-                .subscribe(subscriber);
+                .subscribe(observer);
     }
 
     /**
@@ -743,11 +741,11 @@ public class BaiduLBSModelImpl implements LBSModel {
      * @param end
      * @param middle
      * @param policy
-     * @param subscriber
+     * @param observer
      */
     @Override
-    public void queryDriverRoute(final PointBean begin, final PointBean end, final List<PointBean> middle, int policy, FlowableSubscriber<List<RouteBean>> subscriber) {
-        Flowable.just(policy)
+    public void queryDriverRoute(final PointBean begin, final PointBean end, final List<PointBean> middle, int policy, Observer<List<RouteBean>> observer) {
+        Observable.just(policy)
                 .map(new Function<Integer, DrivingRoutePlanOption.DrivingPolicy>() {
                     @Override
                     public DrivingRoutePlanOption.DrivingPolicy apply(@NonNull Integer integer) throws Exception {
@@ -788,12 +786,12 @@ public class BaiduLBSModelImpl implements LBSModel {
                                 .trafficPolicy(DrivingRoutePlanOption.DrivingTrafficPolicy.ROUTE_PATH);
                     }
                 })
-                .switchMap(new Function<DrivingRoutePlanOption, Publisher<DrivingRouteResult>>() {
+                .switchMap(new Function<DrivingRoutePlanOption, ObservableSource<DrivingRouteResult>>() {
                     @Override
-                    public Publisher<DrivingRouteResult> apply(@NonNull final DrivingRoutePlanOption drivingRoutePlanOption) throws Exception {
-                        return new Publisher<DrivingRouteResult>() {
+                    public ObservableSource<DrivingRouteResult> apply(@NonNull final DrivingRoutePlanOption drivingRoutePlanOption) throws Exception {
+                        return new Observable<DrivingRouteResult>() {
                             @Override
-                            public void subscribe(final Subscriber<? super DrivingRouteResult> subscriber) {
+                            protected void subscribeActual(final Observer<? super DrivingRouteResult> observer) {
                                 final RoutePlanSearch routePlanSearch = RoutePlanSearch.newInstance();
                                 routePlanSearch.setOnGetRoutePlanResultListener(new OnGetRoutePlanResultListener() {
                                     @Override
@@ -813,8 +811,8 @@ public class BaiduLBSModelImpl implements LBSModel {
 
                                     @Override
                                     public void onGetDrivingRouteResult(DrivingRouteResult drivingRouteResult) {
-                                        subscriber.onNext(drivingRouteResult);
-                                        subscriber.onComplete();
+                                        observer.onNext(drivingRouteResult);
+                                        observer.onComplete();
                                         routePlanSearch.destroy();
                                     }
 
@@ -872,7 +870,7 @@ public class BaiduLBSModelImpl implements LBSModel {
                 })
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
-                .subscribe(subscriber);
+                .subscribe(observer);
     }
 
     /**
@@ -882,23 +880,23 @@ public class BaiduLBSModelImpl implements LBSModel {
      * @param end
      * @param middle
      * @param policy
-     * @param subscriber
+     * @param observer
      */
 //    @Override
-    public void queryBusRoute(PointBean begin, PointBean end, List<PointBean> middle, int policy, FlowableSubscriber<List<RouteBean>> subscriber) {
-        Flowable.just(policy)
+    public void queryBusRoute(PointBean begin, PointBean end, List<PointBean> middle, int policy, Observer<List<RouteBean>> observer) {
+        Observable.just(policy)
                 .map(new Function<Integer, TransitRoutePlanOption>() {
                     @Override
                     public TransitRoutePlanOption apply(@NonNull Integer integer) throws Exception {
                         return null;
                     }
                 })
-                .switchMap(new Function<TransitRoutePlanOption, Publisher<TransitRouteResult>>() {
+                .switchMap(new Function<TransitRoutePlanOption, ObservableSource<TransitRouteResult>>() {
                     @Override
-                    public Publisher<TransitRouteResult> apply(@NonNull TransitRoutePlanOption transitRoutePlanOption) throws Exception {
-                        return new Publisher<TransitRouteResult>() {
+                    public ObservableSource<TransitRouteResult> apply(@NonNull TransitRoutePlanOption transitRoutePlanOption) throws Exception {
+                        return new Observable<TransitRouteResult>() {
                             @Override
-                            public void subscribe(Subscriber<? super TransitRouteResult> subscriber) {
+                            protected void subscribeActual(Observer<? super TransitRouteResult> observer) {
 
                             }
                         };
@@ -912,7 +910,7 @@ public class BaiduLBSModelImpl implements LBSModel {
                 })
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
-                .subscribe(subscriber);
+                .subscribe(observer);
     }
 
     /**
@@ -922,23 +920,23 @@ public class BaiduLBSModelImpl implements LBSModel {
      * @param end
      * @param middle
      * @param policy
-     * @param subscriber
+     * @param observer
      */
 //    @Override
-    public void queryWalkRoute(PointBean begin, PointBean end, List<PointBean> middle, int policy, FlowableSubscriber<List<RouteBean>> subscriber) {
-        Flowable.just(policy)
+    public void queryWalkRoute(PointBean begin, PointBean end, List<PointBean> middle, int policy, Observer<List<RouteBean>> observer) {
+        Observable.just(policy)
                 .map(new Function<Integer, WalkingRoutePlanOption>() {
                     @Override
                     public WalkingRoutePlanOption apply(@NonNull Integer integer) throws Exception {
                         return null;
                     }
                 })
-                .switchMap(new Function<WalkingRoutePlanOption, Publisher<WalkingRouteResult>>() {
+                .switchMap(new Function<WalkingRoutePlanOption, ObservableSource<WalkingRouteResult>>() {
                     @Override
-                    public Publisher<WalkingRouteResult> apply(@NonNull WalkingRoutePlanOption walkingRoutePlanOption) throws Exception {
-                        return new Publisher<WalkingRouteResult>() {
+                    public ObservableSource<WalkingRouteResult> apply(@NonNull WalkingRoutePlanOption walkingRoutePlanOption) throws Exception {
+                        return new Observable<WalkingRouteResult>() {
                             @Override
-                            public void subscribe(Subscriber<? super WalkingRouteResult> subscriber) {
+                            protected void subscribeActual(Observer<? super WalkingRouteResult> observer) {
 
                             }
                         };
@@ -952,7 +950,7 @@ public class BaiduLBSModelImpl implements LBSModel {
                 })
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
-                .subscribe(subscriber);
+                .subscribe(observer);
     }
 
     /**
@@ -962,23 +960,23 @@ public class BaiduLBSModelImpl implements LBSModel {
      * @param end
      * @param middle
      * @param policy
-     * @param subscriber
+     * @param observer
      */
 //    @Override
-    public void queryBikeRoute(PointBean begin, PointBean end, List<PointBean> middle, int policy, FlowableSubscriber<List<RouteBean>> subscriber) {
-        Flowable.just(policy)
+    public void queryBikeRoute(PointBean begin, PointBean end, List<PointBean> middle, int policy, Observer<List<RouteBean>> observer) {
+        Observable.just(policy)
                 .map(new Function<Integer, BikingRoutePlanOption>() {
                     @Override
                     public BikingRoutePlanOption apply(@NonNull Integer integer) throws Exception {
                         return null;
                     }
                 })
-                .switchMap(new Function<BikingRoutePlanOption, Publisher<BikingRouteResult>>() {
+                .switchMap(new Function<BikingRoutePlanOption, ObservableSource<BikingRouteResult>>() {
                     @Override
-                    public Publisher<BikingRouteResult> apply(@NonNull BikingRoutePlanOption bikingRoutePlanOption) throws Exception {
-                        return new Publisher<BikingRouteResult>() {
+                    public ObservableSource<BikingRouteResult> apply(@NonNull BikingRoutePlanOption bikingRoutePlanOption) throws Exception {
+                        return new Observable<BikingRouteResult>() {
                             @Override
-                            public void subscribe(Subscriber<? super BikingRouteResult> subscriber) {
+                            protected void subscribeActual(Observer<? super BikingRouteResult> observer) {
 
                             }
                         };
@@ -992,7 +990,7 @@ public class BaiduLBSModelImpl implements LBSModel {
                 })
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
-                .subscribe(subscriber);
+                .subscribe(observer);
     }
 
     /**
@@ -1000,11 +998,11 @@ public class BaiduLBSModelImpl implements LBSModel {
      *
      * @param city
      * @param name
-     * @param subscriber
+     * @param observer
      */
     @Override
-    public void queryAdministrativeRegion(String city, String name, FlowableSubscriber<List<List<PointBean>>> subscriber) {
-        Flowable.just(new String[] {city, name})
+    public void queryAdministrativeRegion(String city, String name, Observer<List<List<PointBean>>> observer) {
+        Observable.just(new String[] {city, name})
                 .map(new Function<String[], DistrictSearchOption>() {
                     @Override
                     public DistrictSearchOption apply(@NonNull String[] strings) throws Exception {
@@ -1013,18 +1011,18 @@ public class BaiduLBSModelImpl implements LBSModel {
                                 .districtName(strings[1]);
                     }
                 })
-                .switchMap(new Function<DistrictSearchOption, Publisher<DistrictResult>>() {
+                .switchMap(new Function<DistrictSearchOption, ObservableSource<DistrictResult>>() {
                     @Override
-                    public Publisher<DistrictResult> apply(@NonNull final DistrictSearchOption districtSearchOption) throws Exception {
-                        return new Publisher<DistrictResult>() {
+                    public ObservableSource<DistrictResult> apply(@NonNull final DistrictSearchOption districtSearchOption) throws Exception {
+                        return new Observable<DistrictResult>() {
                             @Override
-                            public void subscribe(final Subscriber<? super DistrictResult> subscriber) {
+                            protected void subscribeActual(final Observer<? super DistrictResult> observer) {
                                 final DistrictSearch districtSearch = DistrictSearch.newInstance();
                                 districtSearch.setOnDistrictSearchListener(new OnGetDistricSearchResultListener() {
                                     @Override
                                     public void onGetDistrictResult(DistrictResult districtResult) {
-                                        subscriber.onNext(districtResult);
-                                        subscriber.onComplete();
+                                        observer.onNext(districtResult);
+                                        observer.onComplete();
                                         districtSearch.destroy();
                                     }
                                 });
@@ -1055,7 +1053,7 @@ public class BaiduLBSModelImpl implements LBSModel {
                 })
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
-                .subscribe(subscriber);
+                .subscribe(observer);
     }
 
     private PointBean BDLocation2PointBean(BDLocation location) {

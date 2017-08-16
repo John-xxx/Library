@@ -6,7 +6,7 @@ import com.liux.framework.lbs.listener.OnLocationListener;
 
 import java.util.List;
 
-import io.reactivex.FlowableSubscriber;
+import io.reactivex.Observer;
 
 /**
  * Created by Liux on 2017/8/7.
@@ -16,15 +16,15 @@ public interface LBSModel {
 
     /**
      * 单次快速定位
-     * @param subscriber
+     * @param observer
      */
-    void quickLocation(FlowableSubscriber<PointBean> subscriber);
+    void quickLocation(Observer<PointBean> observer);
 
     /**
      * 单次精确定位
-     * @param subscriber
+     * @param observer
      */
-    void accuracyLocation(FlowableSubscriber<PointBean> subscriber);
+    void accuracyLocation(Observer<PointBean> observer);
 
     /**
      * 开始持续定位
@@ -42,16 +42,16 @@ public interface LBSModel {
      * 地理位置编码
      * @param city
      * @param addr
-     * @param subscriber
+     * @param observer
      */
-    void geoCode(String city, String addr, FlowableSubscriber<PointBean> subscriber);
+    void geoCode(String city, String addr, Observer<PointBean> observer);
 
     /**
      * 逆向地理位置编码
      * @param point
-     * @param subscriber
+     * @param observer
      */
-    void reverseGeoCode(PointBean point, FlowableSubscriber<PointBean> subscriber);
+    void reverseGeoCode(PointBean point, Observer<PointBean> observer);
 
     /**
      * 城市内检索兴趣点
@@ -60,9 +60,9 @@ public interface LBSModel {
      * @param type
      * @param page
      * @param num
-     * @param subscriber
+     * @param observer
      */
-    void queryCityPois(String city, String keyword, String type, int page, int num, FlowableSubscriber<List<PointBean>> subscriber);
+    void queryCityPois(String city, String keyword, String type, int page, int num, Observer<List<PointBean>> observer);
 
     /**
      * 周边检索兴趣点
@@ -71,9 +71,9 @@ public interface LBSModel {
      * @param type
      * @param page
      * @param num
-     * @param subscriber
+     * @param observer
      */
-    void queryNearbyPois(PointBean center, String keyword, String type, int page, int num, FlowableSubscriber<List<PointBean>> subscriber);
+    void queryNearbyPois(PointBean center, String keyword, String type, int page, int num, Observer<List<PointBean>> observer);
 
     /**
      * 区域范围内检索兴趣点
@@ -83,9 +83,9 @@ public interface LBSModel {
      * @param type
      * @param page
      * @param num
-     * @param subscriber
+     * @param observer
      */
-    void queryRegionPois(PointBean point_1, PointBean point_2, String keyword, String type, int page, int num, FlowableSubscriber<List<PointBean>> subscriber);
+    void queryRegionPois(PointBean point_1, PointBean point_2, String keyword, String type, int page, int num, Observer<List<PointBean>> observer);
 
     /**
      * 驾车路径规划
@@ -93,9 +93,9 @@ public interface LBSModel {
      * @param end
      * @param middle
      * @param policy
-     * @param subscriber
+     * @param observer
      */
-    void queryDriverRoute(PointBean begin, PointBean end, List<PointBean> middle, int policy, FlowableSubscriber<List<RouteBean>> subscriber);
+    void queryDriverRoute(PointBean begin, PointBean end, List<PointBean> middle, int policy, Observer<List<RouteBean>> observer);
 
 //    /**
 //     * 公交路线规划
@@ -103,9 +103,9 @@ public interface LBSModel {
 //     * @param end
 //     * @param middle
 //     * @param policy
-//     * @param subscriber
+//     * @param observer
 //     */
-//    void queryBusRoute(PointBean begin, PointBean end, List<PointBean> middle, int policy, FlowableSubscriber<List<RouteBean>> subscriber);
+//    void queryBusRoute(PointBean begin, PointBean end, List<PointBean> middle, int policy, Observer<List<RouteBean>> observer);
 //
 //    /**
 //     * 步行路线规划
@@ -113,9 +113,9 @@ public interface LBSModel {
 //     * @param end
 //     * @param middle
 //     * @param policy
-//     * @param subscriber
+//     * @param observer
 //     */
-//    void queryWalkRoute(PointBean begin, PointBean end, List<PointBean> middle, int policy, FlowableSubscriber<List<RouteBean>> subscriber);
+//    void queryWalkRoute(PointBean begin, PointBean end, List<PointBean> middle, int policy, Observer<List<RouteBean>> observer);
 //
 //    /**
 //     * 骑行路径规划
@@ -123,15 +123,15 @@ public interface LBSModel {
 //     * @param end
 //     * @param middle
 //     * @param policy
-//     * @param subscriber
+//     * @param observer
 //     */
-//    void queryBikeRoute(PointBean begin, PointBean end, List<PointBean> middle, int policy, FlowableSubscriber<List<RouteBean>> subscriber);
+//    void queryBikeRoute(PointBean begin, PointBean end, List<PointBean> middle, int policy, Observer<List<RouteBean>> observer);
 
     /**
      * 行政区域范围查询
      * @param city
      * @param name
-     * @param subscriber
+     * @param observer
      */
-    void queryAdministrativeRegion(String city, String name, FlowableSubscriber<List<List<PointBean>>> subscriber);
+    void queryAdministrativeRegion(String city, String name, Observer<List<List<PointBean>>> observer);
 }
