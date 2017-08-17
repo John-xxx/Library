@@ -123,7 +123,7 @@ public class AMapLBSModelImpl implements LBSModel {
         // 单位是毫秒，默认30000毫秒，建议超时时间不要低于8000毫秒。
         mAMapLocationClientOption.setHttpTimeOut(8 * 1000);
         // 开启缓存机制
-        mAMapLocationClientOption.setLocationCacheEnable(true);
+        mAMapLocationClientOption.setLocationCacheEnable(false);
         // 当不是GPS模式时返回方向,海拔高度,速度信息
         mAMapLocationClientOption.setSensorEnable(true);
 
@@ -152,8 +152,9 @@ public class AMapLBSModelImpl implements LBSModel {
     @Override
     public void accuracyLocation(Observer<PointBean> observer) {
         AMapLocationClientOption aMapLocationClientOption = mAMapLocationClientOption.clone();
-        aMapLocationClientOption.setOnceLocation(true);
         aMapLocationClientOption.setGpsFirst(true);
+        aMapLocationClientOption.setOnceLocation(true);
+        aMapLocationClientOption.setOnceLocationLatest(true);
         location(aMapLocationClientOption, observer);
     }
 
