@@ -16,7 +16,7 @@ Framework
 - LBS Model<br>
 基于百度地图和高德地图的业务层Model封装<br>
 BaiduLBS_Android_4.4<br>
-AMap3DMap_5.2.1_AMapSearch_5.2.1_AMapLocation_3.5.0_20170731
+AMap3DMap_5.3_AMapSearch_5.3_AMapLocation_3.5.0_20170731
 - Pay<br>
 基于支付宝/微信支付的支付逻辑封装<br>
 alipaySdk-20170725<br>
