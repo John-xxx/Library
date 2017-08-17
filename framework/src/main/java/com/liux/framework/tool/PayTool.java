@@ -134,17 +134,17 @@ public class PayTool {
         }
     }
 
-    public static abstract class UnionPay extends Pay<String, Boolean> {
-
-        protected UnionPay(String bill) {
-            super(bill);
-        }
-
-        @Override
-        protected void pay() {
-            callback(false);
-        }
-    }
+//    public static abstract class UnionPay extends Pay<String, Boolean> {
+//
+//        protected UnionPay(String bill) {
+//            super(bill);
+//        }
+//
+//        @Override
+//        protected void pay() {
+//            callback(false);
+//        }
+//    }
 
     public static class AliResult {
         private String resultStatus;

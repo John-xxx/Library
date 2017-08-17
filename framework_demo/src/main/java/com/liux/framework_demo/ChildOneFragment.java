@@ -121,13 +121,13 @@ public class ChildOneFragment extends BaseFragment {
                         });
                 break;
             case R.id.btn_union:
-                PayTool.with(getActivity())
-                        .pay(new PayTool.UnionPay("") {
-                            @Override
-                            public void callback(Boolean aBoolean) {
-                                Toast.makeText(getContext(), "暂未支持", Toast.LENGTH_SHORT).show();
-                            }
-                        });
+//                PayTool.with(getActivity())
+//                        .pay(new PayTool.UnionPay("") {
+//                            @Override
+//                            public void callback(Boolean aBoolean) {
+//                                Toast.makeText(getContext(), "暂未支持", Toast.LENGTH_SHORT).show();
+//                            }
+//                        });
                 break;
         }
     }
