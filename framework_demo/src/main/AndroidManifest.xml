@@ -36,6 +36,8 @@
             android:name=".ChildActivity"
             android:label="@string/activity_child_title"/>
 
+        <activity android:name=".wxapi.WXPayEntryActivity"/>
+
     </application>
 
 </manifest>
