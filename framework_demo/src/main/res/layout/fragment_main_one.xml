@@ -43,7 +43,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:textSize="20dp"
-            android:text="我是按钮"/>
+            android:text="进入子页面"/>
 
     </LinearLayout>
 

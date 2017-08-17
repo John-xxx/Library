@@ -2,4 +2,5 @@
     <string name="app_name">Framework_Demo</string>
     <string name="activity_main_title">Main</string>
     <string name="activity_child_title">Child</string>
+    <string name="activity_immerse_title">Immerse</string>
 </resources>
