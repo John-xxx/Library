@@ -1,6 +1,7 @@
 package com.liux.framework.lbs.model.impl;
 
 import android.content.Context;
+import android.location.LocationManager;
 
 import com.amap.api.location.AMapLocation;
 import com.amap.api.location.AMapLocationClient;
@@ -141,6 +142,22 @@ public class AMapLBSModelImpl implements LBSModel {
         AMapLocationClientOption aMapLocationClientOption = mAMapLocationClientOption.clone();
         aMapLocationClientOption.setOnceLocation(true);
         aMapLocationClientOption.setGpsFirst(false);
+
+        // 2017-8-18
+        // AMapLocationClient.isStarted() 逻辑是当其创建之后就返回 true
+        // AMapLocationClient.getLastKnownLocation() 返回的是最后一次【成功的结果】
+        if (mAMapLocationClient.isStarted()) {
+            AMapLocation aMapLocation = mAMapLocationClient.getLastKnownLocation();
+            long different = System.currentTimeMillis() - (aMapLocation == null ? 0 :aMapLocation.getTime());
+            if (Math.abs(different) < 5 * 1000) {
+                PointBean pointBean = AMapLocation2PointBean(aMapLocation);
+                if (pointBean != null) {
+                    observer.onNext(pointBean);
+                    observer.onComplete();
+                    return;
+                }
+            }
+        }
         location(aMapLocationClientOption, observer);
     }
 
@@ -151,23 +168,17 @@ public class AMapLBSModelImpl implements LBSModel {
      */
     @Override
     public void accuracyLocation(Observer<PointBean> observer) {
+        LocationManager locationManager = (LocationManager) mContext.getSystemService(Context.LOCATION_SERVICE);
+        boolean isOpen = locationManager.isProviderEnabled(LocationManager.GPS_PROVIDER);
+
         AMapLocationClientOption aMapLocationClientOption = mAMapLocationClientOption.clone();
-        aMapLocationClientOption.setGpsFirst(true);
+        aMapLocationClientOption.setGpsFirst(isOpen);
         aMapLocationClientOption.setOnceLocation(true);
         aMapLocationClientOption.setOnceLocationLatest(true);
         location(aMapLocationClientOption, observer);
     }
 
     private void location(AMapLocationClientOption aMapLocationClientOption, final Observer<PointBean> observer) {
-        if (mAMapLocationClient.isStarted()) {
-            AMapLocation aMapLocation = mAMapLocationClient.getLastKnownLocation();
-            PointBean pointBean = AMapLocation2PointBean(aMapLocation);
-            if (pointBean != null) {
-                observer.onNext(pointBean);
-                observer.onComplete();
-                return;
-            }
-        }
         Observable.just(aMapLocationClientOption)
                 .switchMap(new Function<AMapLocationClientOption, ObservableSource<AMapLocation>>() {
                     @Override

@@ -159,6 +159,19 @@ public class BaiduLBSModelImpl implements LBSModel {
         LocationClientOption locationClientOption = new LocationClientOption(mLocationClientOption);
         locationClientOption.setScanSpan(0);
         locationClientOption.setOpenGps(false);
+
+        // 2017-8-18
+        // LocationClient.isStarted() 逻辑是当其运行时才会返回 true
+        // LocationClient.getLastKnownLocation() 返回的是最后一次的结果
+        if (mLocationClient.isStarted()) {
+            BDLocation bdLocation = mLocationClient.getLastKnownLocation();
+            PointBean pointBean = BDLocation2PointBean(bdLocation);
+            if (pointBean != null) {
+                observer.onNext(pointBean);
+                observer.onComplete();
+                return;
+            }
+        }
         location(locationClientOption, observer);
     }
 
@@ -176,15 +189,6 @@ public class BaiduLBSModelImpl implements LBSModel {
     }
 
     private void location(LocationClientOption locationClientOption, final Observer<PointBean> observer) {
-        if (mLocationClient.isStarted()) {
-            BDLocation bdLocation = mLocationClient.getLastKnownLocation();
-            PointBean pointBean = BDLocation2PointBean(bdLocation);
-            if (pointBean != null) {
-                observer.onNext(pointBean);
-                observer.onComplete();
-                return;
-            }
-        }
         Observable.just(locationClientOption)
                 .switchMap(new Function<LocationClientOption, ObservableSource<BDLocation>>() {
                     @Override
