@@ -54,7 +54,7 @@ dependencies {
     annotationProcessor 'com.github.bumptech.glide:compiler:4.0.0'
 
     /* FastJson */
-    compile 'com.alibaba:fastjson:1.1.61.android'
+    compile 'com.alibaba:fastjson:1.1.62.android'
     compile 'org.ligboy.retrofit2:converter-fastjson-android:2.2.0'
 }
 
@@ -70,7 +70,7 @@ publish {
     // compile '{groupId}:{artifactId}:{publishVersion}'
     groupId = 'com.liux'
     artifactId = 'framework'
-    publishVersion = '0.1.5'
+    publishVersion = '0.1.6'
 
     licences = ['MIT']
 

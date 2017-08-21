@@ -16,7 +16,7 @@ Framework
 - LBS Model<br>
 基于百度地图和高德地图的业务层Model封装<br>
 BaiduLBS_Android_4.4<br>
-AMap3DMap_5.3_AMapSearch_5.3_AMapLocation_3.5.0_20170731
+AMap3DMap_5.3.0_AMapSearch_5.3.1_AMapLocation_3.5.0_20170817
 - Pay<br>
 基于支付宝/微信支付的支付逻辑封装<br>
 alipaySdk-20170725<br>
@@ -38,13 +38,13 @@ wechat-sdk-android-without-mta-1.3.4
 - OkHttp3_3.8.1
 - Retrofit2_2.3.0
 - Glide4_4.0
-- FastJson_1.1.61.android
+- FastJson_1.1.62.android
 - 及以上库附属配件框架
 
 发布版本
 ---
-V0.1.0
+V0.1.6
 
 更新时间
 ---
-2017年8月13日
+2017年8月20日
