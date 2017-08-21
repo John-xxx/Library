@@ -16,6 +16,9 @@ public class ScreenUtil {
 
     /**
      * 根据手机的分辨率从 dp 的单位 转成为 px(像素)
+     * @param context
+     * @param dpValue
+     * @return
      */
     public static int dp2px(Context context, float dpValue) {
         final float scale = context.getResources().getDisplayMetrics().density;
@@ -24,12 +27,20 @@ public class ScreenUtil {
 
     /**
      * 根据手机的分辨率从 px(像素) 的单位 转成为 dp
+     * @param context
+     * @param pxValue
+     * @return
      */
     public static int px2dp(Context context, float pxValue) {
         final float scale = context.getResources().getDisplayMetrics().density;
         return (int) (pxValue / scale + 0.5f);
     }
 
+    /**
+     * 获取状态栏高度
+     * @param context
+     * @return
+     */
     public static int getStatusBarHeight(Context context) {
         int result = 0;
         int resourceId = context.getResources().getIdentifier("status_bar_height", "dimen", "android");
@@ -39,6 +50,11 @@ public class ScreenUtil {
         return result;
     }
 
+    /**
+     * 获取透明的状态栏高度
+     * @param context
+     * @return
+     */
     public static int getTransparentStatusBarHeight(Context context) {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT) {
             return getStatusBarHeight(context);
@@ -48,9 +64,7 @@ public class ScreenUtil {
     }
 
     /**
-     * 获取屏幕宽度 px
-     * get Screen Width
-     *
+     * 获取屏幕宽度
      * @param context
      * @return
      */
@@ -62,9 +76,7 @@ public class ScreenUtil {
     }
 
     /**
-     * 获取屏幕高度 px
-     * get Screen Heght
-     *
+     * 获取屏幕高度
      * @param context
      * @return
      */
@@ -76,22 +88,18 @@ public class ScreenUtil {
     }
 
     /**
-     * 获取屏幕密度 px
-     * get Screen Density
-     *
+     * 获取屏幕密度
      * @param context
      * @return
      */
     public static int getScreenDensity(Context context) {
         DisplayMetrics dm = new DisplayMetrics();
-        ((Activity) context).getWindowManager().getDefaultDisplay()
-                .getMetrics(dm);
+        ((Activity) context).getWindowManager().getDefaultDisplay().getMetrics(dm);
         return dm.densityDpi;
     }
 
     /**
      * get Display
-     *
      * @param context
      * @return
      */

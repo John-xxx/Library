@@ -160,11 +160,15 @@ public class TextUtil {
     /**
      * URL编码
      * @param data 需要编码的字符串
+     * @param enc 字符编码
      * @return 编码后的字符串
      */
-    public static String URLEncode(String data) {
+    public static String URLEncode(String data, String enc) {
         try {
-            return URLEncoder.encode(data, "utf-8");
+            if (enc == null || enc.isEmpty()) {
+                enc = "utf-8";
+            }
+            return URLEncoder.encode(data, enc);
         } catch (UnsupportedEncodingException e) {
             e.printStackTrace();
         }
@@ -174,11 +178,15 @@ public class TextUtil {
     /**
      * URL解码
      * @param data 需要解码的字符串
+     * @param enc 字符编码
      * @return 解码后的字符串
      */
-    public static String URLDecode(String data) {
+    public static String URLDecode(String data, String enc) {
         try {
-            return URLDecoder.decode(data, "utf-8");
+            if (enc == null || enc.isEmpty()) {
+                enc = "utf-8";
+            }
+            return URLDecoder.decode(data, enc);
         } catch (UnsupportedEncodingException e) {
             e.printStackTrace();
         }
@@ -219,6 +227,11 @@ public class TextUtil {
         return string.toString();
     }
 
+    /**
+     * 字符转JSON
+     * @param s
+     * @return
+     */
     public static String string2Json(String s) {
         StringBuffer sb = new StringBuffer();
         for (int i = 0; i < s.length(); i++) {
@@ -256,6 +269,11 @@ public class TextUtil {
         return sb.toString();
     }
 
+    /**
+     * JSON转字符
+     * @param json
+     * @return
+     */
     public static String json2String(String json) {
         if (json.indexOf('"') == 0) json = json.substring(1);
         if (json.lastIndexOf('"') == json.length() - 1) json = json.substring(0, json.length() - 1);
@@ -270,6 +288,11 @@ public class TextUtil {
                 .replace("\\t", "\t");
     }
 
+    /**
+     * 整数转中文计数
+     * @param intInput
+     * @return
+     */
     public static String getCHString(int intInput) {
         String si = String.valueOf(intInput);
         String sd = "";

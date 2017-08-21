@@ -1,13 +1,18 @@
 package com.liux.framework.util;
 
+import android.app.ActivityManager;
+import android.app.Service;
 import android.content.Context;
 import android.content.pm.ApplicationInfo;
 import android.content.pm.PackageManager;
 import android.location.LocationManager;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
+import android.net.wifi.WifiManager;
 import android.os.Build;
 import android.telephony.TelephonyManager;
+
+import java.util.List;
 
 /**
  * Created by Liux on 2016/6/18.
@@ -113,6 +118,16 @@ public class DeviceUtil {
     }
 
     /**
+     * 判断WiFi是否开启
+     * @param context
+     * @return
+     */
+    public static boolean isWifiEnabled(Context context) {
+        WifiManager manager = (WifiManager) context.getSystemService(Context.WIFI_SERVICE);
+        return manager.isWifiEnabled();
+    }
+
+    /**
      * 判断GPS是否开启，GPS或者AGPS开启一个就认为是开启的
      * @param context
      * @return true 表示开启
@@ -124,6 +139,57 @@ public class DeviceUtil {
         // 通过WLAN或移动网络(3G/2G)确定的位置（也称作AGPS，辅助GPS定位。主要用于在室内或遮盖物（建筑群或茂密的深林等）密集的地方定位）
         boolean network = locationManager.isProviderEnabled(LocationManager.NETWORK_PROVIDER);
         return gps || network;
+    }
+
+    /**
+     * 判断是否是主进程
+     * @param context
+     * @return
+     */
+    public static boolean isMainProcess(Context context) {
+        List<ActivityManager.RunningAppProcessInfo> infos = ((ActivityManager)context.getSystemService(Context.ACTIVITY_SERVICE)).getRunningAppProcesses();
+        String myName = context.getPackageName();
+        int myPid = android.os.Process.myPid();
+        for (ActivityManager.RunningAppProcessInfo info : infos) {
+            if (info.pid == myPid && myName.equals(info.processName)) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    /**
+     * 判断是否是在前台运行
+     * 兼容 Android L
+     * @param context
+     * @return
+     */
+    public static boolean isRunningForeground(Context context){
+        ActivityManager am = (ActivityManager) context.getSystemService(Context.ACTIVITY_SERVICE);
+        List<ActivityManager.RunningAppProcessInfo> infos = am.getRunningAppProcesses();
+        if (infos.size() == 0) return false;
+        for(ActivityManager.RunningAppProcessInfo process : infos) {
+            if(process.importance == ActivityManager.RunningAppProcessInfo.IMPORTANCE_FOREGROUND && process.processName.equals(context.getPackageName())) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    /**
+     * 判断服务是否运行
+     * @param context
+     * @param service
+     * @return
+     */
+    public static boolean isServiceRunning(Context context, Class<? extends Service> service) {
+        ActivityManager activityManager = (ActivityManager) context.getSystemService(Context.ACTIVITY_SERVICE);
+        List<ActivityManager.RunningServiceInfo> list = activityManager.getRunningServices(Integer.MAX_VALUE);
+        if (list == null || list.size() == 0) return false;
+        for (ActivityManager.RunningServiceInfo info : list) {
+            if (info.service.getClassName().equals(service.getName())) return true;
+        }
+        return false;
     }
 
     public static boolean isMIUI() {
