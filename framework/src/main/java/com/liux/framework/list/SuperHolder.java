@@ -5,6 +5,7 @@ import android.support.annotation.LayoutRes;
 import android.support.annotation.StringRes;
 import android.support.v7.widget.RecyclerView;
 import android.util.SparseArray;
+import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
@@ -15,7 +16,8 @@ import android.widget.TextView;
 public class SuperHolder extends RecyclerView.ViewHolder {
 
     public static SuperHolder create(ViewGroup parent, @LayoutRes int layout) {
-        View view = View.inflate(parent.getContext(), layout, null);
+        // View view =  View.inflate(parent.getContext(), layout, null);
+        View view = LayoutInflater.from(parent.getContext()).inflate(layout, parent, false);
         return new SuperHolder(view);
     }
 
