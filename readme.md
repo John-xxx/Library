@@ -43,7 +43,7 @@ wechat-sdk-android-without-mta-1.3.4
 
 发布版本
 ---
-V0.1.6
+V0.1.7
 
 更新时间
 ---
