@@ -42,6 +42,8 @@ import java.util.Map;
  * 2.重定义创建细节生命周期 {@link #onCreate(Bundle, Intent)} {@link #onInitData(Bundle, Intent)} {@link #onInitView(Bundle)} {@link #onLazyLoad()} <br>
  * 3.实现任意数据的"意外"恢复和存储 {@link #onRestoreData(Map)} {@link #onSaveData(Map)} <br>
  * 4.实现沉浸式状态栏和一套自定义{@link TitleBar} {@link #onInitTitleBar()} {@link TransparentTitleBar} {@link DefaultTitleBar} <br>
+ * 2017-8-21 <br>
+ * 调整恢复数据的调用时机<br>
  * Created by Liux on 2017/8/7
  */
 
@@ -65,18 +67,9 @@ public abstract class BaseActivity extends AppCompatActivity {
             mTitleBar.initView();
         }
 
-        try {
-            Map<String, Object> data = (Map<String, Object>) getLastCustomNonConfigurationInstance();
-            if (data != null && !data.isEmpty()) {
-                onRestoreData(data);
-            }
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
+        onInitView(savedInstanceState);
 
         onInitData(savedInstanceState, getIntent());
-
-        onInitView(savedInstanceState);
 
         onLazyLoad();
     }
@@ -99,6 +92,15 @@ public abstract class BaseActivity extends AppCompatActivity {
     @Override
     protected void onRestoreInstanceState(Bundle savedInstanceState) {
         super.onRestoreInstanceState(savedInstanceState);
+
+        try {
+            Map<String, Object> data = (Map<String, Object>) getLastCustomNonConfigurationInstance();
+            if (data != null && !data.isEmpty()) {
+                onRestoreData(data);
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
     }
 
     @Override
@@ -305,7 +307,7 @@ public abstract class BaseActivity extends AppCompatActivity {
     protected abstract void onLazyLoad();
 
     /**
-     * 子类调用 {@link #onCreate(Bundle)} 后调用 <br>
+     * 调用 {@link #onRestoreInstanceState(Bundle)} 后调用 <br>
      * 使用 {@link #getLastCustomNonConfigurationInstance()}
      * @param data
      */
