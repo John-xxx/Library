@@ -61,6 +61,19 @@
             android:enabled="true"
             android:process=":location" />
 
+        <!-- Android 7.0 URI封装 -->
+        <provider
+            android:name="android.support.v4.content.FileProvider"
+            android:authorities="${applicationId}.provider"
+            android:grantUriPermissions="true"
+            android:exported="false">
+            <!-- grantUriPermissions:true，表示授予 URI 临时访问权限。 -->
+            <!-- exported:要求必须为false，为true则会报安全异常。 -->
+            <meta-data
+                android:name="android.support.FILE_PROVIDER_PATHS"
+                android:resource="@xml/provider_paths" />
+        </provider>
+
     </application>
 
 </manifest>

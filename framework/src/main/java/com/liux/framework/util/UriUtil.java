@@ -58,7 +58,7 @@ public class UriUtil {
                 e.printStackTrace();
             }
         }
-        Uri uri = FileProvider.getUriForFile(context, context.getPackageName() + ".Provider", file);
+        Uri uri = FileProvider.getUriForFile(context, context.getPackageName() + ".provider", file);
         return uri;
     }
 
