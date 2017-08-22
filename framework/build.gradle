@@ -70,7 +70,7 @@ publish {
     // compile '{groupId}:{artifactId}:{publishVersion}'
     groupId = 'com.liux'
     artifactId = 'framework'
-    publishVersion = '0.1.7'
+    publishVersion = '0.1.8'
 
     licences = ['MIT']
 
