@@ -52,7 +52,7 @@ public abstract class BaseActivity extends AppCompatActivity {
 
     /* ============== 生命周期_Begin ============== */
 
-    // http://blog.csdn.net/javazejian/article/details/51932554
+    // http://blog.csdn.net/lvxiangan/article/details/8591536
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
@@ -67,11 +67,9 @@ public abstract class BaseActivity extends AppCompatActivity {
             mTitleBar.initView();
         }
 
-        onInitView(savedInstanceState);
-
         onInitData(savedInstanceState, getIntent());
 
-        onLazyLoad();
+        onInitView(savedInstanceState);
     }
 
     @Override
@@ -89,6 +87,10 @@ public abstract class BaseActivity extends AppCompatActivity {
         super.onStart();
     }
 
+    /**
+     * 恢复数据 先于 {@link #onPostCreate(Bundle)} 调用
+     * @param savedInstanceState
+     */
     @Override
     protected void onRestoreInstanceState(Bundle savedInstanceState) {
         super.onRestoreInstanceState(savedInstanceState);
@@ -106,6 +108,8 @@ public abstract class BaseActivity extends AppCompatActivity {
     @Override
     protected void onPostCreate(@Nullable Bundle savedInstanceState) {
         super.onPostCreate(savedInstanceState);
+
+        onLazyLoad();
     }
 
     @Override
@@ -302,16 +306,16 @@ public abstract class BaseActivity extends AppCompatActivity {
     protected abstract void onInitView(@Nullable Bundle savedInstanceState);
 
     /**
-     * 懒加载模式, {@link #onCreate(Bundle)} 最后一个函数
-     */
-    protected abstract void onLazyLoad();
-
-    /**
      * 调用 {@link #onRestoreInstanceState(Bundle)} 后调用 <br>
      * 使用 {@link #getLastCustomNonConfigurationInstance()}
      * @param data
      */
     protected abstract void onRestoreData(Map<String, Object> data);
+
+    /**
+     * 懒加载模式, {@link #onPostCreate(Bundle)} 后调用
+     */
+    protected abstract void onLazyLoad();
 
     /**
      * {@link #onRetainCustomNonConfigurationInstance()} 后调用
