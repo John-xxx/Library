@@ -84,6 +84,11 @@ public abstract class ItemDecoration extends RecyclerView.ItemDecoration {
         int position = parent.getChildAdapterPosition(view);
 
         Decoration decoration = getItemOffsets(position);
+
+        if (decoration != null) {
+            outRect.set(decoration.left, decoration.top, decoration.right, decoration.bottom);
+        }
+
         mDecorations.put(position, decoration);
     }
 
