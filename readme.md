@@ -39,6 +39,7 @@ wechat-sdk-android-without-mta-1.3.4
 - Retrofit2_2.3.0
 - Glide4_4.0
 - FastJson_1.1.62.android
+- Matisse_0.4.3
 - 及以上库附属配件框架
 
 发布版本
@@ -47,4 +48,4 @@ V0.1.8
 
 更新时间
 ---
-2017年8月22日
+2017年8月23日

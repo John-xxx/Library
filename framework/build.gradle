@@ -56,6 +56,9 @@ dependencies {
     /* FastJson */
     compile 'com.alibaba:fastjson:1.1.62.android'
     compile 'org.ligboy.retrofit2:converter-fastjson-android:2.2.0'
+
+    /* Matisse */
+    compile 'com.zhihu.android:matisse:0.4.3'
 }
 
 // release to JCenter
