@@ -21,9 +21,7 @@ public class AppLocationEx extends Application {
         SDKInitializer.initialize(this);
         SDKInitializer.setCoordType(CoordType.GCJ02);
 
-        /* 初始化高德SDK */
-        AMapLBSModelImpl.initialize(this);
-
+        /* 初始化LBSModel */
         AMapLBSModelImpl.initialize(this);
         BaiduLBSModelImpl.initialize(this);
     }
