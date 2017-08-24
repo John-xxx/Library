@@ -16,28 +16,20 @@
         android:layout_height="wrap_content">
 
         <Button
-            android:id="@+id/btn_add"
+            android:id="@+id/btn_select_pic"
             android:layout_width="0dp"
             android:layout_weight="1"
             android:layout_height="wrap_content"
             android:textAllCaps="false"
-            android:text="add" />
+            android:text="图片单选" />
 
         <Button
-            android:id="@+id/btn_del_first"
+            android:id="@+id/btn_select_pic_clip"
             android:layout_width="0dp"
             android:layout_weight="1"
             android:layout_height="wrap_content"
             android:textAllCaps="false"
-            android:text="del_first"/>
-
-        <Button
-            android:id="@+id/btn_del_last"
-            android:layout_width="0dp"
-            android:layout_weight="1"
-            android:layout_height="wrap_content"
-            android:textAllCaps="false"
-            android:text="del_last"/>
+            android:text="单选裁剪"/>
 
     </LinearLayout>
 
@@ -46,28 +38,20 @@
         android:layout_height="wrap_content">
 
         <Button
-            android:id="@+id/btn_open5"
+            android:id="@+id/btn_select_pics"
             android:layout_width="0dp"
             android:layout_weight="1"
             android:layout_height="wrap_content"
             android:textAllCaps="false"
-            android:text="open_5" />
+            android:text="图片多选"/>
 
         <Button
-            android:id="@+id/btn_set8"
+            android:id="@+id/btn_select_video"
             android:layout_width="0dp"
             android:layout_weight="1"
             android:layout_height="wrap_content"
             android:textAllCaps="false"
-            android:text=""/>
-
-        <Button
-            android:id="@+id/btn_close"
-            android:layout_width="0dp"
-            android:layout_weight="1"
-            android:layout_height="wrap_content"
-            android:textAllCaps="false"
-            android:text="close"/>
+            android:text="视频单选" />
 
     </LinearLayout>
 

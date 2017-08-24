@@ -59,14 +59,20 @@ public class GlideModuleConfig extends AppGlideModule {
     }
 
     /**
-     * 配置全局唯一OkHttp客户端
+     * 配置全局唯一OkHttp客户端(HttpClient初始化的情况)
      * @param context
      * @param glide
      * @param registry
      */
     @Override
     public void registerComponents(Context context, Glide glide, Registry registry) {
-        registry.append(GlideUrl.class, InputStream.class, new OkHttpUrlLoader.Factory(HttpClient.getInstance().getOkHttpClient()));
+        OkHttpUrlLoader.Factory factory;
+        try {
+            factory = new OkHttpUrlLoader.Factory(HttpClient.getInstance().getOkHttpClient());
+        } catch (Exception e) {
+            factory = new OkHttpUrlLoader.Factory();
+        }
+        registry.append(GlideUrl.class, InputStream.class, factory);
     }
 
     /**

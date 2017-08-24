@@ -17,7 +17,7 @@ import java.util.List;
  * <br>
  * Created by Liux on 2017/8/9. <br>
  * <br>
- * @deprecated 已将其能力扩展到MultipleAdapter
+ * @deprecated 已将其能力扩展到 {@link MultipleAdapter}
  */
 
 @Deprecated
