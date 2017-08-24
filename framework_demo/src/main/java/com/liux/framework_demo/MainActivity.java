@@ -139,11 +139,4 @@ public class MainActivity extends BaseActivity {
     protected void onSaveData(Map<String, Object> data) {
         data.put("time", System.currentTimeMillis());
     }
-
-    @Override
-    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
-        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
-
-        PermissionTool.onRequestResult(requestCode, permissions, grantResults);
-    }
 }

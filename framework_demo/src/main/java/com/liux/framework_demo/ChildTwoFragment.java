@@ -105,13 +105,6 @@ public class ChildTwoFragment extends BaseFragment {
         unbinder.unbind();
     }
 
-    @Override
-    public void onRequestPermissionsResult(int requestCode, @android.support.annotation.NonNull String[] permissions, @android.support.annotation.NonNull int[] grantResults) {
-        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
-
-        PermissionTool.onRequestResult(requestCode, permissions, grantResults);
-    }
-
     @OnClick({R.id.btn_quick_location_amap, R.id.btn_accuracy_location_amap, R.id.btn_start_location_amap, R.id.btn_stop_location_amap, R.id.btn_geocode_amap, R.id.btn_regeocode_amap, R.id.btn_city_poi_amap, R.id.btn_nearby_poi_amap, R.id.btn_region_poi_amap, R.id.btn_driver_route_amap, R.id.btn_boundary_amap, R.id.btn_quick_location_baidu, R.id.btn_accuracy_location_baidu, R.id.btn_start_location_baidu, R.id.btn_stop_location_baidu, R.id.btn_geocode_baidu, R.id.btn_regeocode_baidu, R.id.btn_city_poi_baidu, R.id.btn_nearby_poi_baidu, R.id.btn_region_poi_baidu, R.id.btn_driver_route_baidu, R.id.btn_boundary_baidu})
     public void onViewClicked(View view) {
         if (!permission) {

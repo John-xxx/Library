@@ -4,11 +4,13 @@ import android.Manifest;
 import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.app.AppOpsManager;
+import android.app.Fragment;
+import android.app.FragmentManager;
 import android.content.Context;
 import android.content.pm.PackageManager;
 import android.os.Build;
 import android.os.Process;
-import android.support.v4.app.Fragment;
+import android.support.annotation.NonNull;
 import android.util.SparseArray;
 
 import java.util.ArrayList;
@@ -22,19 +24,34 @@ import java.util.List;
 
 @SuppressLint("NewApi")
 public class PermissionTool {
+    private static final String TAG = "PermissionTool";
 
     private static SparseArray<Request> mRequests = new SparseArray<Request>();
-
-    public static Request with(Fragment fragment) {
-        return new Request(fragment);
-    }
 
     public static Request with(Activity activity) {
         return new Request(activity);
     }
 
-    public static void onRequestResult(int requestCode, String[] permissions, int[] grantResults) {
+    public static Request with(Fragment fragment) {
+        return new Request(fragment);
+    }
+
+    public static Request with(android.support.v4.app.Fragment fragment) {
+        return new Request(fragment);
+    }
+
+    private static void onRequestResult(PermissionFragment fragment, int requestCode, String[] permissions, int[] grantResults) {
+        // 移除注入的 PermissionFragment
+        FragmentManager manager = fragment.getActivity().getFragmentManager();
+        manager.beginTransaction()
+                .remove(fragment)
+                .commitAllowingStateLoss();
+        manager.executePendingTransactions();
+
+        // 第一时间取消引用,防止内存泄漏
         Request request = mRequests.get(requestCode);
+        mRequests.delete(requestCode);
+
         if (request == null) return;
 
         for (int i = 0; i < permissions.length; i++) {
@@ -48,7 +65,6 @@ public class PermissionTool {
         }
 
         request.callback.onCallback(request.allow, request.reject, request.prohibit);
-        mRequests.delete(requestCode);
     }
 
     /**
@@ -73,24 +89,26 @@ public class PermissionTool {
 
     public static class Request {
         // 被允许的权限
-        public List<String> allow = new ArrayList<>();
+        private List<String> allow = new ArrayList<>();
         // 被拒绝的权限
-        public List<String> reject = new ArrayList<>();
+        private List<String> reject = new ArrayList<>();
         // 被禁止的权限
-        public List<String> prohibit = new ArrayList<>();
+        private List<String> prohibit = new ArrayList<>();
 
         private Activity target;
-        private Fragment fragment;
         private String[] permissions;
         private OnPermissionCallback callback;
 
-        public Request(Fragment fragment) {
-            target = fragment.getActivity();
-            this.fragment = fragment;
-        }
-
         public Request(Activity activity) {
             target = activity;
+        }
+
+        public Request(Fragment fragment) {
+            target = fragment.getActivity();
+        }
+
+        public Request(android.support.v4.app.Fragment fragment) {
+            target = fragment.getActivity();
         }
 
         public Request permissions(String... permissions) {
@@ -106,7 +124,7 @@ public class PermissionTool {
         public void request() {
             if (target == null) throw new NullPointerException("with(Fragment) or with(Activity) cannot be empty");
             if (callback == null) throw new NullPointerException("callback(OnPermissionCallback) cannot be empty");
-            if (permissions == null) throw new NullPointerException("permissions(String[]) cannot be empty");
+            if (permissions == null || permissions.length == 0) throw new NullPointerException("permissions(String[]) cannot be empty");
 
             allow.clear();
             reject.clear();
@@ -138,14 +156,37 @@ public class PermissionTool {
             // 获取请求码
             int requestCode = (int) (System.currentTimeMillis() & 0xFFFF);
 
+            // 注入Fragment 并请求权限
+            PermissionFragment fragment = new PermissionFragment();
+            FragmentManager manager = target.getFragmentManager();
+            manager
+                    .beginTransaction()
+                    .add(fragment, TAG)
+                    .commitAllowingStateLoss();
+            manager.executePendingTransactions();
+
             // 请求权限
-            if (fragment != null) {
-                fragment.requestPermissions(permissions.toArray(new String[permissions.size()]), requestCode);
-            } else {
-                target.requestPermissions(permissions.toArray(new String[permissions.size()]), requestCode);
-            }
+            fragment.requestPermissions(permissions.toArray(new String[permissions.size()]), requestCode);
 
             mRequests.append(requestCode, this);
+        }
+    }
+
+    /**
+     * 申请权限时注入的Fragment
+     */
+    public static class PermissionFragment extends Fragment {
+
+        /**
+         * 权限申请的回调
+         * @param requestCode
+         * @param permissions
+         * @param grantResults
+         */
+        @Override
+        public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
+            super.onRequestPermissionsResult(requestCode, permissions, grantResults);
+            onRequestResult(this, requestCode, permissions, grantResults);
         }
     }
 
