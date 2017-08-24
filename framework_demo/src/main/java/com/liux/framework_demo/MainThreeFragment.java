@@ -45,7 +45,6 @@ import butterknife.Unbinder;
 
 public class MainThreeFragment extends BaseFragment {
     private static final int REQUEST_CODE = 1024;
-    private static final int REQUEST_CODE_COMPRESS = 2048;
 
     @BindView(R.id.rv_list)
     RecyclerView rvList;
