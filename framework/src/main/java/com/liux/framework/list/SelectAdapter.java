@@ -124,6 +124,16 @@ public abstract class SelectAdapter<T> extends RecyclerView.Adapter<SuperHolder>
     }
 
     /**
+     * 设置最大可选择数
+     * @param count
+     */
+    public void setMaxSelectCount(int count) {
+        if (isOpenSelect()) {
+            mMaxSelectCount = count;
+        }
+    }
+
+    /**
      * 切换某条数据选中状态
      * @param t
      * @return
@@ -162,7 +172,22 @@ public abstract class SelectAdapter<T> extends RecyclerView.Adapter<SuperHolder>
         if (!isOpenSelect()) return false;
 
         if (isSelect(position) == selected) return selected;
-        if (selected && mDataSource.getStateAllCount(State.STATE_SELECTED) >= mMaxSelectCount) return false;
+        if (selected) {
+            if (mMaxSelectCount == 1) {
+                // 单选模式
+                List<T> ts = mDataSource.getStateAll(State.STATE_SELECTED);
+                for (T t : ts) {
+                    int index = mDataSource.indexOf(t);
+                    mDataSource.setState(index, State.STATE_UNSELECTED);
+                    if (mOnSelectListener != null) {
+                        mOnSelectListener.onSelectChange(t, index, false);
+                    }
+                    notifyItemChanged(index);
+                }
+            } else if (mDataSource.getStateAllCount(State.STATE_SELECTED) >= mMaxSelectCount) {
+                return false;
+            }
+        }
 
         mDataSource.getState(position).state = selected ? State.STATE_SELECTED : State.STATE_UNSELECTED;
 
@@ -177,7 +202,7 @@ public abstract class SelectAdapter<T> extends RecyclerView.Adapter<SuperHolder>
         }
 
         notifyItemChanged(position);
-        return selected;
+        return true;
     }
 
     /**
@@ -454,6 +479,10 @@ public abstract class SelectAdapter<T> extends RecyclerView.Adapter<SuperHolder>
 
         public State(T data) {
             this.data = data;
+        }
+
+        public boolean isSelected() {
+            return this.state == STATE_SELECTED;
         }
     }
 
