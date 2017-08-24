@@ -2,13 +2,12 @@ package com.liux.framework_demo;
 
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
-import android.support.v4.app.FragmentStatePagerAdapter;
 
 /**
  * Created by Liux on 2017/8/13.
  */
 
-public class FragmentPagerAdapter extends FragmentStatePagerAdapter {
+public class FragmentPagerAdapter extends android.support.v4.app.FragmentPagerAdapter {
     private Fragment[] mFragments;
 
     public FragmentPagerAdapter(FragmentManager fm, Fragment[] fragments) {
