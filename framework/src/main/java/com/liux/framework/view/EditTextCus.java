@@ -19,10 +19,10 @@ import com.liux.framework.util.ScreenUtil;
 public class EditTextCus extends AppCompatEditText {
     private static String TAG = "EditTextCus";
 
-    final int DRAWABLE_LEFT = 0;
-    final int DRAWABLE_TOP = 1;
-    final int DRAWABLE_RIGHT = 2;
-    final int DRAWABLE_BOTTOM = 3;
+    private static final int DRAWABLE_LEFT = 0;
+    private static final int DRAWABLE_TOP = 1;
+    private static final int DRAWABLE_RIGHT = 2;
+    private static final int DRAWABLE_BOTTOM = 3;
 
     private boolean mCancel;
     private int mPadding;
@@ -30,7 +30,6 @@ public class EditTextCus extends AppCompatEditText {
     private boolean mTouchState;
 
     private boolean mParting;
-    private int mPartingColor;
 
     private DrawableRightListener mRightListener = new DrawableRightListener() {
         @Override
@@ -145,10 +144,10 @@ public class EditTextCus extends AppCompatEditText {
     private void initAttribute(AttributeSet attrs, int defStyleAttr) {
         TypedArray array = getContext().obtainStyledAttributes(attrs, R.styleable.EditTextCus, defStyleAttr, 0);
 
+        mClear = array.getDrawable(R.styleable.EditTextCus_etc_clear);
         mCancel = array.getBoolean(R.styleable.EditTextCus_etc_cancel, true);
 
         mParting = array.getBoolean(R.styleable.EditTextCus_etc_parting, false) && ((getInputType() & InputType.TYPE_TEXT_FLAG_MULTI_LINE) == InputType.TYPE_TEXT_FLAG_MULTI_LINE);
-        mPartingColor = array.getColor(R.styleable.EditTextCus_etc_parting_color, Color.GRAY);
 
         array.recycle();
     }
@@ -156,7 +155,9 @@ public class EditTextCus extends AppCompatEditText {
     private void initView() {
         if (mCancel) {
             mPadding = ScreenUtil.dp2px(getContext(), 8);
-            mClear = getResources().getDrawable(R.drawable.view_edittextcus_clear);
+            if (mClear == null) {
+                mClear = getResources().getDrawable(R.drawable.view_edittextcus_clear);
+            }
             mClear.setBounds(0, 0, (int) getTextSize(), (int) getTextSize());
             addTextChangedListener(mTextWatcher);
             setOnFocusChangeListener(mOnFocusChangeListener);
