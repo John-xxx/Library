@@ -334,7 +334,9 @@ public abstract class SelectAdapter<T> extends RecyclerView.Adapter<SuperHolder>
         @Override
         public boolean remove(Object o) {
             int index = indexOf(o);
-            mStates.remove(index);
+            if (index != -1) {
+                mStates.remove(index);
+            }
             return super.remove(o);
         }
 
