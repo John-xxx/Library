@@ -38,6 +38,8 @@ import retrofit2.Retrofit;
 import retrofit2.adapter.rxjava2.RxJava2CallAdapterFactory;
 import retrofit2.converter.fastjson.FastJsonConverterFactory;
 
+import static okhttp3.MultipartBody.FORM;
+
 /**
  * 采用懒加载单例模式,全局使用一个HttpClient <br>
  * <br>
@@ -51,6 +53,8 @@ import retrofit2.converter.fastjson.FastJsonConverterFactory;
  * 基于RxJava2封装 <br>
  * 2017-8-14 <br>
  * 优化初始化逻辑
+ * 2017-9-1 <br>
+ * 已知问题,当开启参数检查时候key重复,value会被覆盖(考虑用List代替Map实现)
  * @author Liux
  */
 
@@ -211,6 +215,8 @@ public class HttpClient {
                         mOnCheckParamsListener.onCheckParams(request, params);
 
                         MultipartBody.Builder bodyBuilder = new MultipartBody.Builder();
+                        // 修复默认为 multipart/mixed 时,PHP 无法识别的问题
+                        bodyBuilder.setType(MultipartBody.FORM);
                         for (Map.Entry<String, String> entry : params.entrySet()) {
                             bodyBuilder.addFormDataPart(entry.getKey(), entry.getValue());
                         }
@@ -393,7 +399,7 @@ public class HttpClient {
     }
 
     private Response postMultipart(String url, Map<String, Object> params, Callback callback) throws IOException {
-        MultipartBody.Builder builder = new MultipartBody.Builder().setType(MultipartBody.FORM);
+        MultipartBody.Builder builder = new MultipartBody.Builder().setType(FORM);
         if (params != null) {
             for (Map.Entry<String, Object> entry : params.entrySet()) {
                 if (entry.getValue() instanceof String) {
