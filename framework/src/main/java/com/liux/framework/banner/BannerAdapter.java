@@ -37,7 +37,7 @@ public abstract class BannerAdapter<T> extends PagerAdapter {
      * 获取数据真实的数量
      * @return
      */
-    public int getRealityCount() {
+    public int getRealCount() {
         return mDataSource == null ? 0 : mDataSource.size();
     }
 
@@ -51,7 +51,7 @@ public abstract class BannerAdapter<T> extends PagerAdapter {
     public Object instantiateItem(ViewGroup container, int position) {
         BannerHolder holder = BannerHolder.create(container, mLayout);
 
-        int index = position % getRealityCount();
+        int index = position % getRealCount();
 
         onBindData(holder, mDataSource.get(index), position);
         container.addView(holder.getItemView());
