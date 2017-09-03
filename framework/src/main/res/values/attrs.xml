@@ -8,11 +8,9 @@
         <attr name="civ_fill_color" format="color" />
     </declare-styleable>
 
-    <declare-styleable name="EditTextCus">
-        <attr name="etc_clear" format="reference"/>
-        <attr name="etc_cancel" format="boolean"/>
-        <attr name="etc_parting" format="boolean"/>
-        <attr name="etc_parting_color" format="color"/>
+    <declare-styleable name="ClearEditText">
+        <attr name="cet_clear" format="reference"/>
+        <attr name="cet_cancel" format="boolean"/>
     </declare-styleable>
 
     <declare-styleable name="FlowLayout">

@@ -38,7 +38,7 @@
                 android:layout_height="match_parent"
                 android:textColor="#FFFFFF"
                 android:gravity="center_vertical"
-                tools:text="返回"/>
+                tools:text="@string/view_titlebar_default_back"/>
 
         </LinearLayout>
 
@@ -78,7 +78,7 @@
                 android:layout_height="match_parent"
                 android:textColor="#FFFFFF"
                 android:gravity="center_vertical"
-                tools:text="更多"/>
+                tools:text="@string/view_titlebar_default_more"/>
 
         </RelativeLayout>
 

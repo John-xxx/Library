@@ -6,11 +6,10 @@ import com.baidu.mapapi.CoordType;
 import com.baidu.mapapi.SDKInitializer;
 import com.bilibili.boxing.BoxingCrop;
 import com.bilibili.boxing.BoxingMediaLoader;
-import com.bilibili.boxing.loader.IBoxingMediaLoader;
 import com.liux.framework.lbs.model.impl.AMapLBSModelImpl;
 import com.liux.framework.lbs.model.impl.BaiduLBSModelImpl;
-import com.liux.framework.tool.BoxingGlideLoader;
-import com.liux.framework.tool.BoxingUcrop;
+import com.liux.framework.media.BoxingGlideLoader;
+import com.liux.framework.media.BoxingUcrop;
 
 /**
  * Created by Liux on 2017/8/16.

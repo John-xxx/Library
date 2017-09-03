@@ -1,6 +1,6 @@
 package com.liux.framework_demo.wxapi;
 
-import com.liux.framework.tool.PayTool;
+import com.liux.framework.other.PayTool;
 
 /**
  * Created by Liux on 2017/8/17.

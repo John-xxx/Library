@@ -16,7 +16,7 @@ import com.liux.framework.lbs.listener.OnLocationListener;
 import com.liux.framework.lbs.model.LBSModel;
 import com.liux.framework.lbs.model.impl.AMapLBSModelImpl;
 import com.liux.framework.lbs.model.impl.BaiduLBSModelImpl;
-import com.liux.framework.tool.PermissionTool;
+import com.liux.framework.other.PermissionTool;
 import com.liux.framework.util.DeviceUtil;
 
 import java.util.List;

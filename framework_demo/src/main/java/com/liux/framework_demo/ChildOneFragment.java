@@ -7,7 +7,7 @@ import android.view.ViewGroup;
 import android.widget.Toast;
 
 import com.liux.framework.base.BaseFragment;
-import com.liux.framework.tool.PayTool;
+import com.liux.framework.other.PayTool;
 import com.tencent.mm.opensdk.modelpay.PayReq;
 import com.tencent.mm.opensdk.modelpay.PayResp;
 

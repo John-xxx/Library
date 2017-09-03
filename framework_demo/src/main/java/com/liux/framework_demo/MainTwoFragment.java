@@ -2,13 +2,12 @@ package com.liux.framework_demo;
 
 import android.Manifest;
 import android.os.Bundle;
-import android.support.annotation.NonNull;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
 import com.liux.framework.base.BaseFragment;
-import com.liux.framework.tool.PermissionTool;
+import com.liux.framework.other.PermissionTool;
 
 import java.util.List;
 

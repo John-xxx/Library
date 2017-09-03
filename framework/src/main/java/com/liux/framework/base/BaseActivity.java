@@ -208,6 +208,7 @@ public abstract class BaseActivity extends AppCompatActivity {
     /* ============== 拦截点击相关_Begin ============== */
 
     private boolean mHandlerTouch = true;
+    private InputMethodManager mInputMethodManager;
 
     /**
      * 控制是否拦截点击事件,默认拦截 <br>
@@ -218,30 +219,34 @@ public abstract class BaseActivity extends AppCompatActivity {
     }
 
     /**
+     * 监听事件分发,如果点击的是不是当前EditText则隐藏软键盘
+     */
+    @Override
+    public boolean dispatchTouchEvent(MotionEvent event) {
+        if (!mHandlerTouch) return super.dispatchTouchEvent(event);
+        // MotionEvent.ACTION_UP 代替 MotionEvent.ACTION_DOWN 解决点击另一个 EditText 闪屏问题
+        if (event.getAction() == MotionEvent.ACTION_UP) {
+            View view = getCurrentFocus();
+            if (view != null && isShouldHideKeyboard(view, event)) {
+                hideKeyboard(view.getWindowToken());
+            }
+        }
+        return super.dispatchTouchEvent(event);
+    }
+
+    /**
      * 监听点击事件,如果点击的是空白位置则隐藏软键盘
      */
     @Override
     public boolean onTouchEvent(MotionEvent event) {
         if (!mHandlerTouch) return super.onTouchEvent(event);
-        if (null != this.getCurrentFocus()) {
-            hideKeyboard(this.getCurrentFocus().getWindowToken());
-        }
-        return super.onTouchEvent(event);
-    }
-
-    /**
-     * 监听事件分发,如果点击的是空白位置则隐藏软键盘
-     */
-    @Override
-    public boolean dispatchTouchEvent(MotionEvent ev) {
-        if (!mHandlerTouch) return super.dispatchTouchEvent(ev);
-        if (ev.getAction() == MotionEvent.ACTION_DOWN) {
-            View v = getCurrentFocus();
-            if (isShouldHideKeyboard(v, ev)) {
-                hideKeyboard(v.getWindowToken());
+        if (event.getAction() == MotionEvent.ACTION_UP) {
+            View view = getCurrentFocus();
+            if (view != null) {
+                hideKeyboard(view.getWindowToken());
             }
         }
-        return super.dispatchTouchEvent(ev);
+        return super.onTouchEvent(event);
     }
 
     /**
@@ -259,8 +264,7 @@ public abstract class BaseActivity extends AppCompatActivity {
             v.getLocationInWindow(location);
             int left = location[0], top = location[1], right = left + v.getWidth(), bottom = top + v.getHeight();
             // 如果是点击EditText的事件，忽略它。
-            if (event.getX() > left && event.getX() < right
-                    && event.getY() > top && event.getY() < bottom) {
+            if (event.getX() > left && event.getX() < right && event.getY() > top && event.getY() < bottom) {
                 return false;
             } else {
                 return true;
@@ -275,8 +279,10 @@ public abstract class BaseActivity extends AppCompatActivity {
      */
     private void hideKeyboard(IBinder token) {
         if (token != null) {
-            InputMethodManager imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
-            imm.hideSoftInputFromWindow(token, InputMethodManager.HIDE_NOT_ALWAYS);
+            if (mInputMethodManager == null) {
+                mInputMethodManager = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
+            }
+            mInputMethodManager.hideSoftInputFromWindow(token, InputMethodManager.HIDE_NOT_ALWAYS);
         }
     }
 

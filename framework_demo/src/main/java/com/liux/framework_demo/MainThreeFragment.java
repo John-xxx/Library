@@ -5,7 +5,6 @@ import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
 import android.support.v7.widget.GridLayoutManager;
-import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.text.TextUtils;
 import android.view.LayoutInflater;
@@ -19,18 +18,13 @@ import com.bilibili.boxing.BoxingMediaLoader;
 import com.bilibili.boxing.model.config.BoxingConfig;
 import com.bilibili.boxing.model.config.BoxingCropOption;
 import com.bilibili.boxing.model.entity.BaseMedia;
-import com.bilibili.boxing.model.entity.impl.ImageMedia;
 import com.bilibili.boxing.utils.BoxingFileHelper;
-import com.bilibili.boxing.utils.ImageCompressor;
 import com.bilibili.boxing_impl.ui.BoxingActivity;
 import com.liux.framework.base.BaseFragment;
 import com.liux.framework.list.GridItemDecoration;
 import com.liux.framework.list.MultipleAdapter;
-import com.liux.framework.list.SelectAdapter;
 import com.liux.framework.list.SuperHolder;
-import com.liux.framework.tool.GlideApp;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
 
