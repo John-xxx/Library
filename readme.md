@@ -15,7 +15,7 @@ Framework
 基于RecyclerView的适配器和Holder封装,实现单选/多选等逻辑控制
 - LBS Model<br>
 基于百度地图和高德地图的业务层Model封装<br>
-BaiduLBS_Android_4.4<br>
+BaiduLBS_Android_4.4.1<br>
 AMap3DMap_5.3.0_AMapSearch_5.3.1_AMapLocation_3.5.0_20170817
 - Pay<br>
 基于支付宝/微信支付的支付逻辑封装<br>
@@ -45,8 +45,8 @@ wechat-sdk-android-without-mta-1.3.4
 
 发布版本
 ---
-V0.1.8
+V0.2.0
 
 更新时间
 ---
-2017年8月25日
+2017年9月4日
