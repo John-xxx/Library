@@ -3,20 +3,16 @@ package com.liux.framework_demo;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
-import android.view.Gravity;
 import android.view.View;
-import android.view.ViewGroup;
 import android.view.WindowManager;
 import android.widget.ImageView;
-import android.widget.LinearLayout;
 import android.widget.Toast;
 
 import com.liux.framework.banner.BannerAdapter;
 import com.liux.framework.banner.BannerHolder;
-import com.liux.framework.banner.BannerIndicator;
 import com.liux.framework.banner.BannerView;
+import com.liux.framework.banner.DefaultIndicator;
 import com.liux.framework.base.BaseActivity;
-import com.liux.framework.util.ScreenUtil;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -75,34 +71,7 @@ public class ImmerseActivity extends BaseActivity {
                 });
             }
         });
-        mBannerView.setBannerIndicator(new BannerIndicator() {
-            private int mSize = ScreenUtil.dp2px(ImmerseActivity.this, 8);
-            private LinearLayout mLinearLayout;
-            @Override
-            public void onInitIndicator(BannerView banner, int count) {
-                mLinearLayout = new LinearLayout(banner.getContext());
-                mLinearLayout.setGravity(Gravity.CENTER_HORIZONTAL|Gravity.BOTTOM);
-                mLinearLayout.setPadding(0, 0, 0, ScreenUtil.dp2px(ImmerseActivity.this, 20));
-                for (int i = 0; i < count; i++) {
-                    View view = new View(mLinearLayout.getContext());
-                    view.setBackgroundResource(R.drawable.indicator_bg);
-                    LinearLayout.LayoutParams lp = new LinearLayout.LayoutParams(mSize, mSize);
-                    lp.setMargins(mSize / 3, 0, mSize / 3, 0);
-                    view.setLayoutParams(lp);
-                    mLinearLayout.addView(view);
-                }
-                mLinearLayout.getChildAt(0).setSelected(true);
-                banner.addView(mLinearLayout, new ViewGroup.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT));
-            }
-
-            @Override
-            public void onSelected(BannerView view, int position) {
-                if (mLinearLayout == null) return;
-                for (int i = 0; i < mLinearLayout.getChildCount(); i++) {
-                    mLinearLayout.getChildAt(i).setSelected(i == position);
-                }
-            }
-        });
+        mBannerView.setIndicator(new DefaultIndicator(this, R.drawable.indicator_bg));
     }
 
     @Override

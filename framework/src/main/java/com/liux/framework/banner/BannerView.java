@@ -23,11 +23,12 @@ public class BannerView extends RelativeLayout {
 
     // 切换间隔时间
     private int mInterval = 3000;
+    // Banner
     private ViewPager mViewPager;
+    // Banner 指示器
+    private Indicator mIndicator;
     // 无限循环适配器
     private BannerAdapter mBannerAdapter;
-    // Banner 指示器
-    private BannerIndicator mBannerIndicator;
 
     private Handler mHandler = new Handler() {
         @Override
@@ -68,9 +69,9 @@ public class BannerView extends RelativeLayout {
 
             @Override
             public void onPageSelected(int position) {
-                if (mBannerIndicator != null) {
+                if (mIndicator != null) {
                     int real_position = position % mBannerAdapter.getRealCount();
-                    mBannerIndicator.onSelected(BannerView.this, real_position);
+                    mIndicator.onSelected(BannerView.this, real_position);
                 }
             }
 
@@ -144,23 +145,24 @@ public class BannerView extends RelativeLayout {
                     removeAllViews();
                     addView(mViewPager, new RelativeLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT));
 
-                    if (mBannerIndicator != null) {
-                        mBannerIndicator.onInitIndicator(BannerView.this, real_count);
+                    if (mIndicator != null) {
+                        mIndicator.onInit(BannerView.this, real_count);
                     }
                 }
             }
 
             @Override
             public void onInvalidated() {
-
+                mHandler.removeMessages(MESSAGE_WHAT);
+                removeAllViews();
             }
         });
 
         mViewPager.setAdapter(mBannerAdapter);
     }
 
-    public void setBannerIndicator(BannerIndicator indicator) {
-        mBannerIndicator = indicator;
+    public void setIndicator(Indicator indicator) {
+        mIndicator = indicator;
     }
 
     /**
