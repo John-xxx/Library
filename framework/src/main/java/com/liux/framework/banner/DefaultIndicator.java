@@ -63,7 +63,9 @@ public class DefaultIndicator extends LinearLayout implements Indicator {
             view.setLayoutParams(lp);
             addView(view);
         }
-        getChildAt(0).setSelected(true);
+        if (count > 0) {
+            getChildAt(0).setSelected(true);
+        }
         bannerView.addView(this, new ViewGroup.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT));
     }
 
@@ -72,6 +74,11 @@ public class DefaultIndicator extends LinearLayout implements Indicator {
         for (int i = 0; i < getChildCount(); i++) {
             getChildAt(i).setSelected(i == position);
         }
+    }
+
+    @Override
+    public void onClear(BannerView view) {
+        removeAllViews();
     }
 
     /**

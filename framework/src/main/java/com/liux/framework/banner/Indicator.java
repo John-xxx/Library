@@ -9,4 +9,6 @@ public interface Indicator {
     void onInit(BannerView view, int count);
 
     void onSelected(BannerView view, int position);
+
+    void onClear(BannerView view);
 }

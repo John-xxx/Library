@@ -35,7 +35,13 @@ public class BannerView extends RelativeLayout {
         public void handleMessage(Message msg) {
             if (mViewPager != null) {
                 int position = mViewPager.getCurrentItem();
-                mViewPager.setCurrentItem(position + 1);
+                if (position < mBannerAdapter.getCount()) {
+                    mViewPager.setCurrentItem(position + 1);
+                } else {
+                    position = position / 2;
+                    position = position - position % mBannerAdapter.getRealCount();
+                    mViewPager.setCurrentItem(position);
+                }
             }
             mHandler.sendEmptyMessageDelayed(MESSAGE_WHAT, mInterval);
         }
@@ -70,7 +76,10 @@ public class BannerView extends RelativeLayout {
             @Override
             public void onPageSelected(int position) {
                 if (mIndicator != null) {
-                    int real_position = position % mBannerAdapter.getRealCount();
+                    int real_position = 0;
+                    if (mBannerAdapter.getRealCount() > 1) {
+                        real_position = position % mBannerAdapter.getRealCount();
+                    }
                     mIndicator.onSelected(BannerView.this, real_position);
                 }
             }
@@ -130,23 +139,29 @@ public class BannerView extends RelativeLayout {
             @Override
             public void onChanged() {
                 mHandler.removeMessages(MESSAGE_WHAT);
+
+                removeAllViews();
+                mViewPager.removeAllViews();
+                if (mIndicator != null) {
+                    mIndicator.onClear(BannerView.this);
+                }
+
                 int count = mBannerAdapter.getCount();
                 int real_count = mBannerAdapter.getRealCount();
                 if (count > 0 && real_count > 0) {
+                    addView(mViewPager, new RelativeLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT));
+
                     // 取最大值的中间位置,并确保证显示第一个页
                     int position = count / 2;
                     position = position - position % real_count;
                     mViewPager.setCurrentItem(position);
 
-                    if (real_count > 1) {
-                        mHandler.sendEmptyMessageDelayed(MESSAGE_WHAT, mInterval);
-                    }
-
-                    removeAllViews();
-                    addView(mViewPager, new RelativeLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT));
-
                     if (mIndicator != null) {
                         mIndicator.onInit(BannerView.this, real_count);
+                    }
+
+                    if (real_count > 1) {
+                        mHandler.sendEmptyMessageDelayed(MESSAGE_WHAT, mInterval);
                     }
                 }
             }

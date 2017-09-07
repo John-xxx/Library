@@ -30,7 +30,8 @@ public abstract class BannerAdapter<T> extends PagerAdapter {
      */
     @Override
     public int getCount() {
-        return mDataSource == null ? 0 : Integer.MAX_VALUE;
+        // 修复设置为 Integer.MAX_VALUE 出现ANR的问题
+        return mDataSource == null ? 0 : 0xFFFF;
     }
 
     /**
@@ -49,11 +50,12 @@ public abstract class BannerAdapter<T> extends PagerAdapter {
      */
     @Override
     public Object instantiateItem(ViewGroup container, int position) {
+        if (getRealCount() == 0) return null;
+
         BannerHolder holder = BannerHolder.create(container, mLayout);
 
         int index = position % getRealCount();
-
-        onBindData(holder, mDataSource.get(index), position);
+        onBindData(holder, mDataSource.get(index), index);
         container.addView(holder.getItemView());
 
         return holder;
@@ -67,6 +69,8 @@ public abstract class BannerAdapter<T> extends PagerAdapter {
      */
     @Override
     public boolean isViewFromObject(View view, Object object) {
+        if (object == null) return true;
+
         BannerHolder holder = (BannerHolder) object;
         return view == holder.getItemView();
     }
@@ -79,9 +83,11 @@ public abstract class BannerAdapter<T> extends PagerAdapter {
      */
     @Override
     public void destroyItem(ViewGroup container, int position, Object object) {
+        if (object == null) return;
+
         BannerHolder holder = (BannerHolder) object;
         container.removeView(holder.getItemView());
     }
 
-    public abstract void onBindData(BannerHolder holder, T t, int position);
+    public abstract void onBindData(BannerHolder holder, T t, int index);
 }
