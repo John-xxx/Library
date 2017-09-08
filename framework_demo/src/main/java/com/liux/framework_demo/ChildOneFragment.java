@@ -107,6 +107,12 @@ public class ChildOneFragment extends BaseFragment {
                             @Override
                             public void callback(PayResp payResp) {
                                 switch (payResp.errCode) {
+                                    case ERR_PARAM:
+                                        Toast.makeText(getContext(), "参数错误", Toast.LENGTH_SHORT).show();
+                                        break;
+                                    case ERR_VERSION:
+                                        Toast.makeText(getContext(), "微信客户端未安装或版本过低", Toast.LENGTH_SHORT).show();
+                                        break;
                                     case PayResp.ErrCode.ERR_OK:
                                         Toast.makeText(getContext(), "支付完成", Toast.LENGTH_SHORT).show();
                                         break;

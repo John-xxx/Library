@@ -4,6 +4,7 @@ import android.app.Activity;
 
 import com.liux.framework.pay.Request;
 import com.liux.framework.pay.PayTool;
+import com.tencent.mm.opensdk.constants.Build;
 import com.tencent.mm.opensdk.modelpay.PayReq;
 import com.tencent.mm.opensdk.modelpay.PayResp;
 import com.tencent.mm.opensdk.openapi.IWXAPI;
@@ -14,6 +15,19 @@ import java.util.Map;
 
 public abstract class WxRequest extends Request<PayReq, PayResp> {
     private static Map<String, WxRequest> WX_REQUESTS = new HashMap<>();
+
+    public static WxRequest getWxPay(String key) {
+        WxRequest wxPay = WX_REQUESTS.get(key);
+        WX_REQUESTS.remove(key);
+        return wxPay;
+    }
+
+    public static void putWxPay(String key, WxRequest wxPay) {
+        WX_REQUESTS.put(key, wxPay);
+    }
+
+    public static final int ERR_PARAM = -101;
+    public static final int ERR_VERSION = -102;
 
     private IWXAPI mIWXAPI;
 
@@ -34,18 +48,24 @@ public abstract class WxRequest extends Request<PayReq, PayResp> {
     @Override
     protected void start() {
         PayTool.println("开始微信支付:" + bill.toString());
+        if (bill == null || !bill.checkArgs()) {
+            callFailure(ERR_PARAM, "请求参数自检失败");
+            return;
+        }
+        if (mIWXAPI.getWXAppSupportAPI() < Build.PAY_SUPPORTED_SDK_INT) {
+            callFailure(ERR_VERSION, "未安装微信或版本过低");
+            return;
+        }
         String key = bill.prepayId;
         putWxPay(key, this);
         mIWXAPI.sendReq(bill);
     }
 
-    public static WxRequest getWxPay(String key) {
-        WxRequest wxPay = WX_REQUESTS.get(key);
-        WX_REQUESTS.remove(key);
-        return wxPay;
-    }
-
-    public static void putWxPay(String key, WxRequest wxPay) {
-        WX_REQUESTS.put(key, wxPay);
+    private void callFailure(int code, String msg) {
+        PayResp resp = new PayResp();
+        resp.errCode = code;
+        PayTool.println("微信支付结果:" + msg);
+        PayTool.println("回调支付结果");
+        callback(resp);
     }
 }
