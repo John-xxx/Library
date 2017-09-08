@@ -19,7 +19,7 @@ import android.util.SparseArray;
 public class PermissionTool {
     private static final String TAG = "PermissionTool";
 
-    private static final SparseArray<Request> REQUESTS = new SparseArray<Request>();
+    private static SparseArray<Request> REQUESTS = new SparseArray<Request>();
 
     public static Request with(Activity activity) {
         return new Request(activity);

@@ -108,10 +108,6 @@ public class BaiduLBSModelImpl implements LBSModel {
         }
     };
 
-    private BaiduLBSModelImpl() {
-
-    }
-
     private BaiduLBSModelImpl(Context context) {
         mContext = context.getApplicationContext();
 

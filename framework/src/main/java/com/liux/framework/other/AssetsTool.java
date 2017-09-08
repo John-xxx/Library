@@ -30,7 +30,7 @@ public class AssetsTool {
         }
     }
 
-    private String TAG = "AssetsTool";
+    private static final String TAG = "AssetsTool";
 
     private Context mContext;
     private Map<String, Object> mObjects = new HashMap<String, Object>();

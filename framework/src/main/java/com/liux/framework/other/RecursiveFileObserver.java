@@ -35,6 +35,7 @@ public abstract class RecursiveFileObserver extends FileObserver {
         mObservers.add(new SingleFileObserver(mPath, mMask));
     }
 
+    @Override
     public void startWatching() {
         if (mObservers == null) {
             return;
@@ -45,6 +46,7 @@ public abstract class RecursiveFileObserver extends FileObserver {
         }
     }
 
+    @Override
     public void stopWatching() {
         if (mObservers == null) {
             return;

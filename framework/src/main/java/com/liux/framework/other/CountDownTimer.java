@@ -5,9 +5,8 @@ import android.os.Handler;
 import android.os.Message;
 
 /**
- * Handler实现的定时器 <br>
- * Created by Liux on 2017/01/05. <br>
- * 已知问题,Handler会有误差,需要依照系统CountDownTimer修改 <br>
+ * 精确的 Handler 定时器
+ * Created by Liux on 2017/01/05
  */
 
 public class CountDownTimer {
@@ -16,9 +15,10 @@ public class CountDownTimer {
     private int mRequestCode = 0;
     private boolean mRepetition = false;
 
+    private long mLastTime;
     private long mGrossTime;
     private long mSurplusTime;
-    private long mIntervalTime;
+    private long mIntervalTime = 1000;
 
     private OnTimerListener mOnTimerListener;
 
@@ -26,25 +26,54 @@ public class CountDownTimer {
     private Handler mHandler = new Handler() {
         @Override
         public void handleMessage (Message msg){
-            synchronized (CountDownTimer.this) {
-                try {
-                    if (mRepetition) {
-                        if (mOnTimerListener != null) mOnTimerListener.onTick(mRequestCode, mGrossTime);
-                        sendEmptyMessageDelayed(MSG, mIntervalTime);
+            try {
+                long intervalTime = nextIntervalTime();
+                if (mRepetition) {
+                    sendEmptyMessageDelayed(MSG, intervalTime);
+                    if (mOnTimerListener != null) mOnTimerListener.onTick(mRequestCode, 0);
+                } else {
+                    if (intervalTime > 0) {
+                        mSurplusTime = mSurplusTime - intervalTime;
                     } else {
-                        mSurplusTime = mSurplusTime - mIntervalTime;
-                        if (mSurplusTime > 0) {
-                            if (mOnTimerListener != null) mOnTimerListener.onTick(mRequestCode, mSurplusTime);
-                            sendEmptyMessageDelayed(MSG, mIntervalTime);
-                        } else {
-                            if (mOnTimerListener != null) mOnTimerListener.onFinish(mRequestCode);
-                            mHandler.removeMessages(MSG);
-                        }
+                        mSurplusTime = mSurplusTime + intervalTime;
                     }
-                } catch (Exception e) {
-                    e.printStackTrace();
+                    if (mSurplusTime > mIntervalTime / 2) {
+                        sendEmptyMessageDelayed(MSG, intervalTime);
+                        if (mOnTimerListener != null) mOnTimerListener.onTick(mRequestCode, mSurplusTime);
+                    } else {
+                        mHandler.removeMessages(MSG);
+                        if (mOnTimerListener != null) mOnTimerListener.onFinish(mRequestCode);
+                    }
                 }
+            } catch (Exception e) {
+                if (mHandler != null) mHandler.removeMessages(MSG);
+                e.printStackTrace();
             }
+        }
+
+        /**
+         * 计算下一次间隔时间[精确计时]
+         * @return
+         */
+        private long nextIntervalTime() {
+            long now = System.currentTimeMillis();
+
+            // 当前时间和上次时间的时间差
+            long difference = now - mLastTime;
+
+            // 假设时间差是   30, 间隔是 1000, 则下次时间应该是  970 = 1000 - (  30 % 1000)
+            // 假设时间差是  960, 间隔是 1000, 则下次时间应该是 1040 = 1000 - ( 960 % 1000 - 1000)
+            // 假设时间差是 1080, 间隔是 1000, 则下次时间应该是  920 = 1000 - (1080 % 1000)
+            // 假设时间差是 1970, 间隔是 1000, 则下次时间应该是 1030 = 1000 - (1970 % 1000 - 1000)
+            long interval;
+            if (difference % mIntervalTime < mIntervalTime / 2) {
+                interval =  mIntervalTime - difference;
+            } else {
+                interval = mIntervalTime - (difference - mIntervalTime);
+            }
+
+            mLastTime = now;
+            return interval;
         }
     };
 
@@ -102,7 +131,9 @@ public class CountDownTimer {
     }
 
     public void start() {
+        mLastTime = System.currentTimeMillis();
         mSurplusTime = mGrossTime + mIntervalTime;
+
         mHandler.removeMessages(MSG);
         mHandler.sendEmptyMessage(MSG);
     }

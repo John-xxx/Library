@@ -255,10 +255,6 @@ public class HttpClient {
         }
     };
 
-    private HttpClient() {
-
-    }
-
     private HttpClient(Context context, String baseUrl, OkHttpClient.Builder builder) {
         if (context == null) throw new NullPointerException("Context required.");
         if (baseUrl == null) throw new NullPointerException("Base URL required.");

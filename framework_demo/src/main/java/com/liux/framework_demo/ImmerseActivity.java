@@ -3,8 +3,10 @@ package com.liux.framework_demo;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
+import android.util.Log;
 import android.view.View;
 import android.view.WindowManager;
+import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.Toast;
 
@@ -14,6 +16,7 @@ import com.liux.framework.banner.BannerView;
 import com.liux.framework.banner.DefaultIndicator;
 import com.liux.framework.base.BaseActivity;
 import com.liux.framework.glide.GlideApp;
+import com.liux.framework.other.CountDownTimer;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -32,11 +35,15 @@ import io.reactivex.schedulers.Schedulers;
  */
 
 public class ImmerseActivity extends BaseActivity {
+    private static final String TAG = "ImmerseActivity";
     private int mTopPadding;
 
     private List<String> mBanners;
     private BannerView mBannerView;
     private BannerAdapter<String> mBannerAdapter;
+
+    private Button mSend;
+    private CountDownTimer mCountDownTimer;
 
     @Override
     protected TitleBar onInitTitleBar() {
@@ -58,16 +65,48 @@ public class ImmerseActivity extends BaseActivity {
 
     @Override
     protected void onInitData(@Nullable Bundle savedInstanceState, Intent intent) {
+        mCountDownTimer = new CountDownTimer.Builder()
+                .gross(60 * 1000)
+                .interval(1000)
+                .listener(new CountDownTimer.OnTimerListener() {
+                    @Override
+                    public void onReset(int requestCode) {
+                        mSend.setText("重新发送");
+                    }
 
+                    @Override
+                    public void onTick(int requestCode, long surplus) {
+                        Log.d(TAG, String.valueOf(surplus));
+                        // 2999 毫秒应该显示为 3 秒
+                        if (surplus % 1000 > 1000 / 2) {
+                            surplus = (surplus / 1000 + 1) * 1000;
+                        }
+                        mSend.setText(String.format("%ds后重新发送", surplus / 1000));
+                    }
+
+                    @Override
+                    public void onFinish(int requestCode) {
+                        mSend.setText("重新发送");
+                    }
+                })
+                .build();
     }
 
     @Override
     protected void onInitView(@Nullable Bundle savedInstanceState) {
         // findViewById(R.id.rl_root).setPadding(0, mTopPadding, 0, 0);
+        mSend = (Button) findViewById(R.id.btn_send);
+        mSend.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                mCountDownTimer.start();
+            }
+        });
+
         mBannerView = (BannerView) findViewById(R.id.vp_banner);
 
         mBanners = new ArrayList<String>();
-        mBannerView.setScrollerTime(800);
+        mBannerView.setScrollerTime(400);
         mBannerAdapter = new BannerAdapter<String>(mBanners, R.layout.item_banner) {
             @Override
             public void onBindData(BannerHolder holder, final String s, int index) {
@@ -99,7 +138,7 @@ public class ImmerseActivity extends BaseActivity {
                 "http://pic5.qiyipic.com/common/20130524/7dc5679567cd4243a0a41e5bf626ad77.jpg",
                 "http://f.hiphotos.baidu.com/zhidao/pic/item/8b82b9014a90f60326b707453b12b31bb051eda9.jpg"
         )
-                .delay(5 * 1000, TimeUnit.MILLISECONDS)
+                .delay(1000, TimeUnit.MILLISECONDS)
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe(new Observer<String>() {

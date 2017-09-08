@@ -93,10 +93,6 @@ public class AMapLBSModelImpl implements LBSModel {
         }
     };
 
-    private AMapLBSModelImpl() {
-
-    }
-
     private AMapLBSModelImpl(Context context) {
         mContext = context.getApplicationContext();
 
