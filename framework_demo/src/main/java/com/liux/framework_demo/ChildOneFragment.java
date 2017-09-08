@@ -7,7 +7,11 @@ import android.view.ViewGroup;
 import android.widget.Toast;
 
 import com.liux.framework.base.BaseFragment;
-import com.liux.framework.other.PayTool;
+import com.liux.framework.pay.PayTool;
+import com.liux.framework.pay.alipay.AliRequest;
+import com.liux.framework.pay.alipay.AliResult;
+import com.liux.framework.pay.unionpay.UnionRequest;
+import com.liux.framework.pay.wxpay.WxRequest;
 import com.tencent.mm.opensdk.modelpay.PayReq;
 import com.tencent.mm.opensdk.modelpay.PayResp;
 
@@ -60,10 +64,11 @@ public class ChildOneFragment extends BaseFragment {
     public void onViewClicked(View view) {
         switch (view.getId()) {
             case R.id.btn_ali:
+                PayTool.DEBUG = true;
                 PayTool.with(getActivity())
-                        .pay(new PayTool.AliPay("") {
+                        .request(new AliRequest("") {
                             @Override
-                            public void callback(PayTool.AliResult aliResult) {
+                            public void callback(AliResult aliResult) {
                                 String result = aliResult.getResultStatus();
                                 switch (result) {
                                     case ALI_MEMO_SUCCEED:
@@ -92,11 +97,13 @@ public class ChildOneFragment extends BaseFragment {
                                         break;
                                 }
                             }
-                        });
+                        })
+                        .pay();
                 break;
             case R.id.btn_wx:
+                PayTool.DEBUG = true;
                 PayTool.with(getActivity())
-                        .pay(new PayTool.WxPay("", new PayReq()) {
+                        .request(new WxRequest(new PayReq()) {
                             @Override
                             public void callback(PayResp payResp) {
                                 switch (payResp.errCode) {
@@ -118,16 +125,18 @@ public class ChildOneFragment extends BaseFragment {
                                         break;
                                 }
                             }
-                        });
+                        })
+                        .pay();
                 break;
             case R.id.btn_union:
-//                PayTool.with(getActivity())
-//                        .pay(new PayTool.UnionPay("") {
-//                            @Override
-//                            public void callback(Boolean aBoolean) {
-//                                Toast.makeText(getContext(), "暂未支持", Toast.LENGTH_SHORT).show();
-//                            }
-//                        });
+                PayTool.with(getActivity())
+                        .request(new UnionRequest("") {
+                            @Override
+                            public void callback(Object object) {
+                                Toast.makeText(getContext(), "暂未支持", Toast.LENGTH_SHORT).show();
+                            }
+                        })
+                        .pay();
                 break;
         }
     }

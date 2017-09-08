@@ -1,0 +1,65 @@
+package com.liux.framework.pay.wxpay;
+
+import android.app.Activity;
+import android.content.Intent;
+import android.os.Bundle;
+import android.support.annotation.Nullable;
+
+import com.liux.framework.pay.PayTool;
+import com.tencent.mm.opensdk.constants.ConstantsAPI;
+import com.tencent.mm.opensdk.modelbase.BaseReq;
+import com.tencent.mm.opensdk.modelbase.BaseResp;
+import com.tencent.mm.opensdk.modelpay.PayResp;
+import com.tencent.mm.opensdk.openapi.IWXAPI;
+import com.tencent.mm.opensdk.openapi.IWXAPIEventHandler;
+import com.tencent.mm.opensdk.openapi.WXAPIFactory;
+
+public class WxPayActivity extends Activity {
+    public static String IWXID;
+
+    private IWXAPI mIWXAPI;
+
+    @Override
+    protected void onCreate(@Nullable Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+
+        handleIntent(getIntent());
+    }
+
+    @Override
+    protected void onNewIntent(Intent intent) {
+        super.onNewIntent(intent);
+
+        handleIntent(intent);
+    }
+
+    private void handleIntent(Intent intent) {
+        if (mIWXAPI == null) {
+            mIWXAPI = WXAPIFactory.createWXAPI(this, IWXID);
+        }
+
+        mIWXAPI.handleIntent(intent, new IWXAPIEventHandler() {
+            @Override
+            public void onReq(BaseReq baseReq) {
+
+            }
+
+            @Override
+            public void onResp(BaseResp baseResp) {
+                if (baseResp.getType() != ConstantsAPI.COMMAND_PAY_BY_WX) return;
+
+                PayTool.println("微信支付结果:" + "[" + baseResp.errStr + "]");
+
+                PayResp payResp = (PayResp) baseResp;
+                String key = payResp.prepayId;
+                WxRequest wxPay = WxRequest.getWxPay(key);
+                if (wxPay != null) {
+                    PayTool.println("回调支付结果");
+                    wxPay.callback(payResp);
+                }
+            }
+        });
+
+        finish();
+    }
+}
