@@ -16,7 +16,8 @@ import com.liux.framework.lbs.listener.OnLocationListener;
 import com.liux.framework.lbs.model.LBSModel;
 import com.liux.framework.lbs.model.impl.AMapLBSModelImpl;
 import com.liux.framework.lbs.model.impl.BaiduLBSModelImpl;
-import com.liux.framework.other.PermissionTool;
+import com.liux.framework.permission.OnPermissionListener;
+import com.liux.framework.permission.PermissionTool;
 import com.liux.framework.util.DeviceUtil;
 
 import java.util.List;
@@ -110,9 +111,9 @@ public class ChildTwoFragment extends BaseFragment {
         if (!permission) {
             PermissionTool.with(this)
                     .permissions(permissions)
-                    .callback(new PermissionTool.OnPermissionCallback() {
+                    .listener(new OnPermissionListener() {
                         @Override
-                        public void onCallback(List<String> allow, List<String> reject, List<String> prohibit) {
+                        public void onPermission(List<String> allow, List<String> reject, List<String> prohibit) {
                             // MIUI 要扯淡一点
                             if (!DeviceUtil.isMIUI()) {
                                 if (!reject.isEmpty() || !prohibit.isEmpty()) {

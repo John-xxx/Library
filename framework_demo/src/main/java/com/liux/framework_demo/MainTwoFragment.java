@@ -7,7 +7,8 @@ import android.view.View;
 import android.view.ViewGroup;
 
 import com.liux.framework.base.BaseFragment;
-import com.liux.framework.other.PermissionTool;
+import com.liux.framework.permission.OnPermissionListener;
+import com.liux.framework.permission.PermissionTool;
 
 import java.util.List;
 
@@ -62,9 +63,9 @@ public class MainTwoFragment extends BaseFragment {
             case R.id.btn_call:
                 PermissionTool.with(this)
                         .permissions(Manifest.permission.CALL_PHONE)
-                        .callback(new PermissionTool.OnPermissionCallback() {
+                        .listener(new OnPermissionListener() {
                             @Override
-                            public void onCallback(List<String> allow, List<String> reject, List<String> prohibit) {
+                            public void onPermission(List<String> allow, List<String> reject, List<String> prohibit) {
 
                             }
                         })
@@ -73,9 +74,9 @@ public class MainTwoFragment extends BaseFragment {
             case R.id.btn_camera:
                 PermissionTool.with(this)
                         .permissions(Manifest.permission.CAMERA)
-                        .callback(new PermissionTool.OnPermissionCallback() {
+                        .listener(new OnPermissionListener() {
                             @Override
-                            public void onCallback(List<String> allow, List<String> reject, List<String> prohibit) {
+                            public void onPermission(List<String> allow, List<String> reject, List<String> prohibit) {
 
                             }
                         })
@@ -84,9 +85,9 @@ public class MainTwoFragment extends BaseFragment {
             case R.id.btn_call_camera:
                 PermissionTool.with(this)
                         .permissions(Manifest.permission.CALL_PHONE, Manifest.permission.CAMERA)
-                        .callback(new PermissionTool.OnPermissionCallback() {
+                        .listener(new OnPermissionListener() {
                             @Override
-                            public void onCallback(List<String> allow, List<String> reject, List<String> prohibit) {
+                            public void onPermission(List<String> allow, List<String> reject, List<String> prohibit) {
 
                             }
                         })

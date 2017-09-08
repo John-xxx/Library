@@ -10,7 +10,8 @@ import android.support.v4.view.ViewPager;
 import android.widget.RadioGroup;
 
 import com.liux.framework.base.BaseActivity;
-import com.liux.framework.other.PermissionTool;
+import com.liux.framework.permission.OnPermissionListener;
+import com.liux.framework.permission.PermissionTool;
 
 import java.util.List;
 import java.util.Map;
@@ -120,9 +121,9 @@ public class MainActivity extends BaseActivity {
     protected void onLazyLoad() {
         PermissionTool.with(this)
                 .permissions(Manifest.permission.CALL_PHONE)
-                .callback(new PermissionTool.OnPermissionCallback() {
+                .listener(new OnPermissionListener() {
                     @Override
-                    public void onCallback(List<String> allow, List<String> reject, List<String> prohibit) {
+                    public void onPermission(List<String> allow, List<String> reject, List<String> prohibit) {
 
                     }
                 })
