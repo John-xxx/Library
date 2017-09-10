@@ -13,6 +13,9 @@ import com.tencent.mm.opensdk.openapi.WXAPIFactory;
 import java.util.HashMap;
 import java.util.Map;
 
+/**
+ * 可能出现的问题,转跳支付界面时App被杀死,造成微信无法回调
+ */
 public abstract class WxRequest extends Request<PayReq, PayResp> {
     private static Map<String, WxRequest> WX_REQUESTS = new HashMap<>();
 
