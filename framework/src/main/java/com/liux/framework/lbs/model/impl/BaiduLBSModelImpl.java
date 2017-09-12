@@ -1119,6 +1119,7 @@ public class BaiduLBSModelImpl implements LBSModel {
         address = address.trim();
         mode = mode.trim();
         point
+                .setCity(location.getCity())
                 .setLat(location.getLatitude())
                 .setLon(location.getLongitude())
                 .setDirection(location.getDirection())

@@ -850,6 +850,7 @@ public class AMapLBSModelImpl implements LBSModel {
         address = address.trim();
         mode = mode.trim();
         point
+                .setCity(aMapLocation.getCity())
                 .setLat(aMapLocation.getLatitude())
                 .setLon(aMapLocation.getLongitude())
                 .setDirection(aMapLocation.getBearing())
