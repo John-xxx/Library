@@ -14,8 +14,11 @@ import com.tencent.mm.opensdk.openapi.IWXAPI;
 import com.tencent.mm.opensdk.openapi.IWXAPIEventHandler;
 import com.tencent.mm.opensdk.openapi.WXAPIFactory;
 
-public class WxPayActivity extends Activity {
-    public static String IWXID;
+/**
+ * 集成此 Activity ,并在清单文件中注册; 注意一定要导出
+ * <activity android:name=".wxapi.WXPayEntryActivity" android:exported="true"/>
+ */
+public class WxPayActivity extends Activity implements IWXAPIEventHandler{
 
     private IWXAPI mIWXAPI;
 
@@ -35,31 +38,31 @@ public class WxPayActivity extends Activity {
 
     private void handleIntent(Intent intent) {
         if (mIWXAPI == null) {
-            mIWXAPI = WXAPIFactory.createWXAPI(this, IWXID);
+            mIWXAPI = WXAPIFactory.createWXAPI(this, null);
         }
 
-        mIWXAPI.handleIntent(intent, new IWXAPIEventHandler() {
-            @Override
-            public void onReq(BaseReq baseReq) {
-
-            }
-
-            @Override
-            public void onResp(BaseResp baseResp) {
-                if (baseResp.getType() != ConstantsAPI.COMMAND_PAY_BY_WX) return;
-
-                PayTool.println("微信支付结果:" + "[" + baseResp.errStr + "]");
-
-                PayResp payResp = (PayResp) baseResp;
-                String key = payResp.prepayId;
-                WxRequest wxPay = WxRequest.getWxPay(key);
-                if (wxPay != null) {
-                    PayTool.println("回调支付结果");
-                    wxPay.callback(payResp);
-                }
-            }
-        });
+        mIWXAPI.handleIntent(intent, this);
 
         finish();
+    }
+
+    @Override
+    public void onReq(BaseReq baseReq) {
+
+    }
+
+    @Override
+    public void onResp(BaseResp baseResp) {
+        if (baseResp.getType() != ConstantsAPI.COMMAND_PAY_BY_WX) return;
+
+        PayTool.println("微信支付结果:" + "[" + baseResp.errStr + "]");
+
+        PayResp payResp = (PayResp) baseResp;
+        String key = payResp.prepayId;
+        WxRequest wxPay = WxRequest.getWxPay(key);
+        if (wxPay != null) {
+            PayTool.println("回调支付结果");
+            wxPay.callback(payResp);
+        }
     }
 }

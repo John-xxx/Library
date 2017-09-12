@@ -101,11 +101,17 @@ public class ChildOneFragment extends BaseFragment {
                         .pay();
                 break;
             case R.id.btn_wx:
+                PayReq payReq = new PayReq();
+                payReq.extData = "我是附加数据,可以随便写;";
+
                 PayTool.DEBUG = true;
                 PayTool.with(getActivity())
-                        .request(new WxRequest(new PayReq()) {
+                        .request(new WxRequest(payReq) {
                             @Override
                             public void callback(PayResp payResp) {
+                                // 这里的附加数据是等于请求中在附加数据的,并且不参与验签
+                                String extData = payResp.extData;
+
                                 switch (payResp.errCode) {
                                     case ERR_PARAM:
                                         Toast.makeText(getContext(), "参数错误", Toast.LENGTH_SHORT).show();

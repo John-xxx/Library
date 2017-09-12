@@ -36,14 +36,13 @@ public abstract class WxRequest extends Request<PayReq, PayResp> {
 
     protected WxRequest(PayReq bill) {
         super(bill);
-        WxPayActivity.IWXID = bill.appId;
         PayTool.println("创建微信支付实例:" + bill.toString());
     }
 
     @Override
     protected void init(Activity activity) {
         super.init(activity);
-        mIWXAPI = WXAPIFactory.createWXAPI(activity, bill.appId);
+        mIWXAPI = WXAPIFactory.createWXAPI(activity, null);
         boolean succeed = mIWXAPI.registerApp(bill.appId);
         PayTool.println("初始化微信支付实例:" + "[" + succeed + "]");
     }
