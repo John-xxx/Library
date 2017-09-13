@@ -59,7 +59,8 @@ public abstract class BaseFragment extends Fragment {
     public void onViewCreated(View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
 
-        onLazyLoad();
+        mViewCreated = true;
+        checkLazyLoad();
     }
 
     @Override
@@ -147,6 +148,9 @@ public abstract class BaseFragment extends Fragment {
     @Override
     public void setUserVisibleHint(boolean isVisibleToUser) {
         super.setUserVisibleHint(isVisibleToUser);
+
+        mUserVisible = isVisibleToUser;
+        checkLazyLoad();
     }
 
     @Override
@@ -182,8 +186,9 @@ public abstract class BaseFragment extends Fragment {
     protected abstract View onInitView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState);
 
     /**
-     * {@link #onViewCreated(View, Bundle)} 后调用 <br>
-     * 懒加载模式
+     * 懒加载模式,保证创建完成后第一次显示时调用一次 <br>
+     * {@link #onViewCreated(View, Bundle)}
+     * {@link #setUserVisibleHint(boolean)}
      */
     protected abstract void onLazyLoad();
 
@@ -200,4 +205,27 @@ public abstract class BaseFragment extends Fragment {
     protected abstract void onSaveData(Bundle data);
 
     /* ============== 数据和View_End ============== */
+
+
+
+    /* ============== 懒加载_Begin ============== */
+
+    private boolean mViewCreated = false;
+    private boolean mUserVisible = false;
+    private boolean mCallLazyLoad = false;
+
+    /**
+     * 检查是否调用懒加载方法
+     * 保证在视图创建完成后第一次显示时调用一次目标方法
+     */
+    private void checkLazyLoad() {
+        if (mCallLazyLoad) return;
+        if (!mViewCreated) return;
+        if (!mUserVisible) return;
+
+        mCallLazyLoad = true;
+        onLazyLoad();
+    }
+
+    /* ============== 懒加载_End ============== */
 }
