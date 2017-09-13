@@ -15,6 +15,8 @@ import com.bumptech.glide.load.engine.cache.MemorySizeCalculator;
 import com.bumptech.glide.load.model.GlideUrl;
 import com.bumptech.glide.module.AppGlideModule;
 import com.bumptech.glide.request.RequestOptions;
+import com.liux.framework.glide.video.VideoUrl;
+import com.liux.framework.glide.video.VideoModelLoader;
 import com.liux.framework.http.HttpClient;
 
 import java.io.InputStream;
@@ -60,20 +62,25 @@ public class GlideModuleConfig extends AppGlideModule {
     }
 
     /**
-     * 配置全局唯一OkHttp客户端(HttpClient初始化的情况)
+     * 注册源 Model 对应的 ModelLoader
      * @param context
      * @param glide
      * @param registry
      */
     @Override
     public void registerComponents(Context context, Glide glide, Registry registry) {
-        OkHttpUrlLoader.Factory factory;
+        // 注册全局唯一OkHttp客户端(HttpClient初始化的情况)
+        OkHttpUrlLoader.Factory factory_glideurl;
         try {
-            factory = new OkHttpUrlLoader.Factory(HttpClient.getInstance().getOkHttpClient());
+            factory_glideurl = new OkHttpUrlLoader.Factory(HttpClient.getInstance().getOkHttpClient());
         } catch (Exception e) {
-            factory = new OkHttpUrlLoader.Factory();
+            factory_glideurl = new OkHttpUrlLoader.Factory();
         }
-        registry.append(GlideUrl.class, InputStream.class, factory);
+        registry.replace(GlideUrl.class, InputStream.class, factory_glideurl);
+
+        // 注册视频获取缩略图的扩展
+        VideoModelLoader.Factory factory_videourl = new VideoModelLoader.Factory();
+        registry.replace(VideoUrl.class, InputStream.class, factory_videourl);
     }
 
     /**

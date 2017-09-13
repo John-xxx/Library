@@ -16,6 +16,7 @@ import com.liux.framework.banner.BannerView;
 import com.liux.framework.banner.DefaultIndicator;
 import com.liux.framework.base.BaseActivity;
 import com.liux.framework.glide.GlideApp;
+import com.liux.framework.glide.video.VideoUrl;
 import com.liux.framework.other.CountDownTimer;
 
 import java.util.ArrayList;
@@ -41,6 +42,8 @@ public class ImmerseActivity extends BaseActivity {
     private List<String> mBanners;
     private BannerView mBannerView;
     private BannerAdapter<String> mBannerAdapter;
+
+    private ImageView mThumb;
 
     private Button mSend;
     private CountDownTimer mCountDownTimer;
@@ -103,6 +106,8 @@ public class ImmerseActivity extends BaseActivity {
             }
         });
 
+        mThumb = (ImageView) findViewById(R.id.iv_thumb);
+
         mBannerView = (BannerView) findViewById(R.id.vp_banner);
 
         mBanners = new ArrayList<String>();
@@ -162,6 +167,12 @@ public class ImmerseActivity extends BaseActivity {
                         mBannerAdapter.notifyDataSetChanged();
                     }
                 });
+
+        GlideApp.with(this)
+                .asBitmap()
+                //.load(VideoUrl.from("http://zhongjinshidai.zpftech.com/uploads/20170908/7d09ad02df3b8d031792ba7a8f0c3bcb.mp4"))
+                .load("http://zhongjinshidai.zpftech.com/uploads/20170908/7d09ad02df3b8d031792ba7a8f0c3bcb.mp4")
+                .into(mThumb);
     }
 
     @Override
