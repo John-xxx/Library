@@ -43,7 +43,8 @@
             android:name=".ImmerseActivity"
             android:label="@string/activity_immerse_title"/>
 
-        <activity android:name=".wxapi.WXPayEntryActivity"/>
+        <activity android:name=".wxapi.WXPayEntryActivity"
+            android:exported="true"/>
 
     </application>
 

@@ -35,7 +35,7 @@ public abstract class AliRequest extends Request<String, AliResult> {
 
     @Override
     protected void start() {
-        PayTool.println("开始支付宝支付:" + bill.toString());
+        PayTool.println("开始支付宝支付:" + bill);
         new Thread(new Runnable() {
             @Override
             public void run() {
@@ -44,7 +44,7 @@ public abstract class AliRequest extends Request<String, AliResult> {
 
                 PayTask alipay = new PayTask(activity);
                 final String result = alipay.pay(bill, true);
-                PayTool.println("支付宝支付结果:" + result.toString());
+                PayTool.println("支付宝支付结果:" + result);
 
                 PayTool.println("回调支付结果");
                 activity.runOnUiThread(new Runnable() {

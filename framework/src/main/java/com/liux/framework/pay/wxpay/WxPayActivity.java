@@ -54,10 +54,10 @@ public class WxPayActivity extends Activity implements IWXAPIEventHandler{
     @Override
     public void onResp(BaseResp baseResp) {
         if (baseResp.getType() != ConstantsAPI.COMMAND_PAY_BY_WX) return;
-
-        PayTool.println("微信支付结果:" + "[" + baseResp.errStr + "]");
-
         PayResp payResp = (PayResp) baseResp;
+
+        PayTool.println("微信支付结果:" + "[prepayId=" + payResp.prepayId + ",errCode=" + baseResp.errCode + "]");
+
         String key = payResp.prepayId;
         WxRequest wxPay = WxRequest.getWxPay(key);
         if (wxPay != null) {

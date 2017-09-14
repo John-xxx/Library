@@ -116,6 +116,9 @@ public class ChildOneFragment extends BaseFragment {
                                     case ERR_PARAM:
                                         Toast.makeText(getContext(), "参数错误", Toast.LENGTH_SHORT).show();
                                         break;
+                                    case ERR_CONFIG:
+                                        Toast.makeText(getContext(), "配置错误", Toast.LENGTH_SHORT).show();
+                                        break;
                                     case ERR_VERSION:
                                         Toast.makeText(getContext(), "微信客户端未安装或版本过低", Toast.LENGTH_SHORT).show();
                                         break;
