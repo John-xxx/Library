@@ -1,1 +1,3 @@
-include ':framework', ':framework_demo'
+include ':example'
+include ':framework'
+include ':mediaplayer'

@@ -13,6 +13,7 @@ buildscript {
             url 'http://maven.aliyun.com/nexus/content/groups/public/'
         }
         jcenter()
+        mavenLocal()
     }
     dependencies {
         classpath 'com.android.tools.build:gradle:2.3.3'
@@ -34,6 +35,7 @@ allprojects{
             url 'http://maven.aliyun.com/nexus/content/groups/public/'
         }
         jcenter()
+        mavenLocal()
     }
 
     // 处理中文注释不可被编译问题
