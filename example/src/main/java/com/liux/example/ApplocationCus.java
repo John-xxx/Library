@@ -8,8 +8,8 @@ import com.bilibili.boxing.BoxingCrop;
 import com.bilibili.boxing.BoxingMediaLoader;
 import com.liux.framework.lbs.model.impl.AMapLBSModelImpl;
 import com.liux.framework.lbs.model.impl.BaiduLBSModelImpl;
-import com.liux.framework.media.BoxingGlideLoader;
-import com.liux.framework.media.BoxingUcrop;
+import com.liux.framework.boxing.BoxingGlideLoader;
+import com.liux.framework.boxing.BoxingUcrop;
 
 /**
  * Created by Liux on 2017/8/16.
