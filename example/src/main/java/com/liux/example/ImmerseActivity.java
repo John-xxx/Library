@@ -17,6 +17,10 @@ import com.liux.framework.banner.DefaultIndicator;
 import com.liux.framework.base.BaseActivity;
 import com.liux.framework.glide.GlideApp;
 import com.liux.framework.other.CountDownTimer;
+import com.liux.framework.player.listener.OnPlayerListener;
+import com.liux.framework.player.Player;
+import com.liux.framework.player.view.SurfacePlayerView;
+import com.liux.framework.player.view.TexturePlayerView;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -42,7 +46,10 @@ public class ImmerseActivity extends BaseActivity {
     private BannerView mBannerView;
     private BannerAdapter<String> mBannerAdapter;
 
-    private ImageView mThumb;
+    private TexturePlayerView mTexturePlayerView;
+    private SurfacePlayerView mSurfacePlayerView;
+    private Player mTexturePlayer;
+    private Player mSurfacePlayer;
 
     private Button mSend;
     private CountDownTimer mCountDownTimer;
@@ -105,7 +112,14 @@ public class ImmerseActivity extends BaseActivity {
             }
         });
 
-        mThumb = (ImageView) findViewById(R.id.iv_thumb);
+        mTexturePlayerView = (TexturePlayerView) findViewById(R.id.pv_player_texture);
+        mTexturePlayer = mTexturePlayerView.getPlayer();
+        mTexturePlayer.setOnPlayerListener(new OnPlayerListener() {
+        });
+        mSurfacePlayerView = (SurfacePlayerView) findViewById(R.id.pv_player_surface);
+        mSurfacePlayer = mSurfacePlayerView.getPlayer();
+        mSurfacePlayer.setOnPlayerListener(new OnPlayerListener() {
+        });
 
         mBannerView = (BannerView) findViewById(R.id.vp_banner);
 
@@ -167,11 +181,16 @@ public class ImmerseActivity extends BaseActivity {
                     }
                 });
 
-        GlideApp.with(this)
-                .asBitmap()
-                //.load(VideoUrl.from("http://zhongjinshidai.zpftech.com/uploads/20170908/7d09ad02df3b8d031792ba7a8f0c3bcb.mp4"))
-                .load("http://zhongjinshidai.zpftech.com/uploads/20170908/7d09ad02df3b8d031792ba7a8f0c3bcb.mp4")
-                .into(mThumb);
+        mTexturePlayer.load("http://devimages.apple.com.edgekey.net/streaming/examples/bipbop_16x9/gear4/prog_index.m3u8");
+        mTexturePlayer.start();
+
+        mSurfacePlayer.load("http://devimages.apple.com.edgekey.net/streaming/examples/bipbop_16x9/gear4/prog_index.m3u8");
+        mSurfacePlayer.start();
+
+//        GlideApp.with(this)
+//                .asBitmap()
+//                .load(VideoUrl.from("http://zhongjinshidai.zpftech.com/uploads/20170908/7d09ad02df3b8d031792ba7a8f0c3bcb.mp4"))
+//                .into(mThumb);
     }
 
     @Override
