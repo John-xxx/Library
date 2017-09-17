@@ -91,9 +91,9 @@ publish {
     // 项目描述
     desc = 'My rapid development framework'
     // 项目网站
-    website = 'https://git.oschina.net/lx0758/Library'
+    website = 'https://git.oschina.net/lx0758/Framework'
     // 项目仓库
-    repository = 'https://git.oschina.net/lx0758/Library.git'
+    repository = 'https://git.oschina.net/lx0758/Framework.git'
 }
 
 /**
