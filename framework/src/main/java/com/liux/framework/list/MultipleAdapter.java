@@ -299,6 +299,9 @@ public class MultipleAdapter<T> extends RecyclerView.Adapter<SuperHolder> {
                     notifyItemChanged(index);
                 }
             } else if (mDataSource.getStateAllCount(State.STATE_SELECTED) >= mMaxSelectCount) {
+                if (mOnSelectListener != null) {
+                    mOnSelectListener.onSelectFailure();
+                }
                 return false;
             }
         }
@@ -326,7 +329,12 @@ public class MultipleAdapter<T> extends RecyclerView.Adapter<SuperHolder> {
     public boolean selectAll() {
         if (!isOpenSelect()) return false;
 
-        if (mDataSource.size() > mMaxSelectCount) return false;
+        if (mDataSource.size() > mMaxSelectCount) {
+            if (mOnSelectListener != null) {
+                mOnSelectListener.onSelectFailure();
+            }
+            return false;
+        }
 
         mDataSource.setStateAll(State.STATE_SELECTED);
         notifyDataSetChanged();
@@ -353,7 +361,12 @@ public class MultipleAdapter<T> extends RecyclerView.Adapter<SuperHolder> {
         if (!isOpenSelect()) return false;
 
         int selected = mDataSource.getStateAllCount(State.STATE_SELECTED);
-        if (mDataSource.size() - selected > mMaxSelectCount) return false;
+        if (mDataSource.size() - selected > mMaxSelectCount) {
+            if (mOnSelectListener != null) {
+                mOnSelectListener.onSelectFailure();
+            }
+            return false;
+        }
 
         mDataSource.reverseStateAll();
         notifyDataSetChanged();
@@ -416,6 +429,11 @@ public class MultipleAdapter<T> extends RecyclerView.Adapter<SuperHolder> {
          * @param isSelect
          */
         void onSelectChange(T t, int position, boolean isSelect);
+
+        /**
+         * 选择个数大于最大限制数
+         */
+        void onSelectFailure();
 
         /**
          * 选择个数达到最大限制数

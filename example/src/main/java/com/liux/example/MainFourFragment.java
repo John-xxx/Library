@@ -80,17 +80,22 @@ public class MainFourFragment extends BaseFragment {
                     }
                 });
         mMultipleAdapter.setOnSelectListener(new MultipleAdapter.OnSelectListener<Object>() {
-                    @Override
-                    public void onSelectChange(Object o, int position, boolean isSelect) {
-                        Toast.makeText(getActivity(), o + " isSelect:" + isSelect, Toast.LENGTH_SHORT).show();
-                    }
+            @Override
+            public void onSelectChange(Object o, int position, boolean isSelect) {
+                Toast.makeText(getActivity(), o + " isSelect:" + isSelect, Toast.LENGTH_SHORT).show();
+            }
 
-                    @Override
-                    public void onSelectComplete() {
-                        List<Object> list = mMultipleAdapter.getStateAll(MultipleAdapter.State.STATE_SELECTED);
-                        Toast.makeText(getActivity(), list.toString(), Toast.LENGTH_SHORT).show();
-                    }
-                });
+            @Override
+            public void onSelectFailure() {
+                Toast.makeText(getActivity(), "select failure", Toast.LENGTH_SHORT).show();
+            }
+
+            @Override
+            public void onSelectComplete() {
+                List<Object> list = mMultipleAdapter.getStateAll(MultipleAdapter.State.STATE_SELECTED);
+                Toast.makeText(getActivity(), list.toString(), Toast.LENGTH_SHORT).show();
+            }
+        });
         rvList.addItemDecoration(new ItemDecoration() {
             @Override
             public Decoration getItemOffsets(int position) {
