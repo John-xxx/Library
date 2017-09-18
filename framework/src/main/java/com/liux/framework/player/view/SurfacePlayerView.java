@@ -12,16 +12,15 @@ import android.view.View;
 
 import com.liux.framework.player.util.MeasureHelper;
 
-import tv.danmaku.ijk.media.player.IMediaPlayer;
-
 /**
  * Created by Liux on 2017/9/16.
  */
 
-public class SurfacePlayerView extends AbstractPlayerView implements RenderView {
+public class SurfacePlayerView extends PlayerView {
 
     private SurfaceView mSurfaceView;
     private MeasureHelper mMeasureHelper;
+    private RenderCallback mRenderCallback;
 
     public SurfacePlayerView(@NonNull Context context) {
         super(context);
@@ -54,7 +53,7 @@ public class SurfacePlayerView extends AbstractPlayerView implements RenderView 
         mSurfaceView.getHolder().addCallback(new SurfaceHolder.Callback() {
             @Override
             public void surfaceCreated(SurfaceHolder holder) {
-                getPlayer().setRenderView(SurfacePlayerView.this);
+                mRenderCallback.created(holder);
             }
 
             @Override
@@ -64,15 +63,15 @@ public class SurfacePlayerView extends AbstractPlayerView implements RenderView 
 
             @Override
             public void surfaceDestroyed(SurfaceHolder holder) {
-
+                mRenderCallback.destroyed(holder);
             }
         });
         return mSurfaceView;
     }
 
     @Override
-    public void bindPlayer(IMediaPlayer player) {
-        player.setDisplay(mSurfaceView.getHolder());
+    public void setRenderCallback(RenderCallback callback) {
+        mRenderCallback = callback;
     }
 
     @Override

@@ -1,5 +1,8 @@
 package com.liux.framework.player.view;
 
+import android.graphics.SurfaceTexture;
+import android.view.SurfaceHolder;
+
 import tv.danmaku.ijk.media.player.IMediaPlayer;
 
 /**
@@ -17,9 +20,9 @@ public interface RenderView {
 
     /**
      * 将渲染视图绑定到控制器
-     * @param player
+     * @param callback
      */
-    void bindPlayer(IMediaPlayer player);
+    void setRenderCallback(RenderCallback callback);
 
     /**
      * 设置长宽比
@@ -46,4 +49,24 @@ public interface RenderView {
      * @param videoSarDen
      */
     void setVideoSampleAspectRatio(int videoSarNum, int videoSarDen);
+
+    /**
+     * 渲染视图生命周期绑定
+     */
+    interface RenderCallback {
+
+        void reset();
+
+        boolean isCreated();
+
+        void bindPlayer();
+
+        void created(SurfaceHolder holder);
+
+        void created(SurfaceTexture surface);
+
+        void destroyed(SurfaceHolder holder);
+
+        void destroyed(SurfaceTexture surface);
+    }
 }

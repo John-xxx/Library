@@ -7,6 +7,7 @@ import android.widget.MediaController;
 
 import com.liux.framework.player.listener.OnPlayerListener;
 import com.liux.framework.player.view.ControlView;
+import com.liux.framework.player.view.PlayerView;
 import com.liux.framework.player.view.RenderView;
 
 import java.util.Map;
@@ -18,10 +19,10 @@ import java.util.Map;
 public interface Player {
 
     /**
-     * 载入文件,准备播放
-     * @param path
+     * 载入媒体
+     * @param media
      */
-    void load(String path);
+    void load(String media);
 
     /**
      * 载入uri,准备播放
@@ -43,12 +44,22 @@ public interface Player {
     /**
      * 暂停播放
      */
+    void pause();
+
+    /**
+     * 停止播放器
+     */
     void stop();
 
     /**
-     * 停止/重置播放器
+     * 重置播放器
      */
     void reset();
+
+    /**
+     * 释放播放器
+     */
+    void release();
 
     /**
      * 是否正在播放
@@ -93,16 +104,22 @@ public interface Player {
     boolean canPause();
 
     /**
+     * 是否可以前进
+     * @return
+     */
+    boolean canSeekForward();
+
+    /**
      * 是否可以后退
      * @return
      */
     boolean canSeekBackward();
 
     /**
-     * 是否可以前进
-     * @return
+     * 设置播放UI
+     * @param view
      */
-    boolean canSeekForward();
+    void setPlayerView(PlayerView view);
 
     /**
      * 设置渲染UI

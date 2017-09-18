@@ -2,15 +2,19 @@ package com.liux.framework.player;
 
 import android.annotation.TargetApi;
 import android.content.Context;
+import android.graphics.SurfaceTexture;
 import android.media.AudioManager;
 import android.net.Uri;
 import android.os.Build;
 import android.text.TextUtils;
 import android.util.Log;
+import android.view.Surface;
+import android.view.SurfaceHolder;
 
 import com.liux.framework.player.listener.OnPlayerListener;
 import com.liux.framework.player.util.FileMediaDataSource;
 import com.liux.framework.player.view.ControlView;
+import com.liux.framework.player.view.PlayerView;
 import com.liux.framework.player.view.RenderView;
 
 import java.io.File;
@@ -52,6 +56,8 @@ public class PlayerController implements Player {
     // 播放器组件
     private IMediaPlayer mIMediaPlayer;
 
+    // 播放视图
+    private PlayerView mPlayerView;
     // 渲染视图
     private RenderView mRenderView;
     // 控制视图
@@ -60,11 +66,11 @@ public class PlayerController implements Player {
     private OnPlayerListener mOnPlayerListener;
 
     // 是否能暂停
-    private boolean mCanPause;
-    // 是否能够后退
-    private boolean mCanSeekBackward;
+    private boolean mCanPause = true;
     // 是否能够前进
-    private boolean mCanSeekForward;
+    private boolean mCanSeekForward = true;
+    // 是否能够后退
+    private boolean mCanSeekBackward = true;
 
     // 视频宽度缓存
     private int mVideoWidth;
@@ -82,13 +88,75 @@ public class PlayerController implements Player {
     // 当前缓冲百分比
     private int mCurrentBufferPercentage;
 
+    // 渲染视图事件回调
+    private RenderView.RenderCallback mRenderCallback = new RenderView.RenderCallback() {
+
+        private SurfaceHolder mSurfaceHolder;
+        private SurfaceTexture mSurfaceTexture;
+
+        @Override
+        public void reset() {
+            mSurfaceHolder = null;
+            mSurfaceTexture = null;
+            pause();
+        }
+
+        @Override
+        public boolean isCreated() {
+            return mSurfaceHolder != null || mSurfaceTexture != null;
+        }
+
+        @Override
+        public void bindPlayer() {
+            if (mSurfaceHolder != null) {
+                mIMediaPlayer.setDisplay(mSurfaceHolder);
+            } else {
+                mIMediaPlayer.setSurface(
+                        new Surface(mSurfaceTexture)
+                );
+            }
+        }
+
+        @Override
+        public void created(SurfaceHolder holder) {
+            mSurfaceHolder = holder;
+
+            openVideo();
+        }
+
+        @Override
+        public void created(SurfaceTexture surface) {
+            mSurfaceTexture = surface;
+
+            openVideo();
+        }
+
+        @Override
+        public void destroyed(SurfaceHolder holder) {
+            mSurfaceHolder = null;
+            pause();
+        }
+
+        @Override
+        public void destroyed(SurfaceTexture surface) {
+            mSurfaceTexture = null;
+            pause();
+        }
+
+        private void pause() {
+            if (canPause()) {
+                PlayerController.this.pause();
+            }
+        }
+    };
+
     public PlayerController(Context context) {
         mContext = context.getApplicationContext();
     }
 
     @Override
-    public void load(String path) {
-        load(Uri.parse(path));
+    public void load(String media) {
+        load(Uri.parse(media));
     }
 
     @Override
@@ -114,7 +182,7 @@ public class PlayerController implements Player {
     }
 
     @Override
-    public void stop() {
+    public void pause() {
         if (isInPlaybackState()) {
             if (mIMediaPlayer.isPlaying()) {
                 mIMediaPlayer.pause();
@@ -125,7 +193,30 @@ public class PlayerController implements Player {
     }
 
     @Override
+    public void stop() {
+        if (isInPlaybackState()) {
+            if (mIMediaPlayer.isPlaying()) {
+                mIMediaPlayer.stop();
+                mCurrentState = STATE_PREPARED;
+            }
+        }
+        mTargetState = STATE_PREPARED;
+    }
+
+    /**
+     * 重置播放器
+     */
+    @Override
     public void reset() {
+        if (mIMediaPlayer != null) {
+            mIMediaPlayer.reset();
+            mCurrentState = STATE_IDLE;
+        }
+        mTargetState = STATE_IDLE;
+    }
+
+    @Override
+    public void release() {
         release(true);
     }
 
@@ -179,20 +270,28 @@ public class PlayerController implements Player {
     }
 
     @Override
+    public boolean canSeekForward() {
+        return mCanSeekForward;
+    }
+
+    @Override
     public boolean canSeekBackward() {
         return mCanSeekBackward;
     }
 
     @Override
-    public boolean canSeekForward() {
-        return mCanSeekForward;
+    public void setPlayerView(PlayerView view) {
+        mPlayerView = view;
     }
 
     @Override
     public void setRenderView(RenderView view) {
         mRenderView = view;
 
-        openVideo();
+        mRenderCallback.reset();
+        if (mRenderView != null) {
+            mRenderView.setRenderCallback(mRenderCallback);
+        }
     }
 
     @Override
@@ -235,7 +334,9 @@ public class PlayerController implements Player {
                 mIMediaPlayer.setDataSource(mUri.toString());
             }
 
-            mRenderView.bindPlayer(mIMediaPlayer);
+            if (mRenderCallback.isCreated()) {
+                mRenderCallback.bindPlayer();
+            }
 
             mIMediaPlayer.setAudioStreamType(AudioManager.STREAM_MUSIC);
             mIMediaPlayer.setScreenOnWhilePlaying(true);
@@ -279,7 +380,7 @@ public class PlayerController implements Player {
      */
     private IMediaPlayer createPlayer() {
         IjkMediaPlayer ijkMediaPlayer = new IjkMediaPlayer();
-        ijkMediaPlayer.native_setLogLevel(IjkMediaPlayer.IJK_LOG_DEBUG);
+        ijkMediaPlayer.native_setLogLevel(IjkMediaPlayer.IJK_LOG_WARN);
 
         boolean UsingMediaCodec = false;
         if (!UsingMediaCodec) {
