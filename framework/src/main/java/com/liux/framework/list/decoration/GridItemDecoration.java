@@ -1,4 +1,4 @@
-package com.liux.framework.list;
+package com.liux.framework.list.decoration;
 
 import android.graphics.Rect;
 import android.support.v7.widget.GridLayoutManager;

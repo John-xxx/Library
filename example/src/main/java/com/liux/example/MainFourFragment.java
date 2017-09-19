@@ -10,9 +10,12 @@ import android.view.ViewGroup;
 import android.widget.Toast;
 
 import com.liux.framework.base.BaseFragment;
-import com.liux.framework.list.ItemDecoration;
-import com.liux.framework.list.MultipleAdapter;
-import com.liux.framework.list.SuperHolder;
+import com.liux.framework.list.adapter.MultipleAdapter;
+import com.liux.framework.list.adapter.Rule;
+import com.liux.framework.list.adapter.State;
+import com.liux.framework.list.decoration.AbsItemDecoration;
+import com.liux.framework.list.holder.SuperHolder;
+import com.liux.framework.list.listener.OnSelectListener;
 
 import java.util.List;
 
@@ -43,15 +46,32 @@ public class MainFourFragment extends BaseFragment {
         View view = inflater.inflate(R.layout.fragment_main_four, container, false);
         unbinder = ButterKnife.bind(this, view);
 
+        rvList.setLayoutManager(new LinearLayoutManager(getContext()));
+        rvList.addItemDecoration(new AbsItemDecoration() {
+            @Override
+            public Decoration getItemOffsets(int position) {
+                // 划重点
+                if (mMultipleAdapter.isHeaderPosition(position) ||
+                        mMultipleAdapter.isFooterPosition(position)) {
+                    return null;
+                }
+                ColorDecoration decoration = new ColorDecoration();
+                decoration.color = Color.parseColor("#FF00FF");
+                decoration.bottom = 15;
+                return decoration;
+            }
+        });
         mMultipleAdapter = new MultipleAdapter<Object>()
-                .addRule(new MultipleAdapter.Rule<String>(android.R.layout.simple_list_item_1) {
+                .setHeader(LayoutInflater.from(getContext()).inflate(R.layout.layout_header, rvList, false))
+                .setFooter(LayoutInflater.from(getContext()).inflate(R.layout.layout_footer, rvList, false))
+                .addRule(new Rule<String>(android.R.layout.simple_list_item_1) {
                     @Override
                     public boolean doBindData(Object object) {
                         return object instanceof String;
                     }
 
                     @Override
-                    public void onDataBind(SuperHolder holder, String s, MultipleAdapter.State state, final int position) {
+                    public void onDataBind(SuperHolder holder, String s, State state, final int position) {
                         holder.setText(android.R.id.text1, String.format("String is %s (%d)", s, state.state));
                         holder.setOnClickListener(new View.OnClickListener() {
                             @Override
@@ -61,14 +81,14 @@ public class MainFourFragment extends BaseFragment {
                         });
                     }
                 })
-                .addRule(new MultipleAdapter.Rule<Integer>(android.R.layout.simple_list_item_2) {
+                .addRule(new Rule<Integer>(android.R.layout.simple_list_item_2) {
                     @Override
                     public boolean doBindData(Object object) {
                         return object instanceof Integer;
                     }
 
                     @Override
-                    public void onDataBind(SuperHolder holder, Integer integer, MultipleAdapter.State state, final int position) {
+                    public void onDataBind(SuperHolder holder, Integer integer, State state, final int position) {
                         holder.setText(android.R.id.text1, String.format("Integer is %d (%d)", integer, state.state));
                         holder.setText(android.R.id.text2, String.format("I'm a descriptive text", integer));
                         holder.setOnClickListener(new View.OnClickListener() {
@@ -79,7 +99,7 @@ public class MainFourFragment extends BaseFragment {
                         });
                     }
                 });
-        mMultipleAdapter.setOnSelectListener(new MultipleAdapter.OnSelectListener<Object>() {
+        mMultipleAdapter.setOnSelectListener(new OnSelectListener<Object>() {
             @Override
             public void onSelectChange(Object o, int position, boolean isSelect) {
                 Toast.makeText(getActivity(), o + " isSelect:" + isSelect, Toast.LENGTH_SHORT).show();
@@ -92,21 +112,12 @@ public class MainFourFragment extends BaseFragment {
 
             @Override
             public void onSelectComplete() {
-                List<Object> list = mMultipleAdapter.getStateAll(MultipleAdapter.State.STATE_SELECTED);
+                List<Object> list = mMultipleAdapter.getStateAll(State.STATE_SELECTED);
                 Toast.makeText(getActivity(), list.toString(), Toast.LENGTH_SHORT).show();
             }
         });
-        rvList.addItemDecoration(new ItemDecoration() {
-            @Override
-            public Decoration getItemOffsets(int position) {
-                ColorDecoration decoration = new ColorDecoration();
-                decoration.color = Color.parseColor("#FF00FF");
-                decoration.bottom = 15;
-                return decoration;
-            }
-        });
-        rvList.setLayoutManager(new LinearLayoutManager(getContext()));
         rvList.setAdapter(mMultipleAdapter);
+
         return view;
     }
 

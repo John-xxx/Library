@@ -1,4 +1,4 @@
-package com.liux.framework.list;
+package com.liux.framework.list.decoration;
 
 import android.graphics.Canvas;
 import android.graphics.Color;
@@ -12,11 +12,11 @@ import android.view.View;
  * Created by Liux on 2017/8/11.
  */
 
-public abstract class ItemDecoration extends RecyclerView.ItemDecoration {
+public abstract class AbsItemDecoration extends RecyclerView.ItemDecoration {
 
     private SparseArray<Decoration> mDecorations = new SparseArray<Decoration>();
 
-    public ItemDecoration() {
+    public AbsItemDecoration() {
         super();
     }
 

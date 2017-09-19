@@ -2,6 +2,7 @@ package com.liux.example;
 
 import android.app.Activity;
 import android.content.Intent;
+import android.graphics.Rect;
 import android.net.Uri;
 import android.os.Bundle;
 import android.support.v7.widget.GridLayoutManager;
@@ -21,9 +22,11 @@ import com.bilibili.boxing.model.entity.BaseMedia;
 import com.bilibili.boxing.utils.BoxingFileHelper;
 import com.bilibili.boxing_impl.ui.BoxingActivity;
 import com.liux.framework.base.BaseFragment;
-import com.liux.framework.list.GridItemDecoration;
-import com.liux.framework.list.MultipleAdapter;
-import com.liux.framework.list.SuperHolder;
+import com.liux.framework.list.adapter.Rule;
+import com.liux.framework.list.adapter.State;
+import com.liux.framework.list.decoration.GridItemDecoration;
+import com.liux.framework.list.adapter.MultipleAdapter;
+import com.liux.framework.list.holder.SuperHolder;
 
 import java.util.List;
 import java.util.Locale;
@@ -56,15 +59,30 @@ public class MainThreeFragment extends BaseFragment {
         View view = inflater.inflate(R.layout.fragment_main_three, container, false);
         unbinder = ButterKnife.bind(this, view);
 
+        rvList.addItemDecoration(new GridItemDecoration(10, 3) {
+            @Override
+            public void getItemOffsets(Rect outRect, View view, RecyclerView parent, RecyclerView.State state) {
+                // 划重点
+                int position = parent.getChildLayoutPosition(view);
+                if (mMultipleAdapter.isHeaderPosition(position) ||
+                        mMultipleAdapter.isFooterPosition(position)) {
+                    return;
+                }
+                super.getItemOffsets(outRect, view, parent, state);
+            }
+        });
+        rvList.setLayoutManager(new GridLayoutManager(getContext(), 3));
         mMultipleAdapter = new MultipleAdapter<String>()
-                .addRule(new MultipleAdapter.Rule<String>(R.layout.layout_boxing_simple_media_item) {
+                .setHeader(LayoutInflater.from(getContext()).inflate(R.layout.layout_header, rvList, false))
+                .setFooter(LayoutInflater.from(getContext()).inflate(R.layout.layout_footer, rvList, false))
+                .addRule(new Rule<String>(R.layout.layout_boxing_simple_media_item) {
                     @Override
                     public boolean doBindData(Object object) {
                         return true;
                     }
 
                     @Override
-                    public void onDataBind(SuperHolder holder, String path, MultipleAdapter.State state, int position) {
+                    public void onDataBind(SuperHolder holder, String path, State state, int position) {
                         ImageView imageView = holder.getView(R.id.media_item);
                         int height = imageView.getMeasuredWidth();
                         imageView.setMinimumHeight(height);
@@ -73,8 +91,7 @@ public class MainThreeFragment extends BaseFragment {
                     }
                 });
         rvList.setAdapter(mMultipleAdapter);
-        rvList.addItemDecoration(new GridItemDecoration(10, 3));
-        rvList.setLayoutManager(new GridLayoutManager(getContext(), 3));
+
         return view;
     }
 
