@@ -16,7 +16,7 @@ android {
             keyAlias key_keyAlias
             keyPassword key_keyPassword
             storePassword key_storePassword
-            storeFile file('./signed.jks')
+            storeFile file('./keystore.jks')
         }
     }
     compileSdkVersion rootProject.ext.android.COMPILE_SDK_VERSION
