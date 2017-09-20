@@ -3,12 +3,183 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent">
 
-    <TextView
+    <!-- 标题栏 -->
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="35dp"
+        android:gravity="center_vertical"
+        android:orientation="horizontal"
+        android:background="@drawable/ic_player_ui_up">
+
+        <LinearLayout
+            android:layout_width="wrap_content"
+            android:layout_height="match_parent"
+            android:gravity="center"
+            android:minWidth="15dp">
+
+            <ImageView
+                android:layout_width="30dp"
+                android:layout_height="30dp"
+                android:src="@drawable/ic_player_back"
+                android:visibility="gone"/>
+
+        </LinearLayout>
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginRight="15dp"
+            android:gravity="center_vertical"
+            android:maxLines="1"
+            android:ellipsize="end"
+            android:textColor="#FFFFFF"
+            android:textSize="14dp"
+            android:text="我是标题我是标题"/>
+
+    </LinearLayout>
+
+    <!-- 控制栏 -->
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="40dp"
+        android:layout_alignParentBottom="true"
+        android:gravity="center_vertical"
+        android:orientation="horizontal"
+        android:background="@drawable/ic_player_ui_down">
+
+        <!-- 播放控制 -->
+        <ImageView
+            android:layout_width="40dp"
+            android:layout_height="40dp"
+            android:padding="8dp"
+            android:src="@drawable/ic_player_play_little"/>
+
+        <!-- 当前时间 -->
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textColor="#FFFFFF"
+            android:textSize="14dp"
+            android:text="0:00:00"/>
+
+        <!-- 进度条 -->
+        <SeekBar
+            android:layout_width="0dp"
+            android:layout_weight="1"
+            android:layout_height="30dp"
+            android:layout_marginTop="0dp"
+            android:layout_marginBottom="0dp"
+            android:layout_marginStart="0dp"
+            android:layout_marginEnd="0dp"
+            android:layout_marginLeft="0dp"
+            android:layout_marginRight="0dp"
+            android:paddingLeft="15dp"
+            android:paddingRight="15dp"
+            android:max="100"
+            android:progress="0"
+            android:secondaryProgress="0"
+            android:maxHeight="3dp"
+            android:minHeight="3dp"
+            android:progressDrawable="@drawable/ic_player_ui_seekbar_progress"
+            android:thumb="@drawable/ic_player_ui_seekbar_thumb"/>
+
+        <!-- 总时间 -->
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textColor="#FFFFFF"
+            android:textSize="14dp"
+            android:text="0:00:00"/>
+
+        <!-- 切换全屏 -->
+        <ImageView
+            android:layout_width="40dp"
+            android:layout_height="40dp"
+            android:padding="8dp"
+            android:src="@drawable/ic_player_fullscreen_open"/>
+
+    </LinearLayout>
+
+    <!-- 小窗关闭 -->
+    <ImageView
+        android:layout_width="40dp"
+        android:layout_height="40dp"
+        android:padding="10dp"
+        android:src="@drawable/ic_player_close"
+        android:visibility="gone"/>
+
+    <!-- 播放按钮 -->
+    <ImageView
+        android:layout_width="50dp"
+        android:layout_height="50dp"
+        android:layout_centerInParent="true"
+        android:src="@drawable/ic_player_play_normal"
+        android:visibility="gone"/>
+
+    <!-- 等待UI -->
+    <LinearLayout
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_centerInParent="true"
-        android:textColor="#60FFFFFF"
-        android:textSize="50dp"
-        android:text="控制层"/>
+        android:orientation="vertical"
+        android:gravity="center"
+        android:background="@drawable/ic_player_hint_bg"
+        android:visibility="gone">
+
+        <ProgressBar
+            android:layout_width="40dp"
+            android:layout_height="40dp"
+            android:progressDrawable="@drawable/ic_player_ui_seekbar_progress"/>
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="5dp"
+            android:textColor="#FFFFFF"
+            android:textSize="14dp"
+            android:text="80%"/>
+
+    </LinearLayout>
+
+    <!-- 亮度/声音UI -->
+    <LinearLayout
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_centerInParent="true"
+        android:orientation="vertical"
+        android:gravity="center"
+        android:background="@drawable/ic_player_hint_bg"
+        android:visibility="gone">
+
+        <ImageView
+            android:layout_width="40dp"
+            android:layout_height="40dp"
+            android:src="@drawable/ic_player_light"/>
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="5dp"
+            android:textColor="#FFFFFF"
+            android:textSize="14dp"
+            android:text="60%"/>
+
+    </LinearLayout>
+
+    <!-- 警告UI -->
+    <ImageView
+        android:layout_width="50dp"
+        android:layout_height="50dp"
+        android:layout_centerInParent="true"
+        android:src="@drawable/ic_player_warning_normal"
+        android:visibility="gone"/>
+
+    <!-- 防误触锁 -->
+    <ImageView
+        android:layout_width="30dp"
+        android:layout_height="30dp"
+        android:layout_marginLeft="20dp"
+        android:layout_centerVertical="true"
+        android:src="@drawable/ic_player_lock_close"/>
 
 </RelativeLayout>

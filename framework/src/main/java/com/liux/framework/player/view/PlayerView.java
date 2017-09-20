@@ -19,6 +19,7 @@ import com.liux.framework.player.Player;
 import com.liux.framework.player.PlayerController;
 
 /**
+ * 播放界面总成(显示+逻辑+其他)
  * Created by Liux on 2017/9/17.
  */
 
@@ -136,8 +137,6 @@ public abstract class PlayerView extends FrameLayout implements RenderView {
     private View initControlView() {
         return new DefaultControlView(getPlayer(), PlayerView.this);
     }
-
-
 
     // 当前视图根布局
     private ViewGroup mParent;
