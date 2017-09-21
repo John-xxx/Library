@@ -203,7 +203,8 @@ public class MultipleAdapter<T> extends RecyclerView.Adapter {
     }
 
     /**
-     * 适配当 {@link RecyclerView.LayoutManager()} 为 {@link GridLayoutManager()}
+     * 适配当 RecyclerView.LayoutManager() 为 GridLayoutManager()
+     *
      * @param recyclerView
      */
     @Override
@@ -229,7 +230,8 @@ public class MultipleAdapter<T> extends RecyclerView.Adapter {
     }
 
     /**
-     * 适配当 {@link RecyclerView.LayoutManager()} 为 {@link StaggeredGridLayoutManager()}
+     * 适配当 RecyclerView.LayoutManager() 为 StaggeredGridLayoutManager()
+     *
      * @param holder
      */
     @Override

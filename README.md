@@ -152,12 +152,12 @@ compile 'com.liux:framework-ijkplayer:x.x.x'
 
 发布版本 [[更新记录]](/UPGRADE.md)
 ---
-- framework 0.2.5
+- framework 0.2.8
 - framework-ijkplayer 0.8.3
 
 更新时间
 ---
-2017年9月15日
+2017年9月20日
 
 License
 ---

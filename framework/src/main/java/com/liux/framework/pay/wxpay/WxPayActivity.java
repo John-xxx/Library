@@ -16,7 +16,8 @@ import com.tencent.mm.opensdk.openapi.WXAPIFactory;
 
 /**
  * 集成此 Activity ,并在清单文件中注册; 注意一定要导出
- * <activity android:name=".wxapi.WXPayEntryActivity" android:exported="true"/>
+ * activity android:name=".wxapi.WXPayEntryActivity"
+ * android:exported="true"
  */
 public class WxPayActivity extends Activity implements IWXAPIEventHandler{
 
