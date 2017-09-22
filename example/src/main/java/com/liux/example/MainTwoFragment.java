@@ -1,17 +1,25 @@
 package com.liux.example;
 
 import android.Manifest;
+import android.app.Activity;
+import android.content.Intent;
+import android.net.Uri;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ImageView;
 
 import com.liux.framework.base.BaseFragment;
+import com.liux.framework.glide.GlideApp;
 import com.liux.framework.permission.OnPermissionListener;
 import com.liux.framework.permission.PermissionTool;
+import com.liux.framework.util.IntentUtil;
+import com.liux.framework.util.UriUtil;
 
 import java.util.List;
 
+import butterknife.BindView;
 import butterknife.ButterKnife;
 import butterknife.OnClick;
 import butterknife.Unbinder;
@@ -21,8 +29,13 @@ import butterknife.Unbinder;
  */
 
 public class MainTwoFragment extends BaseFragment {
+    private static final int REQUEST_CODE_CAMERA = 1;
 
+    @BindView(R.id.iv_preview)
+    ImageView ivPreview;
     Unbinder unbinder;
+
+    private Uri mTempFile;
 
     @Override
     protected void onInitData(Bundle savedInstanceState) {
@@ -52,6 +65,20 @@ public class MainTwoFragment extends BaseFragment {
     }
 
     @Override
+    public void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+        if (resultCode != Activity.RESULT_OK) return;
+        switch (requestCode) {
+            case REQUEST_CODE_CAMERA:
+                GlideApp.with(ivPreview)
+                        .asBitmap()
+                        .load(mTempFile)
+                        .into(ivPreview);
+                break;
+        }
+    }
+
+    @Override
     public void onDestroyView() {
         super.onDestroyView();
         unbinder.unbind();
@@ -66,7 +93,9 @@ public class MainTwoFragment extends BaseFragment {
                         .listener(new OnPermissionListener() {
                             @Override
                             public void onPermission(List<String> allow, List<String> reject, List<String> prohibit) {
-
+                                Intent intent = new Intent(Intent.ACTION_CALL);
+                                intent.setData(Uri.parse("tel:10010"));
+                                startActivity(intent);
                             }
                         })
                         .request();
@@ -77,7 +106,8 @@ public class MainTwoFragment extends BaseFragment {
                         .listener(new OnPermissionListener() {
                             @Override
                             public void onPermission(List<String> allow, List<String> reject, List<String> prohibit) {
-
+                                mTempFile = UriUtil.getProviderCacheUri(getContext(), System.currentTimeMillis() + ".jpg");
+                                IntentUtil.callCamera(MainTwoFragment.this, mTempFile, REQUEST_CODE_CAMERA);
                             }
                         })
                         .request();
@@ -88,7 +118,12 @@ public class MainTwoFragment extends BaseFragment {
                         .listener(new OnPermissionListener() {
                             @Override
                             public void onPermission(List<String> allow, List<String> reject, List<String> prohibit) {
+                                Intent intent = new Intent(Intent.ACTION_CALL);
+                                intent.setData(Uri.parse("tel:10010"));
+                                startActivity(intent);
 
+                                mTempFile = UriUtil.getProviderCacheUri(getContext(), System.currentTimeMillis() + ".jpg");
+                                IntentUtil.callCamera(MainTwoFragment.this, mTempFile, REQUEST_CODE_CAMERA);
                             }
                         })
                         .request();

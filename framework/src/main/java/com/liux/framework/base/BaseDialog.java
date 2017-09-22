@@ -20,7 +20,7 @@ public class BaseDialog extends Dialog {
         this(context, android.R.style.Theme_Translucent_NoTitleBar);
     }
 
-    private BaseDialog(@NonNull Context context, int themeResId) {
+    public BaseDialog(@NonNull Context context, int themeResId) {
         super(context, themeResId);
 
         openTranslucentMode();

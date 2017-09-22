@@ -18,16 +18,52 @@ import java.io.IOException;
  */
 public class UriUtil {
 
+    /**
+     * 获取框架自定义权限
+     * @param context
+     * @return
+     */
+    public static String getAuthority(Context context) {
+        return context.getPackageName() + ".framework.provider";
+    }
+
+    /**
+     * 获取文件带 file:// 或 content:// 的 Uri
+     * @param context
+     * @param file
+     * @return
+     */
+    public static Uri getProviderUri(Context context, File file) {
+        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.N) {
+            return Uri.fromFile(file);
+        }
+        Uri uri = UriFileProvider.getUriForFile(context, getAuthority(context), file);
+        return uri;
+    }
+
+    /**
+     * 获取私有文件带 file:// 的 Uri
+     * @param context
+     * @param name
+     * @return
+     */
     public static Uri getFileUri(Context context, String name) {
         return getFileUri(context, name, false);
     }
 
+    /**
+     * 获取私有文件带 file:// 的 Uri
+     * @param context
+     * @param name
+     * @param create
+     * @return
+     */
     public static Uri getFileUri(Context context, String name, boolean create) {
         /* Environment.DIRECTORY_PICTURES */
         File filesDir = context.getExternalFilesDir(null);
         if (filesDir == null) filesDir = context.getFilesDir();
         if (create && !filesDir.exists()) filesDir.mkdirs();
-        File file = new File(filesDir.getPath()+"/" + name);
+        File file = new File(filesDir.getPath() + "/" + name);
         if (create && !file.exists()) {
             try {
                 file.createNewFile();
@@ -38,10 +74,23 @@ public class UriUtil {
         return Uri.fromFile(file);
     }
 
+    /**
+     * 获取私有文件带 file:// 或 content:// 的 Uri
+     * @param context
+     * @param name
+     * @return
+     */
     public static Uri getProviderFileUri(Context context, String name) {
         return getProviderFileUri(context, name, false);
     }
 
+    /**
+     * 获取私有文件带 file:// 或 content:// 的 Uri
+     * @param context
+     * @param name
+     * @param create
+     * @return
+     */
     public static Uri getProviderFileUri(Context context, String name, boolean create) {
         if (Build.VERSION.SDK_INT < Build.VERSION_CODES.N) {
             return getFileUri(context, name, create);
@@ -50,7 +99,7 @@ public class UriUtil {
         File filesDir = context.getExternalFilesDir(null);
         if (filesDir == null) filesDir = context.getFilesDir();
         if (create && !filesDir.exists()) filesDir.mkdirs();
-        File file = new File(filesDir.getPath()+"/" + name);
+        File file = new File(filesDir.getPath() + "/" + name);
         if (create && !file.exists()) {
             try {
                 file.createNewFile();
@@ -58,19 +107,32 @@ public class UriUtil {
                 e.printStackTrace();
             }
         }
-        Uri uri = FileProvider.getUriForFile(context, context.getPackageName() + ".provider", file);
+        Uri uri = UriFileProvider.getUriForFile(context, getAuthority(context), file);
         return uri;
     }
 
+    /**
+     * 获取私有缓存文件带 file:// 的 Uri
+     * @param context
+     * @param name
+     * @return
+     */
     public static Uri getCacheUri(Context context, String name) {
         return getCacheUri(context, name, false);
     }
 
+    /**
+     * 获取私有缓存文件带 file:// 的 Uri
+     * @param context
+     * @param name
+     * @param create
+     * @return
+     */
     public static Uri getCacheUri(Context context, String name, boolean create) {
         File cacheDir = context.getExternalCacheDir();
         if (cacheDir == null) cacheDir = context.getCacheDir();
         if (create && !cacheDir.exists()) cacheDir.mkdirs();
-        File file = new File(cacheDir.getPath()+"/" + name);
+        File file = new File(cacheDir.getPath() + "/" + name);
         if (create && !file.exists()) {
             try {
                 file.createNewFile();
@@ -81,10 +143,23 @@ public class UriUtil {
         return Uri.fromFile(file);
     }
 
+    /**
+     * 获取私有缓存文件带 file:// 或 content:// 的 Uri
+     * @param context
+     * @param name
+     * @return
+     */
     public static Uri getProviderCacheUri(Context context, String name) {
         return getProviderCacheUri(context, name, false);
     }
 
+    /**
+     * 获取私有缓存文件带 file:// 或 content:// 的 Uri
+     * @param context
+     * @param name
+     * @param create
+     * @return
+     */
     public static Uri getProviderCacheUri(Context context, String name, boolean create) {
         if (Build.VERSION.SDK_INT < Build.VERSION_CODES.N) {
             return getCacheUri(context, name, create);
@@ -92,7 +167,7 @@ public class UriUtil {
         File cacheDir = context.getExternalCacheDir();
         if (cacheDir == null) cacheDir = context.getCacheDir();
         if (create && !cacheDir.exists()) cacheDir.mkdirs();
-        File file = new File(cacheDir.getPath()+"/" + name);
+        File file = new File(cacheDir.getPath() + "/" + name);
         if (create && !file.exists()) {
             try {
                 file.createNewFile();
@@ -100,24 +175,32 @@ public class UriUtil {
                 e.printStackTrace();
             }
         }
-        Uri uri = FileProvider.getUriForFile(context, context.getPackageName() + ".file.provider", file);
+        Uri uri = UriFileProvider.getUriForFile(context, getAuthority(context), file);
         return uri;
     }
 
-    public static Uri getImageContentUri(Context context, File file) {
+    /**
+     * 获取图片文件所对应的 Uri
+     *
+     * @param context
+     * @param file
+     * @return
+     */
+    public static Uri getImageFileToUri(Context context, File file) {
         if (Build.VERSION.SDK_INT < Build.VERSION_CODES.N) {
-            return getUri(file);
+            return Uri.fromFile(file);
         }
         String filePath = file.getAbsolutePath();
         Cursor cursor = context.getContentResolver().query(
                 MediaStore.Images.Media.EXTERNAL_CONTENT_URI,
-                new String[] { MediaStore.Images.Media._ID },
+                new String[]{MediaStore.Images.Media._ID},
                 MediaStore.Images.Media.DATA + "=? ",
-                new String[] { filePath }, null);
+                new String[]{filePath},
+                null
+        );
 
         if (cursor != null && cursor.moveToFirst()) {
-            int id = cursor.getInt(cursor
-                    .getColumnIndex(MediaStore.MediaColumns._ID));
+            int id = cursor.getInt(cursor.getColumnIndex(MediaStore.MediaColumns._ID));
             Uri baseUri = Uri.parse("content://media/external/images/media");
             return Uri.withAppendedPath(baseUri, "" + id);
         } else {
@@ -125,26 +208,23 @@ public class UriUtil {
                 ContentValues values = new ContentValues();
                 values.put(MediaStore.Images.Media.DATA, filePath);
                 return context.getContentResolver().insert(
-                        MediaStore.Images.Media.EXTERNAL_CONTENT_URI, values);
+                        MediaStore.Images.Media.EXTERNAL_CONTENT_URI,
+                        values
+                );
             } else {
                 return null;
             }
         }
     }
 
-    public static Uri getProviderUri(Context context, File file) {
-        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.N) {
-            return getUri(file);
-        }
-        Uri uri = FileProvider.getUriForFile(context, context.getPackageName() + ".Provider", file);
-        return uri;
-    }
-
-    public static Uri getUri(File file) {
-        return Uri.fromFile(file);
-    }
-
-    public static File handleImageOnKitKat(Context context, Uri uri) {
+    /**
+     * 获取图片 Uri 所指向的 File ,已兼容 KITKAT 以以上系统
+     *
+     * @param context
+     * @param uri
+     * @return
+     */
+    public static File getImageUriToFile(Context context, Uri uri) {
         String imagePath = null;
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT) {
             if (DocumentsContract.isDocumentUri(context, uri)) {
@@ -180,4 +260,9 @@ public class UriUtil {
         }
         return Path;
     }
+
+    /**
+     * 用于适配Android 7.0 的 FileProvider
+     */
+    public static class UriFileProvider extends FileProvider {}
 }

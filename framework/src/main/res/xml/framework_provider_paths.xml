@@ -1,15 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
-<paths>
-
+<paths xmlns:android="http://schemas.android.com/apk/res/android">
     <root-path path="/" name="root"/>
     <files-path path="/" name="files"/>
     <cache-path path="/" name="cache"/>
     <external-path path="/" name="ext" />
     <external-files-path path="/" name="ext_files" />
     <external-cache-path path="/" name="ext_cache" />
-
-    <!-- Boxing -->
-    <cache-path name="internal" path="boxing" />
-    <external-path name="external" path="DCIM/bili/boxing" />
-
 </paths>

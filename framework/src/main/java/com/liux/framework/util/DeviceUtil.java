@@ -33,6 +33,12 @@ public class DeviceUtil {
         return applicationName;
     }
 
+    public static String getApplicationID(Context context) {
+        return context.getApplicationInfo().packageName;
+        // return context.getApplicationInfo().processName;
+        // return context.getPackageName();
+    }
+
     public static String getPackageName(Context context) {
         return context.getPackageName();
     }

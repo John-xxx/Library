@@ -1,6 +1,9 @@
 package com.liux.framework.util;
 
 import android.app.Activity;
+import android.app.Fragment;
+import android.content.ActivityNotFoundException;
+import android.content.ComponentCallbacks;
 import android.content.Context;
 import android.content.Intent;
 import android.graphics.Bitmap;
@@ -33,8 +36,8 @@ public class IntentUtil {
             intent.setData(Uri.parse(String.format("geo:%f,%f", lat, lng)));
             context.startActivity(intent);
         } catch (Exception e) {
-            e.printStackTrace();
             Toast.makeText(context, "您尚未安装地图软件或无权限调用.", Toast.LENGTH_LONG).show();
+            e.printStackTrace();
         }
     }
 
@@ -52,8 +55,8 @@ public class IntentUtil {
             intent.setData(Uri.parse(String.format("baidumap://map/direction?destination=latlng:%f,%f|name:%s&mode=driving", lat, lng, name)));
             context.startActivity(intent);
         } catch (Exception e) {
-            e.printStackTrace();
             Toast.makeText(context, "您尚未安装百度地图软件或无权限调用.", Toast.LENGTH_LONG).show();
+            e.printStackTrace();
         }
     }
 
@@ -67,12 +70,12 @@ public class IntentUtil {
     public static void startAMapNavigator(Context context, double lat, double lng, String name) {
         try {
             Intent intent = new Intent(Intent.ACTION_VIEW);
-//            intent.setPackage("com.autonavi.minimap");
+            // intent.setPackage("com.autonavi.minimap");
             intent.setData(Uri.parse(String.format("androidamap://route?sourceApplication=Back&dlat=%f&dlon=%f&dname=%s&dev=0&m=0&t=2", lat, lng, name)));
             context.startActivity(intent);
         } catch (Exception e) {
-            e.printStackTrace();
             Toast.makeText(context, "您尚未安装高德地图软件或无权限调用.", Toast.LENGTH_LONG).show();
+            e.printStackTrace();
         }
     }
 
@@ -90,8 +93,8 @@ public class IntentUtil {
             intent.setData(Uri.parse(String.format("http://apis.map.qq.com/uri/v1/routeplan?type=drive&to=%s&tocoord=%f,%f&coord_type=1&referer=Back", name, lat, lng)));
             context.startActivity(intent);
         } catch (Exception e) {
-            e.printStackTrace();
             Toast.makeText(context, "您尚未安装腾讯地图软件或无权限调用.", Toast.LENGTH_LONG).show();
+            e.printStackTrace();
         }
     }
 
@@ -109,8 +112,8 @@ public class IntentUtil {
             intent.setData(Uri.parse(String.format("http://ditu.google.cn/maps?f=d&source=s_d&daddr=%f,%f&hl=zh", lat, lng)));
             context.startActivity(intent);
         } catch (Exception e) {
-            e.printStackTrace();
             Toast.makeText(context, "您尚未安装谷歌地图软件或无权限调用.", Toast.LENGTH_LONG).show();
+            e.printStackTrace();
         }
     }
 
@@ -126,8 +129,8 @@ public class IntentUtil {
             intent.setData(Uri.parse("tel:" + number));
             context.startActivity(intent);
         } catch (Exception e) {
-            e.printStackTrace();
             Toast.makeText(context, "找不到关联的程序,发起拨号失败!", Toast.LENGTH_SHORT).show();
+            e.printStackTrace();
         }
     }
 
@@ -145,8 +148,8 @@ public class IntentUtil {
             intent.putExtra("sms_body", content);
             context.startActivity(intent);
         } catch (Exception e) {
-            e.printStackTrace();
             Toast.makeText(context, "找不到关联的程序,短信发送失败!", Toast.LENGTH_SHORT).show();
+            e.printStackTrace();
         }
     }
 
@@ -162,8 +165,8 @@ public class IntentUtil {
             intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
             context.startActivity(intent);
         } catch (Exception e) {
-            e.printStackTrace();
             Toast.makeText(context, "找不到关联的程序!", Toast.LENGTH_SHORT).show();
+            e.printStackTrace();
         }
     }
 
@@ -185,8 +188,8 @@ public class IntentUtil {
             return true;
         } catch (Exception e) {
             e.printStackTrace();
-            return false;
         }
+        return false;
     }
 
     /**
@@ -203,41 +206,94 @@ public class IntentUtil {
             intent.addCategory(Intent.CATEGORY_DEFAULT);
             intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
             context.startActivity(intent);
-        } catch (Exception e) {
-            e.printStackTrace();
+        } catch (ActivityNotFoundException e) {
             Toast.makeText(context, "没有找到程序安装器,软件安装失败!", Toast.LENGTH_SHORT).show();
+        } catch (Exception e) {
+            Toast.makeText(context, "参数错误.", Toast.LENGTH_SHORT).show();
+            e.printStackTrace();
         }
     }
 
     public static void callAlbum(Activity activity, int requestCode) {
+        callAlbum(activity, activity, requestCode);
+    }
+
+    public static void callAlbum(Fragment fragment, int requestCode) {
+        callAlbum(fragment.getActivity(), fragment, requestCode);
+    }
+
+    public static void callAlbum(android.support.v4.app.Fragment fragment, int requestCode) {
+        callAlbum(fragment.getActivity(), fragment, requestCode);
+    }
+
+    private static void callAlbum(Context context, ComponentCallbacks callbacks, int requestCode) {
+        Intent intent = new Intent(Intent.ACTION_PICK);
+        intent.setDataAndType(MediaStore.Images.Media.EXTERNAL_CONTENT_URI, "image/*");
+
         try {
-            Intent intent = new Intent(Intent.ACTION_PICK, MediaStore.Images.Media.EXTERNAL_CONTENT_URI);
-            intent.setDataAndType(MediaStore.Images.Media.EXTERNAL_CONTENT_URI, "image/*");
-            activity.startActivityForResult(intent, requestCode);
+            if (callbacks instanceof Activity) {
+                ((Activity) callbacks).startActivityForResult(intent, requestCode);
+            } else if (callbacks instanceof Fragment) {
+                ((Fragment) callbacks).startActivityForResult(intent, requestCode);
+            } else if (callbacks instanceof android.support.v4.app.Fragment) {
+                ((android.support.v4.app.Fragment) callbacks).startActivityForResult(intent, requestCode);
+            }
+        } catch (ActivityNotFoundException e){
+            Toast.makeText(context, "没有找到合适的相册程序.", Toast.LENGTH_SHORT).show();
         } catch (Exception e) {
-            Toast.makeText(activity, "没有找到合适的相册程序.", Toast.LENGTH_SHORT).show();
+            Toast.makeText(context, "参数错误.", Toast.LENGTH_SHORT).show();
+            e.printStackTrace();
         }
     }
 
-    public static void callCamera(Activity activity, Uri uri, int requestCode) {
+    public static void callCamera(Activity activity, Uri out, int requestCode) {
+        callCamera(activity, activity, out, requestCode);
+    }
+
+    public static void callCamera(Fragment fragment, Uri out, int requestCode) {
+        callCamera(fragment.getActivity(), fragment, out, requestCode);
+    }
+
+    public static void callCamera(android.support.v4.app.Fragment fragment, Uri out, int requestCode) {
+        callCamera(fragment.getActivity(), fragment, out, requestCode);
+    }
+
+    private static void callCamera(Context context, ComponentCallbacks callbacks, Uri out, int requestCode) {
         Intent intent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
         intent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
         intent.addFlags(Intent.FLAG_GRANT_WRITE_URI_PERMISSION);
-        intent.putExtra(MediaStore.EXTRA_OUTPUT, uri);
+        intent.putExtra(MediaStore.EXTRA_OUTPUT, out);
         intent.putExtra("return-data", false);
+
         try {
-            activity.startActivityForResult(intent, requestCode);
+            if (callbacks instanceof Activity) {
+                ((Activity) callbacks).startActivityForResult(intent, requestCode);
+            } else if (callbacks instanceof Fragment) {
+                ((Fragment) callbacks).startActivityForResult(intent, requestCode);
+            } else if (callbacks instanceof android.support.v4.app.Fragment) {
+                ((android.support.v4.app.Fragment) callbacks).startActivityForResult(intent, requestCode);
+            }
+        } catch (ActivityNotFoundException e){
+            Toast.makeText(context, "没有找到合适的相机程序.", Toast.LENGTH_SHORT).show();
         } catch (Exception e) {
-            Toast.makeText(activity, "没有找到合适的相机程序.", Toast.LENGTH_SHORT).show();
+            Toast.makeText(context, "参数错误.", Toast.LENGTH_SHORT).show();
+            e.printStackTrace();
         }
     }
 
-    public static void callCrop(Activity activity,
-                                Uri in,
-                                Uri out,
-                                int out_width,
-                                int out_height,
-                                int requestCode) {
+    public static void callCrop(Activity activity, Uri in, Uri out, int out_width, int out_height, int requestCode) {
+        callCrop(activity, activity, in, out, out_width, out_height, requestCode);
+    }
+
+    public static void callCrop(Fragment fragment, Uri in, Uri out, int out_width, int out_height, int requestCode) {
+        callCrop(fragment.getActivity(), fragment, in, out, out_width, out_height, requestCode);
+    }
+
+    public static void callCrop(android.support.v4.app.Fragment fragment, Uri in, Uri out, int out_width, int out_height, int requestCode) {
+        callCrop(fragment.getActivity(), fragment, in, out, out_width, out_height, requestCode);
+    }
+
+    private static void callCrop(Context context, ComponentCallbacks callbacks, Uri in, Uri out, int out_width, int out_height, int requestCode) {
         Intent intent = new Intent();
         intent.setAction("com.android.camera.action.CROP");
         intent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
@@ -253,10 +309,20 @@ public class IntentUtil {
         intent.putExtra("noFaceDetection", true);
         intent.putExtra(MediaStore.EXTRA_OUTPUT, out);
         intent.putExtra("outputFormat", Bitmap.CompressFormat.JPEG.toString());
+
         try {
-            activity.startActivityForResult(intent, requestCode);
+            if (callbacks instanceof Activity) {
+                ((Activity) callbacks).startActivityForResult(intent, requestCode);
+            } else if (callbacks instanceof Fragment) {
+                ((Fragment) callbacks).startActivityForResult(intent, requestCode);
+            } else if (callbacks instanceof android.support.v4.app.Fragment) {
+                ((android.support.v4.app.Fragment) callbacks).startActivityForResult(intent, requestCode);
+            }
+        } catch (ActivityNotFoundException e){
+            Toast.makeText(context, "没有找到合适的裁剪程序.", Toast.LENGTH_SHORT).show();
         } catch (Exception e) {
-            Toast.makeText(activity, "没有找到合适的裁剪程序.", Toast.LENGTH_SHORT).show();
+            Toast.makeText(context, "参数错误.", Toast.LENGTH_SHORT).show();
+            e.printStackTrace();
         }
     }
 }
