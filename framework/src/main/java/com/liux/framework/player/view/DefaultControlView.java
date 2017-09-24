@@ -1,6 +1,5 @@
 package com.liux.framework.player.view;
 
-import android.content.Context;
 import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -15,33 +14,25 @@ import com.liux.framework.player.Player;
  * Created by Liux on 2017/9/18.
  */
 
-public class DefaultControlView extends FrameLayout implements ControlView {
+public class DefaultControlView implements ControlView {
 
-    private Player mPlayer;
     private PlayerView mPlayerView;
 
     private View mRoot;
 
-    public DefaultControlView(Player player, PlayerView view) {
-        super(view.getContext());
-        mPlayer = player;
+    public DefaultControlView(PlayerView view) {
         mPlayerView = view;
+
         initView();
     }
 
+    @Override
+    public View getView() {
+        return mRoot;
+    }
+
     private void initView() {
-        FrameLayout.LayoutParams lp = new LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT);
-        lp.gravity = Gravity.CENTER;
-
-        mRoot = LayoutInflater.from(getContext()).inflate(R.layout.view_player_control_default, null);
-
-        setOnClickListener(new OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                mPlayerView.setFullScreen(!mPlayerView.getFullScreen());
-            }
-        });
-
-        addView(mRoot, lp);
+        AbstractPlayerView playerView = (AbstractPlayerView) mPlayerView;
+        mRoot = LayoutInflater.from(playerView.getContext()).inflate(R.layout.view_player_control_default, null);
     }
 }

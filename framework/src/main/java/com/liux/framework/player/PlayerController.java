@@ -1,15 +1,11 @@
 package com.liux.framework.player;
 
-import android.annotation.TargetApi;
 import android.content.Context;
-import android.graphics.SurfaceTexture;
 import android.media.AudioManager;
 import android.net.Uri;
 import android.os.Build;
 import android.text.TextUtils;
 import android.util.Log;
-import android.view.Surface;
-import android.view.SurfaceHolder;
 
 import com.liux.framework.player.listener.OnPlayerListener;
 import com.liux.framework.player.util.FileMediaDataSource;
@@ -20,6 +16,7 @@ import com.liux.framework.player.view.RenderView;
 import java.io.File;
 import java.util.Map;
 
+import tv.danmaku.ijk.media.player.AndroidMediaPlayer;
 import tv.danmaku.ijk.media.player.IMediaPlayer;
 import tv.danmaku.ijk.media.player.IjkMediaPlayer;
 import tv.danmaku.ijk.media.player.IjkTimedText;
@@ -32,6 +29,30 @@ import tv.danmaku.ijk.media.player.misc.IMediaDataSource;
 
 public class PlayerController implements Player {
     private static final String TAG = "PlayerController";
+
+    public static final int TYPE_FFMPEG = 1;
+    public static final int TYPE_ANDROID = 2;
+
+    // 播放器类型
+    private static int mPlayerType = 0;
+
+    /**
+     * 获取播放器内核类型
+     * @return
+     */
+    public static int getPlayerType() {
+        return mPlayerType;
+    }
+
+    /**
+     * 设置播放器内核类型,注意只能设置一次
+     * @param type
+     */
+    public static void setPlayerType(int type) {
+        if (mPlayerType == 0) {
+            mPlayerType = type;
+        }
+    }
 
     private static final int STATE_ERROR = -1;
     private static final int STATE_IDLE = 0;
@@ -82,94 +103,49 @@ public class PlayerController implements Player {
     private int mVideoSarDen;
     // 视频方向角度缓存
     private int mVideoRotationDegree;
-
     // 目标播放位置
     private int mSeekWhenPrepared;
     // 当前缓冲百分比
     private int mCurrentBufferPercentage;
 
-    // 渲染视图事件回调
-    private RenderView.RenderCallback mRenderCallback = new RenderView.RenderCallback() {
-
-        private SurfaceHolder mSurfaceHolder;
-        private SurfaceTexture mSurfaceTexture;
-
-        @Override
-        public void reset() {
-            mSurfaceHolder = null;
-            mSurfaceTexture = null;
-            pause();
-        }
-
-        @Override
-        public boolean isCreated() {
-            return mSurfaceHolder != null || mSurfaceTexture != null;
-        }
-
-        @Override
-        public void bindPlayer() {
-            if (mSurfaceHolder != null) {
-                mIMediaPlayer.setDisplay(mSurfaceHolder);
-            } else {
-                mIMediaPlayer.setSurface(
-                        new Surface(mSurfaceTexture)
-                );
-            }
-        }
-
-        @Override
-        public void created(SurfaceHolder holder) {
-            mSurfaceHolder = holder;
-
-            openVideo();
-        }
-
-        @Override
-        public void created(SurfaceTexture surface) {
-            mSurfaceTexture = surface;
-
-            openVideo();
-        }
-
-        @Override
-        public void destroyed(SurfaceHolder holder) {
-            mSurfaceHolder = null;
-            pause();
-        }
-
-        @Override
-        public void destroyed(SurfaceTexture surface) {
-            mSurfaceTexture = null;
-            pause();
-        }
-
-        private void pause() {
-            if (canPause()) {
-                PlayerController.this.pause();
-            }
-        }
-    };
+    // 媒体准备状态
+    private boolean mMediaPrepared = false;
 
     public PlayerController(Context context) {
         mContext = context.getApplicationContext();
     }
 
     @Override
-    public void load(String media) {
-        load(Uri.parse(media));
-    }
+    public void loadMedia(Media media) {
+        int reload = 0;
+        if (mUri == null && media.getUri() != null) {
+            reload ++;
+        } else if (mUri != null && media.getUri() == null) {
+            reload ++;
+        } else if (mUri == null && media.getUri() == null) {
 
-    @Override
-    public void load(Uri uri) {
-        load(uri, null);
-    }
+        } else if (!mUri.equals(media.getUri())){
+            reload ++;
+        }
+        if (mHeaders == null && media.getHeaders() != null) {
+            reload ++;
+        } else if (mHeaders != null && media.getHeaders() == null) {
+            reload ++;
+        } else if (mHeaders == null && media.getHeaders() == null) {
 
-    @Override
-    public void load(Uri uri, Map<String, String> headers) {
-        mUri = uri;
-        mHeaders = headers;
+        } else if (!mHeaders.equals(media.getHeaders())){
+            reload ++;
+        }
 
-        openVideo();
+        mUri = media.getUri();
+        mHeaders = media.getHeaders();
+
+        if (reload > 0) {
+            prepareMedia();
+        }
+        if (media.getPosition() > 0) {
+            seekTo(media.getPosition());
+        }
     }
 
     @Override
@@ -288,9 +264,10 @@ public class PlayerController implements Player {
     public void setRenderView(RenderView view) {
         mRenderView = view;
 
-        mRenderCallback.reset();
         if (mRenderView != null) {
-            mRenderView.setRenderCallback(mRenderCallback);
+            checkPrepare();
+        } else {
+            pause();
         }
     }
 
@@ -304,15 +281,16 @@ public class PlayerController implements Player {
         mOnPlayerListener = listener;
     }
 
-    @TargetApi(Build.VERSION_CODES.M)
-    private void openVideo() {
-        if (mUri == null || mRenderView == null) {
-            // not ready for playback just yet, will try again later
+    /**
+     * 设置/切换媒体后重新准备一个新的控制器
+     */
+    private void prepareMedia() {
+        if (mUri == null) {
             return;
         }
 
-        // we shouldn't clear the target state, because somebody might have called start() previously
         release(false);
+        mMediaPrepared = false;
 
         AudioManager am = (AudioManager) mContext.getSystemService(Context.AUDIO_SERVICE);
         am.requestAudioFocus(null, AudioManager.STREAM_MUSIC, AudioManager.AUDIOFOCUS_GAIN);
@@ -334,10 +312,6 @@ public class PlayerController implements Player {
                 mIMediaPlayer.setDataSource(mUri.toString());
             }
 
-            if (mRenderCallback.isCreated()) {
-                mRenderCallback.bindPlayer();
-            }
-
             mIMediaPlayer.setAudioStreamType(AudioManager.STREAM_MUSIC);
             mIMediaPlayer.setScreenOnWhilePlaying(true);
 
@@ -357,9 +331,9 @@ public class PlayerController implements Player {
     }
 
     /**
-     * release the media player in any state
+     * 释放当前的控制器
      */
-    public void release(boolean clearTargetState) {
+    private void release(boolean clearTargetState) {
         if (mIMediaPlayer != null) {
             mIMediaPlayer.reset();
             mIMediaPlayer.release();
@@ -379,56 +353,68 @@ public class PlayerController implements Player {
      * @return
      */
     private IMediaPlayer createPlayer() {
-        IjkMediaPlayer ijkMediaPlayer = new IjkMediaPlayer();
-        ijkMediaPlayer.native_setLogLevel(IjkMediaPlayer.IJK_LOG_WARN);
-
-        boolean UsingMediaCodec = false;
-        if (!UsingMediaCodec) {
-            ijkMediaPlayer.setOption(IjkMediaPlayer.OPT_CATEGORY_PLAYER, "mediacodec", 0);
-        } else {
-            ijkMediaPlayer.setOption(IjkMediaPlayer.OPT_CATEGORY_PLAYER, "mediacodec", 1);
-
-            boolean UsingMediaCodecAutoRotate = false;
-            if (!UsingMediaCodecAutoRotate) {
-                ijkMediaPlayer.setOption(IjkMediaPlayer.OPT_CATEGORY_PLAYER, "mediacodec-auto-rotate", 0);
-            } else {
-                ijkMediaPlayer.setOption(IjkMediaPlayer.OPT_CATEGORY_PLAYER, "mediacodec-auto-rotate", 1);
-            }
-
-            boolean MediaCodecHandleResolutionChange = false;
-            if (!MediaCodecHandleResolutionChange) {
-                ijkMediaPlayer.setOption(IjkMediaPlayer.OPT_CATEGORY_PLAYER, "mediacodec-handle-resolution-change", 0);
-            } else {
-                ijkMediaPlayer.setOption(IjkMediaPlayer.OPT_CATEGORY_PLAYER, "mediacodec-handle-resolution-change", 1);
-            }
+        if (mPlayerType == 0) {
+            mPlayerType = TYPE_FFMPEG;
         }
 
-        boolean UsingOpenSLES = false;
-        if (!UsingOpenSLES) {
-            ijkMediaPlayer.setOption(IjkMediaPlayer.OPT_CATEGORY_PLAYER, "opensles", 0);
-        } else {
-            ijkMediaPlayer.setOption(IjkMediaPlayer.OPT_CATEGORY_PLAYER, "opensles", 1);
-        }
+        IMediaPlayer iMediaPlayer = null;
+        switch (mPlayerType) {
+            case TYPE_FFMPEG:
+                IjkMediaPlayer ijkMediaPlayer = new IjkMediaPlayer();
+                ijkMediaPlayer.native_setLogLevel(IjkMediaPlayer.IJK_LOG_WARN);
 
-        String pixelFormat = "";
-        if (pixelFormat == null || pixelFormat.isEmpty()) {
-            ijkMediaPlayer.setOption(IjkMediaPlayer.OPT_CATEGORY_PLAYER, "overlay-format", IjkMediaPlayer.SDL_FCC_RV32);
-        } else {
-            ijkMediaPlayer.setOption(IjkMediaPlayer.OPT_CATEGORY_PLAYER, "overlay-format", pixelFormat);
-        }
+                boolean UsingMediaCodec = false;
+                if (!UsingMediaCodec) {
+                    ijkMediaPlayer.setOption(IjkMediaPlayer.OPT_CATEGORY_PLAYER, "mediacodec", 0);
+                } else {
+                    ijkMediaPlayer.setOption(IjkMediaPlayer.OPT_CATEGORY_PLAYER, "mediacodec", 1);
 
-        ijkMediaPlayer.setOption(IjkMediaPlayer.OPT_CATEGORY_PLAYER, "framedrop", 1);
-        ijkMediaPlayer.setOption(IjkMediaPlayer.OPT_CATEGORY_PLAYER, "start-on-prepared", 0);
+                    boolean UsingMediaCodecAutoRotate = false;
+                    if (!UsingMediaCodecAutoRotate) {
+                        ijkMediaPlayer.setOption(IjkMediaPlayer.OPT_CATEGORY_PLAYER, "mediacodec-auto-rotate", 0);
+                    } else {
+                        ijkMediaPlayer.setOption(IjkMediaPlayer.OPT_CATEGORY_PLAYER, "mediacodec-auto-rotate", 1);
+                    }
 
-        ijkMediaPlayer.setOption(IjkMediaPlayer.OPT_CATEGORY_FORMAT, "http-detect-range-support", 0);
+                    boolean MediaCodecHandleResolutionChange = false;
+                    if (!MediaCodecHandleResolutionChange) {
+                        ijkMediaPlayer.setOption(IjkMediaPlayer.OPT_CATEGORY_PLAYER, "mediacodec-handle-resolution-change", 0);
+                    } else {
+                        ijkMediaPlayer.setOption(IjkMediaPlayer.OPT_CATEGORY_PLAYER, "mediacodec-handle-resolution-change", 1);
+                    }
+                }
 
-        ijkMediaPlayer.setOption(IjkMediaPlayer.OPT_CATEGORY_CODEC, "skip_loop_filter", 48);
+                boolean UsingOpenSLES = false;
+                if (!UsingOpenSLES) {
+                    ijkMediaPlayer.setOption(IjkMediaPlayer.OPT_CATEGORY_PLAYER, "opensles", 0);
+                } else {
+                    ijkMediaPlayer.setOption(IjkMediaPlayer.OPT_CATEGORY_PLAYER, "opensles", 1);
+                }
 
-        IMediaPlayer iMediaPlayer = ijkMediaPlayer;
+                String pixelFormat = "";
+                if (pixelFormat == null || pixelFormat.isEmpty()) {
+                    ijkMediaPlayer.setOption(IjkMediaPlayer.OPT_CATEGORY_PLAYER, "overlay-format", IjkMediaPlayer.SDL_FCC_RV32);
+                } else {
+                    ijkMediaPlayer.setOption(IjkMediaPlayer.OPT_CATEGORY_PLAYER, "overlay-format", pixelFormat);
+                }
 
-        boolean EnableDetachedSurfaceTextureView = false;
-        if (EnableDetachedSurfaceTextureView) {
-            iMediaPlayer = new TextureMediaPlayer(iMediaPlayer);
+                ijkMediaPlayer.setOption(IjkMediaPlayer.OPT_CATEGORY_PLAYER, "framedrop", 1);
+                ijkMediaPlayer.setOption(IjkMediaPlayer.OPT_CATEGORY_PLAYER, "start-on-prepared", 0);
+
+                ijkMediaPlayer.setOption(IjkMediaPlayer.OPT_CATEGORY_FORMAT, "http-detect-range-support", 0);
+
+                ijkMediaPlayer.setOption(IjkMediaPlayer.OPT_CATEGORY_CODEC, "skip_loop_filter", 48);
+
+                boolean EnableDetachedSurfaceTextureView = false;
+                if (EnableDetachedSurfaceTextureView) {
+                    iMediaPlayer = new TextureMediaPlayer(ijkMediaPlayer);
+                } else {
+                    iMediaPlayer = ijkMediaPlayer;
+                }
+                break;
+            case TYPE_ANDROID:
+                iMediaPlayer = new AndroidMediaPlayer();
+                break;
         }
 
         return iMediaPlayer;
@@ -441,31 +427,8 @@ public class PlayerController implements Player {
         mIMediaPlayer.setOnPreparedListener(new IMediaPlayer.OnPreparedListener() {
             @Override
             public void onPrepared(IMediaPlayer mp) {
-                mCurrentState = STATE_PREPARED;
-
-                mVideoWidth = mp.getVideoWidth();
-                mVideoHeight = mp.getVideoHeight();
-                mVideoSarNum = mp.getVideoSarNum();
-                mVideoSarDen = mp.getVideoSarDen();
-
-                // 如果有转跳,则转跳至目标
-                if (mSeekWhenPrepared != 0) {
-                    seekTo(mSeekWhenPrepared);
-                }
-
-                if (mVideoWidth > 0 && mVideoHeight > 0) {
-                    if (mRenderView != null) {
-                        mRenderView.setVideoSize(mVideoWidth, mVideoHeight);
-                        mRenderView.setVideoSampleAspectRatio(mVideoSarNum, mVideoSarDen);
-                    }
-                }
-
-                // 如果之前调用过start,现在恢复
-                if (mTargetState == STATE_PLAYING) {
-                    start();
-                }
-
-                // TODO: 2017/9/17  准备完毕,回调
+                mMediaPrepared = true;
+                checkPrepare();
             }
         });
         mIMediaPlayer.setOnVideoSizeChangedListener(new IMediaPlayer.OnVideoSizeChangedListener() {
@@ -585,5 +548,36 @@ public class PlayerController implements Player {
                 mCurrentState != STATE_ERROR &&
                 mCurrentState != STATE_IDLE &&
                 mCurrentState != STATE_PREPARING);
+    }
+
+    /**
+     * 保证媒体和渲染显示UI均已经准备完毕
+     */
+    private void checkPrepare() {
+        if (mMediaPrepared && mRenderView != null) {
+            mCurrentState = STATE_PREPARED;
+
+            // TODO: 2017/9/17  准备完毕,回调
+
+            mVideoWidth = mIMediaPlayer.getVideoWidth();
+            mVideoHeight = mIMediaPlayer.getVideoHeight();
+            mVideoSarNum = mIMediaPlayer.getVideoSarNum();
+            mVideoSarDen = mIMediaPlayer.getVideoSarDen();
+
+            // 如果有转跳,则转跳至目标
+            if (mSeekWhenPrepared != 0) {
+                seekTo(mSeekWhenPrepared);
+            }
+
+            if (mVideoWidth > 0 && mVideoHeight > 0) {
+                mRenderView.setVideoSize(mVideoWidth, mVideoHeight);
+                mRenderView.setVideoSampleAspectRatio(mVideoSarNum, mVideoSarDen);
+            }
+
+            // 如果之前调用过start,现在恢复
+            if (mTargetState == STATE_PLAYING) {
+                start();
+            }
+        }
     }
 }

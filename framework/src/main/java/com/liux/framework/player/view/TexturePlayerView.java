@@ -16,11 +16,10 @@ import com.liux.framework.player.util.MeasureHelper;
  * Created by Liux on 2017/9/16.
  */
 
-public class TexturePlayerView extends PlayerView {
+public class TexturePlayerView extends AbstractPlayerView implements RenderView {
 
     private TextureView mTextureView;
     private MeasureHelper mMeasureHelper;
-    private RenderCallback mRenderCallback;
 
     public TexturePlayerView(@NonNull Context context) {
         super(context);
@@ -39,7 +38,7 @@ public class TexturePlayerView extends PlayerView {
     }
 
     @Override
-    protected View initRenderView() {
+    protected RenderView initRenderView() {
         mTextureView = new TextureView(getContext()) {
             @Override
             protected void onMeasure(int widthMeasureSpec, int heightMeasureSpec) {
@@ -52,7 +51,7 @@ public class TexturePlayerView extends PlayerView {
         mTextureView.setSurfaceTextureListener(new TextureView.SurfaceTextureListener() {
             @Override
             public void onSurfaceTextureAvailable(SurfaceTexture surface, int width, int height) {
-                mRenderCallback.created(surface);
+
             }
 
             @Override
@@ -62,7 +61,6 @@ public class TexturePlayerView extends PlayerView {
 
             @Override
             public boolean onSurfaceTextureDestroyed(SurfaceTexture surface) {
-                mRenderCallback.destroyed(surface);
                 return true;
             }
 
@@ -71,12 +69,12 @@ public class TexturePlayerView extends PlayerView {
 
             }
         });
-        return mTextureView;
+        return this;
     }
 
     @Override
-    public void setRenderCallback(RenderCallback callback) {
-        mRenderCallback = callback;
+    public View getView() {
+        return mTextureView;
     }
 
     @Override

@@ -17,6 +17,7 @@ import com.liux.framework.banner.DefaultIndicator;
 import com.liux.framework.base.BaseActivity;
 import com.liux.framework.glide.GlideApp;
 import com.liux.framework.other.CountDownTimer;
+import com.liux.framework.player.Media;
 import com.liux.framework.player.listener.OnPlayerListener;
 import com.liux.framework.player.Player;
 import com.liux.framework.player.view.SurfacePlayerView;
@@ -48,8 +49,6 @@ public class ImmerseActivity extends BaseActivity {
 
     private TexturePlayerView mTexturePlayerView;
     private SurfacePlayerView mSurfacePlayerView;
-    private Player mTexturePlayer;
-    private Player mSurfacePlayer;
 
     private Button mSend;
     private CountDownTimer mCountDownTimer;
@@ -113,12 +112,10 @@ public class ImmerseActivity extends BaseActivity {
         });
 
         mTexturePlayerView = (TexturePlayerView) findViewById(R.id.pv_player_texture);
-        mTexturePlayer = mTexturePlayerView.getPlayer();
-        mTexturePlayer.setOnPlayerListener(new OnPlayerListener() {
+        mTexturePlayerView.setOnPlayerListener(new OnPlayerListener() {
         });
         mSurfacePlayerView = (SurfacePlayerView) findViewById(R.id.pv_player_surface);
-        mSurfacePlayer = mSurfacePlayerView.getPlayer();
-        mSurfacePlayer.setOnPlayerListener(new OnPlayerListener() {
+        mSurfacePlayerView.setOnPlayerListener(new OnPlayerListener() {
         });
 
         mBannerView = (BannerView) findViewById(R.id.vp_banner);
@@ -181,11 +178,11 @@ public class ImmerseActivity extends BaseActivity {
                     }
                 });
 
-        mTexturePlayer.load("http://devimages.apple.com.edgekey.net/streaming/examples/bipbop_16x9/gear4/prog_index.m3u8");
-        mTexturePlayer.start();
+        mSurfacePlayerView.setMedia("http://devimages.apple.com.edgekey.net/streaming/examples/bipbop_16x9/gear4/prog_index.m3u8");
+//        mSurfacePlayerView.getPlayer().start();
 
-        mSurfacePlayer.load("http://devimages.apple.com.edgekey.net/streaming/examples/bipbop_16x9/gear4/prog_index.m3u8");
-        mSurfacePlayer.start();
+        mTexturePlayerView.setMedia("http://devimages.apple.com.edgekey.net/streaming/examples/bipbop_16x9/gear4/prog_index.m3u8");
+//        mTexturePlayerView.getPlayer().start();
 
 //        GlideApp.with(this)
 //                .asBitmap()

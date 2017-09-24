@@ -1,16 +1,9 @@
 package com.liux.framework.player;
 
-import android.graphics.SurfaceTexture;
-import android.net.Uri;
-import android.view.SurfaceHolder;
-import android.widget.MediaController;
-
 import com.liux.framework.player.listener.OnPlayerListener;
 import com.liux.framework.player.view.ControlView;
 import com.liux.framework.player.view.PlayerView;
 import com.liux.framework.player.view.RenderView;
-
-import java.util.Map;
 
 /**
  * Created by Liux on 2017/9/16.
@@ -19,22 +12,10 @@ import java.util.Map;
 public interface Player {
 
     /**
-     * 载入媒体
+     * 载入媒体资源
      * @param media
      */
-    void load(String media);
-
-    /**
-     * 载入uri,准备播放
-     * @param uri
-     */
-    void load(Uri uri);
-
-    /**
-     * 载入uri和请求头,准备播放
-     * @param uri
-     */
-    void load(Uri uri, Map<String, String> headers);
+    void loadMedia(Media media);
 
     /**
      * 开始播放

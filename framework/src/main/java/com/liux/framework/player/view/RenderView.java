@@ -2,6 +2,7 @@ package com.liux.framework.player.view;
 
 import android.graphics.SurfaceTexture;
 import android.view.SurfaceHolder;
+import android.view.View;
 
 import tv.danmaku.ijk.media.player.IMediaPlayer;
 
@@ -19,10 +20,10 @@ public interface RenderView {
     int AR_4_3_FIT_PARENT = 5;
 
     /**
-     * 将渲染视图绑定到控制器
-     * @param callback
+     * 获取渲染视图
+     * @return
      */
-    void setRenderCallback(RenderCallback callback);
+    View getView();
 
     /**
      * 设置长宽比
