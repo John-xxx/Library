@@ -7,10 +7,13 @@ import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.annotation.StyleRes;
 import android.util.AttributeSet;
+import android.view.Surface;
 import android.view.TextureView;
 import android.view.View;
 
 import com.liux.framework.player.util.MeasureHelper;
+
+import tv.danmaku.ijk.media.player.IMediaPlayer;
 
 /**
  * Created by Liux on 2017/9/16.
@@ -18,6 +21,7 @@ import com.liux.framework.player.util.MeasureHelper;
 
 public class TexturePlayerView extends AbstractPlayerView implements RenderView {
 
+    private Callback mCallback;
     private TextureView mTextureView;
     private MeasureHelper mMeasureHelper;
 
@@ -51,7 +55,7 @@ public class TexturePlayerView extends AbstractPlayerView implements RenderView 
         mTextureView.setSurfaceTextureListener(new TextureView.SurfaceTextureListener() {
             @Override
             public void onSurfaceTextureAvailable(SurfaceTexture surface, int width, int height) {
-
+                mCallback.created();
             }
 
             @Override
@@ -61,6 +65,7 @@ public class TexturePlayerView extends AbstractPlayerView implements RenderView 
 
             @Override
             public boolean onSurfaceTextureDestroyed(SurfaceTexture surface) {
+                mCallback.destroyed();
                 return true;
             }
 
@@ -75,6 +80,18 @@ public class TexturePlayerView extends AbstractPlayerView implements RenderView 
     @Override
     public View getView() {
         return mTextureView;
+    }
+
+    @Override
+    public void setCallback(Callback callback) {
+        mCallback = callback;
+    }
+
+    @Override
+    public void bindRender(IMediaPlayer player) {
+        player.setSurface(
+                new Surface(mTextureView.getSurfaceTexture())
+        );
     }
 
     @Override

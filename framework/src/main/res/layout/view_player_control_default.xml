@@ -12,12 +12,14 @@
         android:background="@drawable/ic_player_ui_up">
 
         <LinearLayout
+            android:id="@+id/player_ll_back"
             android:layout_width="wrap_content"
             android:layout_height="match_parent"
             android:gravity="center"
             android:minWidth="15dp">
 
             <ImageView
+                android:id="@+id/player_iv_back"
                 android:layout_width="30dp"
                 android:layout_height="30dp"
                 android:src="@drawable/ic_player_back"
@@ -26,6 +28,7 @@
         </LinearLayout>
 
         <TextView
+            android:id="@+id/player_tv_title"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginRight="15dp"
@@ -49,6 +52,7 @@
 
         <!-- 播放控制 -->
         <ImageView
+            android:id="@+id/player_iv_play_little"
             android:layout_width="40dp"
             android:layout_height="40dp"
             android:padding="8dp"
@@ -56,6 +60,7 @@
 
         <!-- 当前时间 -->
         <TextView
+            android:id="@+id/player_tv_time_now"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:textColor="#FFFFFF"
@@ -64,6 +69,7 @@
 
         <!-- 进度条 -->
         <SeekBar
+            android:id="@+id/player_sb_seekbar"
             android:layout_width="0dp"
             android:layout_weight="1"
             android:layout_height="30dp"
@@ -85,6 +91,7 @@
 
         <!-- 总时间 -->
         <TextView
+            android:id="@+id/player_tv_time_all"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:textColor="#FFFFFF"
@@ -93,6 +100,7 @@
 
         <!-- 切换全屏 -->
         <ImageView
+            android:id="@+id/player_iv_fullscreen"
             android:layout_width="40dp"
             android:layout_height="40dp"
             android:padding="8dp"
@@ -102,6 +110,7 @@
 
     <!-- 小窗关闭 -->
     <ImageView
+        android:id="@+id/player_iv_close"
         android:layout_width="40dp"
         android:layout_height="40dp"
         android:padding="10dp"
@@ -110,6 +119,7 @@
 
     <!-- 播放按钮 -->
     <ImageView
+        android:id="@+id/player_iv_play"
         android:layout_width="50dp"
         android:layout_height="50dp"
         android:layout_centerInParent="true"
@@ -118,6 +128,7 @@
 
     <!-- 等待UI -->
     <LinearLayout
+        android:id="@+id/player_ll_wait"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_centerInParent="true"
@@ -132,6 +143,7 @@
             android:progressDrawable="@drawable/ic_player_ui_seekbar_progress"/>
 
         <TextView
+            android:id="@+id/player_tv_wait_text"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginTop="5dp"
@@ -143,6 +155,7 @@
 
     <!-- 亮度/声音UI -->
     <LinearLayout
+        android:id="@+id/player_ll_adjust"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_centerInParent="true"
@@ -152,11 +165,13 @@
         android:visibility="gone">
 
         <ImageView
+            android:id="@+id/player_iv_adjust_icon"
             android:layout_width="40dp"
             android:layout_height="40dp"
             android:src="@drawable/ic_player_light"/>
 
         <TextView
+            android:id="@+id/player_tv_adjust_text"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginTop="5dp"
@@ -168,6 +183,7 @@
 
     <!-- 警告UI -->
     <ImageView
+        android:id="@+id/player_iv_warning"
         android:layout_width="50dp"
         android:layout_height="50dp"
         android:layout_centerInParent="true"
@@ -176,6 +192,7 @@
 
     <!-- 防误触锁 -->
     <ImageView
+        android:id="@+id/player_iv_lock"
         android:layout_width="30dp"
         android:layout_height="30dp"
         android:layout_marginLeft="20dp"

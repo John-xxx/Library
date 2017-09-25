@@ -16,6 +16,12 @@ import java.util.Map;
 public interface PlayerView {
 
     /**
+     * 获取播放视图
+     * @return
+     */
+    View getView();
+
+    /**
      * 设置播放媒体文件
      * @param media
      */
@@ -51,12 +57,6 @@ public interface PlayerView {
      * 设置播放控制器,最好放在 setMedia 之前设置
      */
     void setPlayer(Player player);
-
-    /**
-     * 设置播放控制器
-     * @param view
-     */
-    void setControlView(ControlView view);
 
     /**
      * 设置播放事件监听

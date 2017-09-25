@@ -33,7 +33,7 @@ import java.util.Map;
 
 public abstract class AbstractPlayerView extends FrameLayout implements PlayerView {
 
-    // 对应要播放的媒体
+    // 要播放的媒体
     private Media mMedia;
     // 对应的视频播放控制器
     private Player mPlayer;
@@ -45,7 +45,29 @@ public abstract class AbstractPlayerView extends FrameLayout implements PlayerVi
     private OnPlayerListener mOnPlayerListener;
 
     // 全屏视图
-    private AbstractPlayerView mFullScreenPlayerView;
+    private FullScreenPlayerView mFullScreenPlayerView;
+
+    // 渲染视图准备情况
+    private boolean mRenderPrepared = false;
+    // 渲染视图生命周期回调
+    private RenderView.Callback mCallback = new RenderView.Callback() {
+
+        @Override
+        public void created() {
+            if (getPlayer() != null) {
+                getPlayer().setRenderView(mRenderView);
+            }
+            mRenderPrepared = true;
+        }
+
+        @Override
+        public void destroyed() {
+            if (getPlayer() != null) {
+                getPlayer().setRenderView(null);
+            }
+            mRenderPrepared = false;
+        }
+    };
 
     public AbstractPlayerView(@NonNull Context context) {
         super(context);
@@ -73,6 +95,11 @@ public abstract class AbstractPlayerView extends FrameLayout implements PlayerVi
     }
 
     @Override
+    public View getView() {
+        return this;
+    }
+
+    @Override
     public void setMedia(String media) {
         setMedia(media, null);
     }
@@ -94,6 +121,9 @@ public abstract class AbstractPlayerView extends FrameLayout implements PlayerVi
 
     @Override
     public Player getPlayer() {
+        if (mPlayer == null) {
+            setPlayer(new PlayerController(getContext()));
+        }
         return mPlayer;
     }
 
@@ -102,28 +132,15 @@ public abstract class AbstractPlayerView extends FrameLayout implements PlayerVi
         if (mPlayer != null && mPlayer != player) {
             mPlayer.release();
         }
-
         mPlayer = player;
+
         mPlayer.setPlayerView(this);
-        mPlayer.setRenderView(mRenderView);
         mPlayer.setControlView(mControlView);
         mPlayer.setOnPlayerListener(mOnPlayerListener);
-    }
 
-    @Override
-    public void setControlView(ControlView view) {
-        int index = indexOfChild(mControlView.getView());
-        removeViewAt(index);
-
-        FrameLayout.LayoutParams lp = new LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT);
-        lp.gravity = Gravity.CENTER;
-        addView(view.getView(), index, lp);
-
-        if (getPlayer() != null) {
-            getPlayer().setControlView(view);
+        if (mRenderPrepared) {
+            mPlayer.setRenderView(mRenderView);
         }
-
-        mControlView = view;
     }
 
     @Override
@@ -144,9 +161,11 @@ public abstract class AbstractPlayerView extends FrameLayout implements PlayerVi
         if (getFullScreen() == fullScreen) return;
 
         if (fullScreen) {
-            openFullScreen();
-        } else {
-            closeFullScreen();
+            mFullScreenPlayerView = new FullScreenPlayerView(this);
+            mFullScreenPlayerView.openFullScreen();
+        } else if (mFullScreenPlayerView != null){
+            mFullScreenPlayerView.closeFullScreen();
+            mFullScreenPlayerView = null;
         }
     }
 
@@ -171,26 +190,6 @@ public abstract class AbstractPlayerView extends FrameLayout implements PlayerVi
     }
 
     /**
-     * 载入播放媒体
-     * @param media
-     */
-    protected void loadMedia(Media media) {
-        if (getPlayer() == null) {
-            setPlayer(new PlayerController(getContext()));
-        }
-
-        getPlayer().loadMedia(media);
-
-        mMedia = media;
-    }
-
-    /**
-     * 初始化渲染 View
-     * @return
-     */
-    protected abstract RenderView initRenderView();
-
-    /**
      * 初始化渲染视图和控制视图
      */
     private void initView() {
@@ -200,54 +199,33 @@ public abstract class AbstractPlayerView extends FrameLayout implements PlayerVi
         lp.gravity = Gravity.CENTER;
 
         mRenderView = initRenderView();
+        mRenderView.setCallback(mCallback);
         addView(mRenderView.getView(), lp);
 
-        mControlView = new DefaultControlView(this);
+        mControlView = initControlView();
         addView(mControlView.getView(), lp);
     }
 
     /**
-     * 开启全屏模式
+     * 载入播放媒体
+     * @param media
      */
-    private void openFullScreen() {
-        ViewGroup contentView = findContentView(this);
-
-        if (mFullScreenPlayerView == null) {
-            // 由于全屏模式不存在滑动情况,采用兼容方式
-            mFullScreenPlayerView = new SurfacePlayerView(getContext());
-        }
-
-        FrameLayout.LayoutParams lp = new LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT);
-        contentView.addView(mFullScreenPlayerView, lp);
+    protected void loadMedia(Media media) {
+        getPlayer().loadMedia(media);
     }
 
     /**
-     * 关闭全屏模式
-     */
-    private void closeFullScreen() {
-        if (mFullScreenPlayerView == null) return;
-
-        ViewGroup contentView = findContentView(this);
-
-        contentView.removeView(mFullScreenPlayerView);
-        mFullScreenPlayerView = null;
-    }
-
-    /**
-     * 从当前布局开始向上查找根内容布局
-     * @param view
+     * 初始化渲染 View
      * @return
      */
-    private ViewGroup findContentView(View view) {
-        ViewParent parent = view.getParent();
-        while (parent != null && parent instanceof ViewGroup) {
-            if (((ViewGroup) parent).getId() == Window.ID_ANDROID_CONTENT) {
-                return (ViewGroup) parent;
-            } else {
-                parent = parent.getParent();
-            }
-        }
-        return null;
+    protected abstract RenderView initRenderView();
+
+    /**
+     * 初始化控制视图
+     * @return
+     */
+    private ControlView initControlView() {
+        return new DefaultControlView(this);
     }
 
     /**

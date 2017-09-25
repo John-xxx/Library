@@ -26,6 +26,18 @@ public interface RenderView {
     View getView();
 
     /**
+     * 设置渲染视图生命回调
+     * @param callback
+     */
+    void setCallback(Callback callback);
+
+    /**
+     * 绑定渲染视图
+     * @param player
+     */
+    void bindRender(IMediaPlayer player);
+
+    /**
      * 设置长宽比
      * @param ratio
      */
@@ -54,20 +66,16 @@ public interface RenderView {
     /**
      * 渲染视图生命周期绑定
      */
-    interface RenderCallback {
+    interface Callback {
 
-        void reset();
+        /**
+         * 视图创建完毕
+         */
+        void created();
 
-        boolean isCreated();
-
-        void bindPlayer();
-
-        void created(SurfaceHolder holder);
-
-        void created(SurfaceTexture surface);
-
-        void destroyed(SurfaceHolder holder);
-
-        void destroyed(SurfaceTexture surface);
+        /**
+         * 视图销毁完毕
+         */
+        void destroyed();
     }
 }

@@ -262,13 +262,24 @@ public class PlayerController implements Player {
 
     @Override
     public void setRenderView(RenderView view) {
-        mRenderView = view;
+        if (view != null) {
+            mRenderView = view;
+            if (mCurrentState == STATE_IDLE || mCurrentState == STATE_PREPARING) {
+                checkPrepare();
+            } else if (mIMediaPlayer != null){
+                mRenderView.bindRender(mIMediaPlayer);
+            } else {
 
-        if (mRenderView != null) {
-            checkPrepare();
+            }
         } else {
-            pause();
+            if (isInPlaybackState()) {
+                pause();
+                mIMediaPlayer.setSurface(null);
+                mIMediaPlayer.setDisplay(null);
+            }
         }
+
+        mRenderView = view;
     }
 
     @Override
@@ -557,7 +568,7 @@ public class PlayerController implements Player {
         if (mMediaPrepared && mRenderView != null) {
             mCurrentState = STATE_PREPARED;
 
-            // TODO: 2017/9/17  准备完毕,回调
+            mRenderView.bindRender(mIMediaPlayer);
 
             mVideoWidth = mIMediaPlayer.getVideoWidth();
             mVideoHeight = mIMediaPlayer.getVideoHeight();
@@ -578,6 +589,8 @@ public class PlayerController implements Player {
             if (mTargetState == STATE_PLAYING) {
                 start();
             }
+
+            // TODO: 2017/9/17  准备完毕,回调
         }
     }
 }
