@@ -3,6 +3,7 @@ package com.liux.framework.player.view;
 import android.net.Uri;
 import android.view.View;
 
+import com.liux.framework.player.Media;
 import com.liux.framework.player.Player;
 import com.liux.framework.player.listener.OnPlayerListener;
 
@@ -46,6 +47,18 @@ public interface PlayerView {
      * @param header
      */
     void setMedia(Uri uri, Map<String, String> header);
+
+    /**
+     * 设置播放媒体文件
+     * @param media
+     */
+    void setMedia(Media media);
+
+    /**
+     * 获取播放媒体文件
+     * @return
+     */
+    Media getMedia();
 
     /**
      * 获取播放控制器

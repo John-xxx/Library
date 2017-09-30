@@ -120,6 +120,16 @@ public abstract class AbstractPlayerView extends FrameLayout implements PlayerVi
     }
 
     @Override
+    public void setMedia(Media media) {
+
+    }
+
+    @Override
+    public Media getMedia() {
+        return mMedia;
+    }
+
+    @Override
     public Player getPlayer() {
         if (mPlayer == null) {
             setPlayer(new PlayerController(getContext()));

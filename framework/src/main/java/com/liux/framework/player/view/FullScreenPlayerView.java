@@ -6,8 +6,6 @@ import android.view.ViewParent;
 import android.view.Window;
 import android.widget.FrameLayout;
 
-import com.liux.framework.player.Media;
-
 /**
  * Created by Liux on 2017/9/25.
  */

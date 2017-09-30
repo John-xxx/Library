@@ -1,5 +1,8 @@
 package com.liux.framework.player.view;
 
+import android.os.Handler;
+import android.os.Message;
+import android.text.TextUtils;
 import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.MotionEvent;
@@ -11,7 +14,10 @@ import android.widget.SeekBar;
 import android.widget.TextView;
 
 import com.liux.framework.R;
+import com.liux.framework.player.Media;
 import com.liux.framework.player.Player;
+
+import java.util.Locale;
 
 /**
  * 默认的播放控制器
@@ -19,6 +25,8 @@ import com.liux.framework.player.Player;
  */
 
 public class DefaultControlView extends FrameLayout implements ControlView {
+    private static final int TYPE_VOLUME = 1;
+    private static final int TYPE_RAY = 2;
 
     private PlayerView mPlayerView;
 
@@ -47,6 +55,15 @@ public class DefaultControlView extends FrameLayout implements ControlView {
     // 误触锁
     private ImageView mLock;
 
+    private boolean mLockState = false;
+
+    private Handler mHandler = new Handler() {
+        @Override
+        public void handleMessage(Message msg) {
+
+        }
+    };
+
     private View.OnClickListener mOnClickListener = new View.OnClickListener() {
         @Override
         public void onClick(View v) {
@@ -56,7 +73,7 @@ public class DefaultControlView extends FrameLayout implements ControlView {
             } else if (id == R.id.player_ll_back) {
 
             } else if (id == R.id.player_iv_play_little) {
-
+                togglePlay();
             } else if (id == R.id.player_iv_fullscreen) {
                 toggleFullScreen();
             } else if (id == R.id.player_iv_play) {
@@ -146,23 +163,76 @@ public class DefaultControlView extends FrameLayout implements ControlView {
     private void showControlView() {
         if (mRoot == null) return;
 
-        mRoot.setVisibility(View.VISIBLE);
+        mRoot.setVisibility(VISIBLE);
 
-        mRoot.postDelayed(new Runnable() {
-            @Override
-            public void run() {
-                mRoot.setVisibility(View.GONE);
+        mBack.setVisibility(mPlayerView.getFullScreen() ? VISIBLE : GONE);
+        String title = null;
+        Media media = mPlayerView.getMedia();
+        if (media != null) {
+            if (!TextUtils.isEmpty(media.getTitle())) {
+                title = media.getTitle();
+            } else if (media.getUri() != null) {
+                title = media.getUri().getPath();
             }
-        }, 5 * 1000);
+        }
+        mTitle.setText(title);
+
+        mPlayLittle.setImageResource(
+                mPlayerView.getPlayer().playing() ? R.drawable.ic_player_pause_little : R.drawable.ic_player_play_little
+        );
+        mTimeNow.setText();
+        mSeekBar.setMax();
+        mSeekBar.setProgress();
+        mSeekBar.setSecondaryProgress();
+        mTimeAll.setText();
+        mFullScreen.setImageResource(
+                mPlayerView.getFullScreen() ? R.drawable.ic_player_fullscreen_close : R.drawable.ic_player_fullscreen_open
+        );
+    }
+
+    private void showPlay() {
+        mPlay.setImageResource(
+                mPlayerView.getPlayer().playing() ? R.drawable.ic_player_pause : R.drawable.ic_player_play
+        );
+        mPlay.setVisibility(VISIBLE);
+    }
+
+    private void showWait(int centage) {
+        mWaitText.setText(String.format(Locale.CHINA, "%d%", centage));
+        mWaitRoot.setVisibility(VISIBLE);
+    }
+
+    private void showPlay(int type, int centage) {
+        int res = 0;
+        String text = null;
+        switch (type) {
+            case TYPE_VOLUME:
+                res = centage != 0 ? R.drawable.ic_player_sound : R.drawable.ic_player_sound_no;
+                text = centage != 0 ? String.format(Locale.CHINA, "%d%", centage) : "静音";
+                break;
+            case TYPE_RAY:
+                res = R.drawable.ic_player_light;
+                text = String.format(Locale.CHINA, "%d%", centage);
+                break;
+        }
+        mAdjustIcon.setImageResource(res);
+        mAdjustText.setText(text);
+        mAdjustRoot.setVisibility(VISIBLE);
+    }
+
+    private void togglePlay() {
+        if (mPlayerView.getPlayer().playing()) {
+            mPlayerView.getPlayer().pause();
+        } else {
+            mPlayerView.getPlayer().start();
+        }
     }
 
     private void toggleFullScreen() {
         if (mPlayerView.getFullScreen()) {
             mPlayerView.setFullScreen(false);
-            mFullScreen.setImageResource(R.drawable.ic_player_fullscreen_close);
         } else {
             mPlayerView.setFullScreen(true);
-            mFullScreen.setImageResource(R.drawable.ic_player_fullscreen_open);
         }
     }
 }
