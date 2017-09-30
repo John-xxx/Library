@@ -3,23 +3,36 @@ Framework
 
 项目说明
 ---
-这个项目是我自己用于对以前不熟的一些基础知识的重温<br>
-以及对当下流行技术的学习和封装等等.<br>
-主要包含以下方面(持续更新):<br>
+库的用途在于逻辑层面的封装,在不侵入或少量侵入的前提下
+封装了一些和业务模式无强关联的库类
+并引用了一些时下较流行的三方开源库
 
-- BaseActivity/BaseFragment<br>
-主要包含通用TitleBar支持,沉浸式状态栏支持
-- 运行时权限<br>
-封装运行时权限,易控制
-- RecyclerView<br>
-基于RecyclerView的适配器和Holder封装,实现单选/多选等逻辑控制
-- LBS Model<br>
+- Banner<br>
+实现一个适配器模式的伪无限滚动的Banner
+- BaseActivity/BaseFragment/BaseDialog<br>
+BaseActivity重定义了生命周期细节,增加输入法与触控事件的逻辑,实现可自定义的沉浸式状态栏
+BaseFragment实现了Fragment懒加载模型,处理某些情况下Fragment状态异常的问题
+BaseDialog扩展沉浸式的Dialog
+- Boxing<br>
+对bilibili的Boxing媒体选择器组件封装
+- Glide<br>
+Glide转换器,自定义Glide4配置和实现视屏缩略图的自定义加载过程
+- Http<br>
+封装OkHttp3和Retrofit2的全局单例Http客户端,并添加了持久化Cookie相关能力
+- LBS<br>
 基于百度地图和高德地图的业务层Model封装
-- PayTool<br>
+- List<br>
+基于RecyclerView的Adapter,ItemDecoration和ViewHolder的扩展封装
+封装选择控制,数据源类型加载,Header/Footer能力的Adapter
+封装类似ListView中分割线控制的ColorDecoration
+封装灵活的Holder,内部缓存控件提升性能
+- Pay<br>
 基于支付宝/微信支付的支付逻辑封装
-- 媒体<br>
+- Permission<br>
+封装链式调用的权限申请工具类
+- Player<br>
 基于[ijkplayer](https://github.com/Bilibili/ijkplayer)的一个Android播放器库
-- 其他<br>
+- Util/Other<br>
 其他一些组件/控件的集合
 
 引用三方库及版本
@@ -65,6 +78,8 @@ compile 'com.liux:framework-ijkplayer:x.x.x'
 ---
 ```
 compile 'com.liux:framework:x.x.x'
+
+// 如果使用到Player相关库类还需要引用
 compile 'com.liux:framework-ijkplayer:x.x.x'
 ```
 
