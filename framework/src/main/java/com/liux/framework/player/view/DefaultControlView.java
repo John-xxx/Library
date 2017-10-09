@@ -180,11 +180,11 @@ public class DefaultControlView extends FrameLayout implements ControlView {
         mPlayLittle.setImageResource(
                 mPlayerView.getPlayer().playing() ? R.drawable.ic_player_pause_little : R.drawable.ic_player_play_little
         );
-        mTimeNow.setText();
-        mSeekBar.setMax();
-        mSeekBar.setProgress();
-        mSeekBar.setSecondaryProgress();
-        mTimeAll.setText();
+        mTimeNow.setText(null);
+        mSeekBar.setMax(1000);
+        mSeekBar.setProgress(400);
+        mSeekBar.setSecondaryProgress(500);
+        mTimeAll.setText(null);
         mFullScreen.setImageResource(
                 mPlayerView.getFullScreen() ? R.drawable.ic_player_fullscreen_close : R.drawable.ic_player_fullscreen_open
         );

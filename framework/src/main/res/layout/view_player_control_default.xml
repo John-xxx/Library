@@ -9,7 +9,7 @@
         android:layout_height="35dp"
         android:gravity="center_vertical"
         android:orientation="horizontal"
-        android:background="@drawable/ic_player_ui_up">
+        android:background="@drawable/ic_player_up">
 
         <LinearLayout
             android:id="@+id/player_ll_back"
@@ -48,7 +48,7 @@
         android:layout_alignParentBottom="true"
         android:gravity="center_vertical"
         android:orientation="horizontal"
-        android:background="@drawable/ic_player_ui_down">
+        android:background="@drawable/ic_player_down">
 
         <!-- 播放控制 -->
         <ImageView
@@ -86,8 +86,8 @@
             android:secondaryProgress="0"
             android:maxHeight="3dp"
             android:minHeight="3dp"
-            android:progressDrawable="@drawable/ic_player_ui_seekbar_progress"
-            android:thumb="@drawable/ic_player_ui_seekbar_thumb"/>
+            android:progressDrawable="@drawable/ic_player_seekbar_progress"
+            android:thumb="@drawable/ic_player_seekbar_thumb"/>
 
         <!-- 总时间 -->
         <TextView
@@ -140,7 +140,7 @@
         <ProgressBar
             android:layout_width="40dp"
             android:layout_height="40dp"
-            android:progressDrawable="@drawable/ic_player_ui_seekbar_progress"/>
+            android:progressDrawable="@drawable/ic_player_seekbar_progress"/>
 
         <TextView
             android:id="@+id/player_tv_wait_text"
