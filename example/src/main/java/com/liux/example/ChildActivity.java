@@ -8,7 +8,7 @@ import android.support.v4.app.Fragment;
 import android.support.v4.view.ViewPager;
 import android.widget.RadioGroup;
 
-import com.liux.framework.base.BaseActivity;
+import com.liux.base.BaseActivity;
 
 import java.util.Map;
 

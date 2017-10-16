@@ -1,6 +1,6 @@
 package com.liux.example.wxapi;
 
-import com.liux.framework.pay.wxpay.WxPayActivity;
+import com.liux.pay.wxpay.WxPayActivity;
 
 /**
  * Created by Liux on 2017/8/17.

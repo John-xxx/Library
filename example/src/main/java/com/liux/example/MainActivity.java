@@ -9,9 +9,9 @@ import android.support.v4.app.Fragment;
 import android.support.v4.view.ViewPager;
 import android.widget.RadioGroup;
 
-import com.liux.framework.base.BaseActivity;
-import com.liux.framework.permission.OnPermissionListener;
-import com.liux.framework.permission.PermissionTool;
+import com.liux.base.BaseActivity;
+import com.liux.permission.OnPermissionListener;
+import com.liux.permission.PermissionTool;
 
 import java.util.List;
 import java.util.Map;

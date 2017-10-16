@@ -10,12 +10,12 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
 
-import com.liux.framework.base.BaseFragment;
-import com.liux.framework.glide.GlideApp;
-import com.liux.framework.permission.OnPermissionListener;
-import com.liux.framework.permission.PermissionTool;
-import com.liux.framework.util.IntentUtil;
-import com.liux.framework.util.UriUtil;
+import com.liux.base.BaseFragment;
+import com.liux.glide.GlideApp;
+import com.liux.permission.OnPermissionListener;
+import com.liux.permission.PermissionTool;
+import com.liux.util.IntentUtil;
+import com.liux.util.UriUtil;
 
 import java.util.List;
 

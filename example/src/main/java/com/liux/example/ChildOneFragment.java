@@ -6,12 +6,12 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Toast;
 
-import com.liux.framework.base.BaseFragment;
-import com.liux.framework.pay.PayTool;
-import com.liux.framework.pay.alipay.AliRequest;
-import com.liux.framework.pay.alipay.AliResult;
-import com.liux.framework.pay.unionpay.UnionRequest;
-import com.liux.framework.pay.wxpay.WxRequest;
+import com.liux.base.BaseFragment;
+import com.liux.pay.PayTool;
+import com.liux.pay.alipay.AliRequest;
+import com.liux.pay.alipay.AliResult;
+import com.liux.pay.unionpay.UnionRequest;
+import com.liux.pay.wxpay.WxRequest;
 import com.tencent.mm.opensdk.modelpay.PayReq;
 import com.tencent.mm.opensdk.modelpay.PayResp;
 

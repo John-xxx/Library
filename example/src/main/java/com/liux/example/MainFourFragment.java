@@ -9,13 +9,13 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Toast;
 
-import com.liux.framework.base.BaseFragment;
-import com.liux.framework.list.adapter.MultipleAdapter;
-import com.liux.framework.list.adapter.Rule;
-import com.liux.framework.list.adapter.State;
-import com.liux.framework.list.decoration.AbsItemDecoration;
-import com.liux.framework.list.holder.SuperHolder;
-import com.liux.framework.list.listener.OnSelectListener;
+import com.liux.base.BaseFragment;
+import com.liux.list.adapter.MultipleAdapter;
+import com.liux.list.adapter.Rule;
+import com.liux.list.adapter.State;
+import com.liux.list.decoration.AbsItemDecoration;
+import com.liux.list.holder.SuperHolder;
+import com.liux.list.listener.OnSelectListener;
 
 import java.util.List;
 

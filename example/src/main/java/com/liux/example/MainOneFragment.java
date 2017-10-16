@@ -6,7 +6,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
-import com.liux.framework.base.BaseFragment;
+import com.liux.base.BaseFragment;
 
 import butterknife.ButterKnife;
 import butterknife.OnClick;

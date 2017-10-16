@@ -1,9 +1,3 @@
-// buildScript块与allprojects块及根级别的repositories区别
-// 1.buildScript块主要是为了Gradle脚本自身的执行
-// 2.allprojects块的repositories用于多项目构建，为所有项目提供共同所需依赖包
-// 3.根级别的repositories主要是为了当前项目提供所需依赖包
-// Top-level build file where you can add configuration options common to all sub-projects/modules.
-
 buildscript {
     repositories {
         flatDir {
@@ -37,14 +31,12 @@ allprojects{
         jcenter()
         mavenLocal()
     }
-
-    // 处理中文注释不可被编译问题
+    // 设置全局代码编码
     tasks.withType(JavaCompile) {
-        // 设置全局编码
         options.encoding = "UTF-8"
     }
+    // 设置全局文档编码
     tasks.withType(Javadoc) {
-        // 设置文档编码
         options {
             encoding "UTF-8"
             charSet 'UTF-8'

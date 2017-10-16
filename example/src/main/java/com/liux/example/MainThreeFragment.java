@@ -21,12 +21,12 @@ import com.bilibili.boxing.model.config.BoxingCropOption;
 import com.bilibili.boxing.model.entity.BaseMedia;
 import com.bilibili.boxing.utils.BoxingFileHelper;
 import com.bilibili.boxing_impl.ui.BoxingActivity;
-import com.liux.framework.base.BaseFragment;
-import com.liux.framework.list.adapter.Rule;
-import com.liux.framework.list.adapter.State;
-import com.liux.framework.list.decoration.GridItemDecoration;
-import com.liux.framework.list.adapter.MultipleAdapter;
-import com.liux.framework.list.holder.SuperHolder;
+import com.liux.base.BaseFragment;
+import com.liux.list.adapter.Rule;
+import com.liux.list.adapter.State;
+import com.liux.list.decoration.GridItemDecoration;
+import com.liux.list.adapter.MultipleAdapter;
+import com.liux.list.holder.SuperHolder;
 
 import java.util.List;
 import java.util.Locale;

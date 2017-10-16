@@ -9,18 +9,18 @@
         android:layout_height="wrap_content"
         android:orientation="vertical">
 
-        <com.liux.framework.banner.BannerView
+        <com.liux.banner.BannerView
             android:id="@+id/vp_banner"
             android:layout_width="match_parent"
             android:layout_height="200dp"/>
 
-        <com.liux.framework.player.view.TexturePlayerView
+        <com.liux.player.view.TexturePlayerView
             android:id="@+id/pv_player_texture"
             android:layout_width="match_parent"
             android:layout_height="200dp"
             android:layout_marginTop="5dp"/>
 
-        <com.liux.framework.player.view.SurfacePlayerView
+        <com.liux.player.view.SurfacePlayerView
             android:id="@+id/pv_player_surface"
             android:layout_width="match_parent"
             android:layout_height="200dp"

@@ -9,16 +9,16 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Toast;
 
-import com.liux.framework.base.BaseFragment;
-import com.liux.framework.lbs.bean.PointBean;
-import com.liux.framework.lbs.bean.RouteBean;
-import com.liux.framework.lbs.listener.OnLocationListener;
-import com.liux.framework.lbs.model.LBSModel;
-import com.liux.framework.lbs.model.impl.AMapLBSModelImpl;
-import com.liux.framework.lbs.model.impl.BaiduLBSModelImpl;
-import com.liux.framework.permission.OnPermissionListener;
-import com.liux.framework.permission.PermissionTool;
-import com.liux.framework.util.DeviceUtil;
+import com.liux.base.BaseFragment;
+import com.liux.lbs.bean.PointBean;
+import com.liux.lbs.bean.RouteBean;
+import com.liux.lbs.listener.OnLocationListener;
+import com.liux.lbs.model.LBSModel;
+import com.liux.lbs.model.impl.AMapLBSModelImpl;
+import com.liux.lbs.model.impl.BaiduLBSModelImpl;
+import com.liux.permission.OnPermissionListener;
+import com.liux.permission.PermissionTool;
+import com.liux.util.DeviceUtil;
 
 import java.util.List;
 
