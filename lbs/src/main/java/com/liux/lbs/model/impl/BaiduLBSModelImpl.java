@@ -303,8 +303,12 @@ public class BaiduLBSModelImpl implements LBSModel {
                 .map(new Function<GeoCodeResult, PointBean>() {
                     @Override
                     public PointBean apply(@NonNull GeoCodeResult geoCodeResult) throws Exception {
-                        if (geoCodeResult == null || geoCodeResult.error != SearchResult.ERRORNO.NO_ERROR) {
-                            throw new NullPointerException("反向解码地理位置失败：" + geoCodeResult.error.name());
+                        if (geoCodeResult != null) {
+                            if (geoCodeResult.error != SearchResult.ERRORNO.NO_ERROR) {
+                                throw new NullPointerException("检索结果为空：" + geoCodeResult.error.name());
+                            }
+                        } else {
+                            throw new NullPointerException("检索结果为空,请检查网络连接.");
                         }
                         LatLng ll = geoCodeResult.getLocation();
                         return new PointBean()
@@ -361,8 +365,12 @@ public class BaiduLBSModelImpl implements LBSModel {
                 .map(new Function<ReverseGeoCodeResult, PointBean>() {
                     @Override
                     public PointBean apply(ReverseGeoCodeResult result) {
-                        if (result == null || result.error != SearchResult.ERRORNO.NO_ERROR) {
-                            throw new NullPointerException("反向解码地理位置失败：" + result.error.name());
+                        if (result != null) {
+                            if (result.error != SearchResult.ERRORNO.NO_ERROR) {
+                                throw new NullPointerException("检索结果为空：" + result.error.name());
+                            }
+                        } else {
+                            throw new NullPointerException("检索结果为空,请检查网络连接.");
                         }
 
                         String city = null, title = null, address = null;

@@ -20,10 +20,10 @@ android {
 
 dependencies {
     compile fileTree(dir: 'libs', include: ['*.jar'])
-    compile 'com.squareup.okhttp3:okhttp:3.9.0'
-    compile 'com.squareup.okhttp3:logging-interceptor:3.9.0'
-    compile 'com.squareup.retrofit2:retrofit:2.3.0'
-    compile 'com.squareup.retrofit2:adapter-rxjava2:2.3.0'
+    compile group:'com.squareup.okhttp3',name:'okhttp',version:rootProject.ext.library.OKHTTP3
+    compile group:'com.squareup.okhttp3',name:'logging-interceptor',version:rootProject.ext.library.OKHTTP3
+    compile group:'com.squareup.retrofit2',name:'retrofit',version:rootProject.ext.library.RETROFIT2
+    compile group:'com.squareup.retrofit2',name:'adapter-rxjava2',version:rootProject.ext.library.RETROFIT2
     compile 'org.ligboy.retrofit2:converter-fastjson-android:2.2.0'
 }
 
