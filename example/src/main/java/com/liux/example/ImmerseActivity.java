@@ -15,11 +15,11 @@ import com.liux.banner.BannerHolder;
 import com.liux.banner.BannerView;
 import com.liux.banner.DefaultIndicator;
 import com.liux.base.BaseActivity;
+import com.liux.base.titlebar.TitleBar;
+import com.liux.base.titlebar.TransparentTitleBar;
 import com.liux.glide.GlideApp;
 import com.liux.other.CountDownTimer;
-import com.liux.player.Media;
 import com.liux.player.listener.OnPlayerListener;
-import com.liux.player.Player;
 import com.liux.player.view.SurfacePlayerView;
 import com.liux.player.view.TexturePlayerView;
 

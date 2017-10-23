@@ -20,7 +20,8 @@ android {
 
 dependencies {
     compile fileTree(include: ['*.jar'], dir: 'libs')
-    compile group:'com.android.support',name:'support-v4',version:rootProject.ext.library.SUPPORT
+    provided "com.android.support:support-fragment:${rootProject.ext.library.SUPPORT}"
+    provided "com.android.support:support-core-utils:${rootProject.ext.library.SUPPORT}"
 }
 
 

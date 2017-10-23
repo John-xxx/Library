@@ -60,6 +60,7 @@ ext {
             GLIDE : '4.0.0',
             OKHTTP3 : '3.9.0',
             RETROFIT2 : '2.3.0',
+            FASTJSON : '1.1.64.android',
             RXJAVA2 : '2.1.5',
             RXANDROID : '2.0.1',
             SUPPORT : '25.3.1'

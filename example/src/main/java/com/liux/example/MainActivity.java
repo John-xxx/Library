@@ -10,6 +10,7 @@ import android.support.v4.view.ViewPager;
 import android.widget.RadioGroup;
 
 import com.liux.base.BaseActivity;
+import com.liux.base.titlebar.DefaultTitleBar;
 import com.liux.permission.OnPermissionListener;
 import com.liux.permission.PermissionTool;
 

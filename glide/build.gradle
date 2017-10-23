@@ -20,10 +20,10 @@ android {
 
 dependencies {
     compile fileTree(include: ['*.jar'], dir: 'libs')
-    compile group:'com.github.bumptech.glide',name:'glide',version:rootProject.ext.library.GLIDE
-    compile group:'com.github.bumptech.glide',name:'okhttp3-integration',version:rootProject.ext.library.GLIDE
-    annotationProcessor group:'com.github.bumptech.glide',name:'compiler',version:rootProject.ext.library.GLIDE
-    provided project(':http')
+    compile "com.github.bumptech.glide:glide:${rootProject.ext.library.GLIDE}"
+    compile "com.github.bumptech.glide:okhttp3-integration:${rootProject.ext.library.GLIDE}"
+    annotationProcessor "com.github.bumptech.glide:compiler:${rootProject.ext.library.GLIDE}"
+    provided "com.android.support:support-fragment:${rootProject.ext.library.SUPPORT}"
 }
 
 

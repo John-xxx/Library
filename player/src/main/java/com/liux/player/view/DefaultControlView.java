@@ -3,19 +3,16 @@ package com.liux.player.view;
 import android.os.Handler;
 import android.os.Message;
 import android.text.TextUtils;
-import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.MotionEvent;
 import android.view.View;
-import android.view.ViewGroup;
 import android.widget.FrameLayout;
 import android.widget.ImageView;
 import android.widget.SeekBar;
 import android.widget.TextView;
 
-import com.liux.R;
 import com.liux.player.Media;
-import com.liux.player.Player;
+import com.liux.player.R;
 
 import java.util.Locale;
 

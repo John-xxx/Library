@@ -20,10 +20,14 @@ android {
 
 dependencies {
     compile fileTree(dir: 'libs', include: ['*.jar'])
-    compile group:'com.squareup.okhttp3',name:'okhttp',version:rootProject.ext.library.OKHTTP3
-    compile group:'com.squareup.okhttp3',name:'logging-interceptor',version:rootProject.ext.library.OKHTTP3
-    compile group:'com.squareup.retrofit2',name:'retrofit',version:rootProject.ext.library.RETROFIT2
-    compile group:'com.squareup.retrofit2',name:'adapter-rxjava2',version:rootProject.ext.library.RETROFIT2
+    compile "com.squareup.okhttp3:okhttp:${rootProject.ext.library.OKHTTP3}"
+    compile "com.squareup.okhttp3:logging-interceptor:${rootProject.ext.library.OKHTTP3}"
+    compile "com.squareup.retrofit2:retrofit:${rootProject.ext.library.RETROFIT2}"
+    compile "com.squareup.retrofit2:adapter-rxjava2:${rootProject.ext.library.RETROFIT2}"
+    compile "com.squareup.retrofit2:adapter-rxjava2:${rootProject.ext.library.RETROFIT2}"
+    compile "io.reactivex.rxjava2:rxjava:${rootProject.ext.library.RXJAVA2}"
+    compile "io.reactivex.rxjava2:rxandroid:${rootProject.ext.library.RXANDROID}"
+    compile "com.alibaba:fastjson:${rootProject.ext.library.FASTJSON}"
     compile 'org.ligboy.retrofit2:converter-fastjson-android:2.2.0'
 }
 

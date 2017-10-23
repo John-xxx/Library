@@ -17,7 +17,6 @@ import com.bumptech.glide.module.AppGlideModule;
 import com.bumptech.glide.request.RequestOptions;
 import com.liux.glide.video.VideoUrl;
 import com.liux.glide.video.VideoModelLoader;
-import com.liux.http.HttpClient;
 
 import java.io.InputStream;
 
@@ -73,7 +72,7 @@ public class GlideModuleConfig extends AppGlideModule {
     public void registerComponents(Context context, Glide glide, Registry registry) {
         // 注册全局唯一OkHttp客户端(HttpClient初始化的情况)
         try {
-            Call.Factory factory = HttpClient.getInstance().getOkHttpClient();
+            Call.Factory factory = getHttpClient();
             OkHttpUrlLoader.Factory factory_glideurl = new OkHttpUrlLoader.Factory(factory);
             registry.replace(GlideUrl.class, InputStream.class, factory_glideurl);
         } catch (Exception e) {
@@ -93,5 +92,17 @@ public class GlideModuleConfig extends AppGlideModule {
     @Override
     public boolean isManifestParsingEnabled() {
         return false;
+    }
+
+    /**
+     * 通过反射获取HttpClient实例
+     * @return
+     * @throws Exception
+     */
+    private Call.Factory getHttpClient() throws Exception {
+        Class<?> clazz = Class.forName("com.liux.http.HttpClient");
+        Object client = clazz.getMethod("getInstance").invoke(null);
+        Object factory = client.getClass().getMethod("getOkHttpClient").invoke(client);
+        return (Call.Factory) factory;
     }
 }

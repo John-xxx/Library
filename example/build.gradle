@@ -64,6 +64,7 @@ dependencies {
     compile project(':list')
     compile project(':other')
     compile project(':pay')
+    compile project(':pay-unionpay')
     compile project(':permission')
     compile project(':player')
     compile project(':util')
