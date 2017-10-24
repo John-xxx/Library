@@ -3,6 +3,11 @@
 
     <application>
 
+        <activity
+            android:name="${applicationId}.wxapi.WXPayEntryActivity"
+            android:theme="@android:style/Theme.Translucent.NoTitleBar"
+            android:exported="true"/>
+
     </application>
 
 </manifest>

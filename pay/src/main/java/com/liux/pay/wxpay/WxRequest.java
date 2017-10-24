@@ -21,14 +21,14 @@ import java.util.Map;
 public abstract class WxRequest extends Request<PayReq, PayResp> {
     private static Map<String, WxRequest> WX_REQUESTS = new HashMap<>();
 
-    public static WxRequest getWxPay(String key) {
-        WxRequest wxPay = WX_REQUESTS.get(key);
+    public static WxRequest getWxRequest(String key) {
+        WxRequest wxRequest = WX_REQUESTS.get(key);
         WX_REQUESTS.remove(key);
-        return wxPay;
+        return wxRequest;
     }
 
-    public static void putWxPay(String key, WxRequest wxPay) {
-        WX_REQUESTS.put(key, wxPay);
+    public static void putWxRequest(String key, WxRequest wxRequest) {
+        WX_REQUESTS.put(key, wxRequest);
     }
 
     public static final int ERR_PARAM = -101;
@@ -56,7 +56,7 @@ public abstract class WxRequest extends Request<PayReq, PayResp> {
 
         PayTool.println("开始微信支付:" + getBillString());
         String key = bill.prepayId;
-        putWxPay(key, this);
+        putWxRequest(key, this);
         mIWXAPI.sendReq(bill);
     }
 
@@ -107,7 +107,7 @@ public abstract class WxRequest extends Request<PayReq, PayResp> {
             return false;
         }
 
-        PayTool.println("微信支付预检查成功:" + getBillString());
+        PayTool.println("微信支付预检查完毕:" + getBillString());
         return true;
     }
 

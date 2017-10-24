@@ -19,7 +19,7 @@ import com.tencent.mm.opensdk.openapi.WXAPIFactory;
  * activity android:name=".wxapi.WXPayEntryActivity"
  * android:exported="true"
  */
-public class WxPayActivity extends Activity implements IWXAPIEventHandler{
+public abstract class WxPayActivity extends Activity implements IWXAPIEventHandler{
 
     private IWXAPI mIWXAPI;
 
@@ -60,7 +60,7 @@ public class WxPayActivity extends Activity implements IWXAPIEventHandler{
         PayTool.println("微信支付结果:" + "[prepayId=" + payResp.prepayId + ",errCode=" + baseResp.errCode + "]");
 
         String key = payResp.prepayId;
-        WxRequest wxPay = WxRequest.getWxPay(key);
+        WxRequest wxPay = WxRequest.getWxRequest(key);
         if (wxPay != null) {
             PayTool.println("回调支付结果");
             wxPay.callback(payResp);

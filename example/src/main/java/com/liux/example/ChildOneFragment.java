@@ -11,6 +11,7 @@ import com.liux.pay.PayTool;
 import com.liux.pay.alipay.AliRequest;
 import com.liux.pay.alipay.AliResult;
 import com.liux.pay.unionpay.UnionRequest;
+import com.liux.pay.unionpay.UnionResult;
 import com.liux.pay.wxpay.WxRequest;
 import com.tencent.mm.opensdk.modelpay.PayReq;
 import com.tencent.mm.opensdk.modelpay.PayResp;
@@ -72,7 +73,7 @@ public class ChildOneFragment extends BaseFragment {
                                 String result = aliResult.getResultStatus();
                                 switch (result) {
                                     case ALI_MEMO_SUCCEED:
-                                        Toast.makeText(getContext(), "支付完成", Toast.LENGTH_SHORT).show();
+                                        Toast.makeText(getContext(), "支付成功", Toast.LENGTH_SHORT).show();
                                         break;
                                     case ALI_MEMO_UNDERWAY:
                                         Toast.makeText(getContext(), "支付处理中", Toast.LENGTH_SHORT).show();
@@ -123,7 +124,7 @@ public class ChildOneFragment extends BaseFragment {
                                         Toast.makeText(getContext(), "微信客户端未安装或版本过低", Toast.LENGTH_SHORT).show();
                                         break;
                                     case PayResp.ErrCode.ERR_OK:
-                                        Toast.makeText(getContext(), "支付完成", Toast.LENGTH_SHORT).show();
+                                        Toast.makeText(getContext(), "支付成功", Toast.LENGTH_SHORT).show();
                                         break;
                                     case PayResp.ErrCode.ERR_COMM:
                                         Toast.makeText(getContext(), "支付错误", Toast.LENGTH_SHORT).show();
@@ -147,8 +148,23 @@ public class ChildOneFragment extends BaseFragment {
                 PayTool.with(getActivity())
                         .request(new UnionRequest("") {
                             @Override
-                            public void callback(Object object) {
-                                Toast.makeText(getContext(), "暂未支持", Toast.LENGTH_SHORT).show();
+                            public void callback(UnionResult unionResult) {
+                                String result = unionResult.getResult();
+                                switch (result) {
+                                    case RESULT_SUCCEED:
+                                        String data = unionResult.getData();
+                                        Toast.makeText(getContext(), "支付成功", Toast.LENGTH_SHORT).show();
+                                        break;
+                                    case RESULT_FAILURE:
+                                        Toast.makeText(getContext(), "支付失败", Toast.LENGTH_SHORT).show();
+                                        break;
+                                    case RESULT_CANCEL:
+                                        Toast.makeText(getContext(), "取消支付", Toast.LENGTH_SHORT).show();
+                                        break;
+                                    case RESULT_NOPLUG:
+                                        Toast.makeText(getContext(), "未安装银联支付控件", Toast.LENGTH_SHORT).show();
+                                        break;
+                                }
                             }
                         })
                         .pay();
