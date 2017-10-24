@@ -1,8 +1,6 @@
 package com.liux.example;
 
 import android.Manifest;
-import android.content.pm.PackageManager;
-import android.os.Build;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -18,7 +16,6 @@ import com.liux.lbs.model.impl.AMapLBSModelImpl;
 import com.liux.lbs.model.impl.BaiduLBSModelImpl;
 import com.liux.permission.OnPermissionListener;
 import com.liux.permission.PermissionTool;
-import com.liux.util.DeviceUtil;
 
 import java.util.List;
 
@@ -32,7 +29,7 @@ import io.reactivex.observers.DisposableObserver;
  */
 
 public class ChildTwoFragment extends BaseFragment {
-    boolean permission = false;
+
     String[] permissions = {
             Manifest.permission.ACCESS_FINE_LOCATION,
             Manifest.permission.ACCESS_COARSE_LOCATION
@@ -68,14 +65,7 @@ public class ChildTwoFragment extends BaseFragment {
 
     @Override
     protected void onInitData(Bundle savedInstanceState) {
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-            if (getActivity().checkSelfPermission(permissions[0]) != PackageManager.PERMISSION_GRANTED ||
-                    getActivity().checkSelfPermission(permissions[0]) != PackageManager.PERMISSION_GRANTED) {
-                permission = false;
-                return;
-            }
-        }
-        permission = true;
+
     }
 
     @Override
@@ -107,26 +97,23 @@ public class ChildTwoFragment extends BaseFragment {
     }
 
     @OnClick({R.id.btn_quick_location_amap, R.id.btn_accuracy_location_amap, R.id.btn_start_location_amap, R.id.btn_stop_location_amap, R.id.btn_geocode_amap, R.id.btn_regeocode_amap, R.id.btn_city_poi_amap, R.id.btn_nearby_poi_amap, R.id.btn_region_poi_amap, R.id.btn_driver_route_amap, R.id.btn_boundary_amap, R.id.btn_quick_location_baidu, R.id.btn_accuracy_location_baidu, R.id.btn_start_location_baidu, R.id.btn_stop_location_baidu, R.id.btn_geocode_baidu, R.id.btn_regeocode_baidu, R.id.btn_city_poi_baidu, R.id.btn_nearby_poi_baidu, R.id.btn_region_poi_baidu, R.id.btn_driver_route_baidu, R.id.btn_boundary_baidu})
-    public void onViewClicked(View view) {
-        if (!permission) {
-            PermissionTool.with(this)
-                    .permissions(permissions)
-                    .listener(new OnPermissionListener() {
-                        @Override
-                        public void onPermission(List<String> allow, List<String> reject, List<String> prohibit) {
-                            // MIUI 要扯淡一点
-                            if (!DeviceUtil.isMIUI()) {
-                                if (!reject.isEmpty() || !prohibit.isEmpty()) {
-                                    Toast.makeText(getContext(), "请求定位权限没有成功,无法进行操作.", Toast.LENGTH_SHORT).show();
-                                    return;
-                                }
-                            }
-                            permission = true;
+    public void onViewClicked(final View view) {
+        PermissionTool.with(this)
+                .permissions(permissions)
+                .listener(new OnPermissionListener() {
+                    @Override
+                    public void onPermission(List<String> allow, List<String> reject, List<String> prohibit) {
+                        if (!reject.isEmpty() || !prohibit.isEmpty()) {
+                            Toast.makeText(getContext(), "请求定位权限没有成功,无法进行操作.", Toast.LENGTH_SHORT).show();
+                            return;
                         }
-                    })
-                    .request();
-            return;
-        }
+                        onCallLBS(view);
+                    }
+                })
+                .request();
+    }
+
+    private void onCallLBS(View view) {
         switch (view.getId()) {
             case R.id.btn_quick_location_amap:
                 mAMapLBSModel.quickLocation(new DisposableObserver<PointBean>() {

@@ -1,14 +1,10 @@
 package com.liux.permission;
 
-import android.Manifest;
 import android.annotation.SuppressLint;
 import android.app.Activity;
-import android.app.AppOpsManager;
 import android.app.Fragment;
 import android.app.FragmentManager;
-import android.content.Context;
-import android.content.pm.PackageManager;
-import android.os.Process;
+import android.support.v4.content.PermissionChecker;
 import android.util.SparseArray;
 
 /**
@@ -38,8 +34,10 @@ public class PermissionTool {
     }
 
     protected static void onRequestResult(PermissionFragment fragment, int requestCode, String[] permissions, int[] grantResults) {
+        Activity target = fragment.getActivity();
+
         // 移除注入的 PermissionFragment
-        FragmentManager manager = fragment.getActivity().getFragmentManager();
+        FragmentManager manager = target.getFragmentManager();
         manager.beginTransaction()
                 .remove(fragment)
                 .commitAllowingStateLoss();
@@ -52,35 +50,16 @@ public class PermissionTool {
         if (request == null) return;
 
         for (int i = 0; i < permissions.length; i++) {
-            if (grantResults[i] == PackageManager.PERMISSION_GRANTED && checkMiuiPermission(request.target, permissions[i])) {
-                request.allow.add(permissions[i]);
-            } else if (request.target.shouldShowRequestPermissionRationale(permissions[i])) {
-                request.reject.add(permissions[i]);
+            String permission = permissions[i];
+            if (PermissionChecker.checkCallingOrSelfPermission(target, permission) == PermissionChecker.PERMISSION_GRANTED) {
+                request.allow.add(permission);
+            } else if (request.target.shouldShowRequestPermissionRationale(permission)) {
+                request.reject.add(permission);
             } else {
-                request.prohibit.add(permissions[i]);
+                request.prohibit.add(permission);
             }
         }
 
         request.listener.onPermission(request.allow, request.reject, request.prohibit);
-    }
-
-    /**
-     * MIUI 需要 AppOpsManager 验证
-     * @param context
-     * @param permission
-     * @return
-     */
-    private static boolean checkMiuiPermission(Context context, String permission) {
-        boolean ops = true;
-        AppOpsManager manager = (AppOpsManager) context.getSystemService(Context.APP_OPS_SERVICE);
-        switch (permission) {
-            case Manifest.permission.ACCESS_FINE_LOCATION:
-                ops = manager.checkOp(AppOpsManager.OPSTR_FINE_LOCATION, Process.myUid(), context.getPackageName()) == AppOpsManager.MODE_ALLOWED;
-                break;
-            case Manifest.permission.ACCESS_COARSE_LOCATION:
-                ops = manager.checkOp(AppOpsManager.OPSTR_COARSE_LOCATION, Process.myUid(), context.getPackageName()) == AppOpsManager.MODE_ALLOWED;
-                break;
-        }
-        return ops;
     }
 }

@@ -21,6 +21,7 @@ android {
 dependencies {
     compile fileTree(dir: 'libs', include: ['*.jar'])
     provided "com.android.support:support-fragment:${rootProject.ext.library.SUPPORT}"
+    provided "com.android.support:support-core-utils:${rootProject.ext.library.SUPPORT}"
 }
 
 

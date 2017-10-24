@@ -4,8 +4,7 @@ import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.app.Fragment;
 import android.app.FragmentManager;
-import android.content.pm.PackageManager;
-import android.os.Build;
+import android.support.v4.content.PermissionChecker;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -57,11 +56,11 @@ public class Request {
         prohibit.clear();
 
         // 小于 M 的直接通过
-        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.M) {
-            allow = Arrays.asList(permissions);
-            listener.onPermission(allow, reject, prohibit);
-            return;
-        }
+//        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.M) {
+//            allow = Arrays.asList(permissions);
+//            listener.onPermission(allow, reject, prohibit);
+//            return;
+//        }
 
         List<String> permissions = new ArrayList<>(Arrays.asList(this.permissions));
 
@@ -69,7 +68,7 @@ public class Request {
         Iterator<String> iterator = permissions.iterator();
         while (iterator.hasNext()) {
             String permission = iterator.next();
-            if (target.checkSelfPermission(permission) == PackageManager.PERMISSION_GRANTED) {
+            if (PermissionChecker.checkCallingOrSelfPermission(target, permission) == PermissionChecker.PERMISSION_GRANTED) {
                 allow.add(permission);
                 iterator.remove();
             }

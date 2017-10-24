@@ -27,6 +27,7 @@ android {
         targetSdkVersion rootProject.ext.android.TARGET_SDK_VERSION
         versionCode 10000
         versionName "1.0.0"
+        multiDexEnabled true
         testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
     }
     buildTypes {
@@ -71,9 +72,8 @@ dependencies {
     compile project(':view')
 
     /* ViewBind */
-    compile('com.jakewharton:butterknife:8.6.0') {
-        exclude group: 'com.android.support'
-        exclude module: 'appcompat-v7'
-    }
+    compile ('com.jakewharton:butterknife:8.6.0', {
+        exclude group: 'com.android.support',module: 'appcompat-v7'
+    })
     annotationProcessor 'com.jakewharton:butterknife-compiler:8.6.0'
 }

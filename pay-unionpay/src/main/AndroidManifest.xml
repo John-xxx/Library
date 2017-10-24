@@ -1,5 +1,5 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-    package="com.liux.pay">
+    package="com.liux.pay.unionpay">
 
     <uses-permission android:name="android.permission.INTERNET" />
     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
@@ -16,7 +16,7 @@
         <uses-library android:name="org.simalliance.openmobileapi" android:required="false"/>
 
         <activity
-            android:name=".unionpay.UnionPayActivity"
+            android:name=".UnionPayActivity"
             android:theme="@android:style/Theme.Translucent.NoTitleBar"
             android:configChanges="orientation|keyboardHidden|keyboard"
             android:screenOrientation="portrait"/>
