@@ -65,6 +65,7 @@ ext {
             FASTJSON : '1.1.64.android',
             RXJAVA2 : '2.1.5',
             RXANDROID : '2.0.1',
-            SUPPORT : '25.3.1'
+            SUPPORT : '25.3.1',
+            IJKPLAYER : '0.8.4'
     ]
 }

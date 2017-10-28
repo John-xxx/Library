@@ -20,6 +20,15 @@ android {
 
 dependencies {
     compile fileTree(dir: 'libs', include: ['*.jar'])
+    compile "tv.danmaku.ijk.media:ijkplayer-java:${rootProject.ext.library.IJKPLAYER}"
+    compile "tv.danmaku.ijk.media:ijkplayer-exo:${rootProject.ext.library.IJKPLAYER}"
+    compile "tv.danmaku.ijk.media:ijkplayer-armv5:${rootProject.ext.library.IJKPLAYER}"
+    compile "tv.danmaku.ijk.media:ijkplayer-armv7a:${rootProject.ext.library.IJKPLAYER}"
+    compile "tv.danmaku.ijk.media:ijkplayer-arm64:${rootProject.ext.library.IJKPLAYER}"
+    compile "tv.danmaku.ijk.media:ijkplayer-x86:${rootProject.ext.library.IJKPLAYER}"
+    compile "tv.danmaku.ijk.media:ijkplayer-x86_64:${rootProject.ext.library.IJKPLAYER}"
+
+    provided "com.android.support:appcompat-v7:${rootProject.ext.library.SUPPORT}"
     provided "com.android.support:support-annotations:${rootProject.ext.library.SUPPORT}"
 }
 
