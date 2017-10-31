@@ -1,13 +1,13 @@
 package com.liux.view;
 
 import android.content.Context;
-import android.os.Build;
 import android.util.AttributeSet;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.CompoundButton;
 import android.widget.RadioButton;
 import android.widget.RadioGroup;
+
+import java.lang.reflect.Field;
 
 /**
  * 支持控制子孙层 RadioButton 的 RadioGroup
@@ -16,111 +16,64 @@ import android.widget.RadioGroup;
 public class SpanRadioGroup extends RadioGroup {
     private static String TAG = "SpanRadioGroup";
 
-    private int mCheckedId = View.NO_ID;
-    private boolean mProtectFromCheckedChange = false;
-    private OnCheckedChangeListener mOnCheckedChangeListener;
-
-    private OnHierarchyChangeListener mOnHierarchyChangeListener = new OnHierarchyChangeListener() {
-        @Override
-        public void onChildViewAdded(View parent, View child) {
-            if (child instanceof CompoundButton) {
-                int id = child.getId();
-
-                if (id == View.NO_ID && Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN_MR1) {
-                    id = View.generateViewId();
-                    child.setId(id);
-                }
-
-                if (id != View.NO_ID && ((CompoundButton) child).isChecked()) {
-                    setCheckedId(id);
-                }
-
-                ((CompoundButton) child).setOnCheckedChangeListener(mChildOnCheckedChangeListener);
-            } else {
-                findCheckedView(child);
-            }
-        }
-
-        @Override
-        public void onChildViewRemoved(View parent, View child) {
-            if (child instanceof CompoundButton) {
-                ((RadioButton) child).setOnCheckedChangeListener(null);
-            }
-        }
-    };
-
-    private CompoundButton.OnCheckedChangeListener mChildOnCheckedChangeListener = new CompoundButton.OnCheckedChangeListener() {
-
-        @Override
-        public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
-            if (mProtectFromCheckedChange) {
-                return;
-            }
-
-            mProtectFromCheckedChange = true;
-            if (getCheckedRadioButtonId() != -1) {
-                setCheckedStateForView(getCheckedRadioButtonId(), false);
-            }
-            mProtectFromCheckedChange = false;
-
-            int id = buttonView.getId();
-            setCheckedId(id);
-        }
-    };
+    private OnHierarchyChangeListener mRootPassThroughListener;
 
     public SpanRadioGroup(Context context) {
         super(context);
-        init();
     }
 
     public SpanRadioGroup(Context context, AttributeSet attrs) {
         super(context, attrs);
-        init();
     }
 
     @Override
-    public int getCheckedRadioButtonId() {
-        return mCheckedId;
+    protected void onFinishInflate() {
+        super.onFinishInflate();
+
+        getPassThroughListener();
+
+        if (mRootPassThroughListener != null) {
+            refreshChildRadioButton();
+        }
     }
 
     /**
-     * 在某些情况下孙控件被 remove 后无法控制的情况,手动刷新
+     * 刷新子孙控件寻找RadioButton
      */
-    public void refreshChild() {
-        findCheckedView(this);
+    public void refreshChildRadioButton() {
+        refreshChildRadioButton(this);
     }
 
-    public OnCheckedChangeListener getOnCheckedChangeListener() {
-        return mOnCheckedChangeListener;
-    }
+    /**
+     * 反射拿到PassThroughHierarchyChangeListener
+     */
+    private void getPassThroughListener() {
+        try {
+            Field field = RadioGroup.class.getDeclaredField("mPassThroughListener");
+            field.setAccessible(true);
+            Object object = field.get(this);
+            mRootPassThroughListener = (OnHierarchyChangeListener) object;
+        } catch (Exception e) {
 
-    public void setOnCheckedChangeListener(OnCheckedChangeListener listener) {
-        this.mOnCheckedChangeListener = listener;
-    }
-
-    private void init() {
-        setOnHierarchyChangeListener(mOnHierarchyChangeListener);
-    }
-
-    private void setCheckedId(int id) {
-        mCheckedId = id;
-        if (mOnCheckedChangeListener != null) {
-            mOnCheckedChangeListener.onCheckedChanged(this, id);
         }
     }
 
-    private void setCheckedStateForView(int viewId, boolean checked) {
-        View checkedView = findViewById(viewId);
-        if (checkedView != null && checkedView instanceof RadioButton) {
-            ((RadioButton) checkedView).setChecked(checked);
-        }
-    }
-
-    private void findCheckedView(View child) {
-        if (child instanceof ViewGroup) {
-            ViewGroup group = (ViewGroup) child;
+    /**
+     * 遍历子View寻找RadioButton
+     * @param view
+     */
+    private void refreshChildRadioButton(View view) {
+        if (view instanceof ViewGroup) {
+            ViewGroup group = (ViewGroup) view;
             for (int i = 0; i < group.getChildCount(); i++) {
-                mOnHierarchyChangeListener.onChildViewAdded(group, group.getChildAt(i));
+                View child = group.getChildAt(i);
+                if (child instanceof RadioGroup) {
+                    continue;
+                } else if (child instanceof RadioButton) {
+                    mRootPassThroughListener.onChildViewAdded(this, child);
+                } else if (child instanceof ViewGroup) {
+                    refreshChildRadioButton(child);
+                }
             }
         }
     }
