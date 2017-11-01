@@ -385,6 +385,34 @@ public class HttpUtil {
     }
 
     /**
+     * 生成一个XML请求体
+     * @param content
+     * @return
+     */
+    public static RequestBody parseXml(String content) {
+        return parseRaw("text/xml;charset=UTF-8", content);
+    }
+
+    /**
+     * 生成一个JSON请求体
+     * @param content
+     * @return
+     */
+    public static RequestBody parseJson(String content) {
+        return parseRaw("application/json;charset=UTF-8", content);
+    }
+
+    /**
+     * 生成一个指定类型请求体
+     * @param content
+     * @return
+     */
+    public static RequestBody parseRaw(String type, String content) {
+        MediaType mediaType = MediaType.parse(type);
+        return RequestBody.create(mediaType, content);
+    }
+
+    /**
      * 生成一个 {@link MultipartBody.Part}
      * @param key
      * @param file
