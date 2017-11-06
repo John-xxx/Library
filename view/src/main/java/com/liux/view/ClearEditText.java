@@ -141,7 +141,7 @@ public class ClearEditText extends EditText {
 
     private void initView() {
         if (mCancel) {
-            mPadding = ScreenUtil.dp2px(getContext(), 8);
+            mPadding = dp2px(8);
             if (mClear == null) {
                 mClear = getResources().getDrawable(R.drawable.view_clearedittext_clear);
             }
@@ -151,6 +151,16 @@ public class ClearEditText extends EditText {
         }
         setCompoundDrawablePadding(0);
         setCompoundDrawables(null, null, null, null);
+    }
+
+    /**
+     * 根据手机的分辨率从 dp 的单位 转成为 px(像素)
+     * @param dpValue
+     * @return
+     */
+    public int dp2px(float dpValue) {
+        final float scale = getContext().getResources().getDisplayMetrics().density;
+        return (int) (dpValue * scale + 0.5f);
     }
 
     public interface DrawableRightListener {

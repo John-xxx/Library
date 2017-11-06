@@ -40,11 +40,11 @@ public class PasswordInputView extends EditText {
     private void init(Context context, AttributeSet attr) {
         TypedArray ta = context.obtainStyledAttributes(attr, R.styleable.PasswordInputView);
         try {
-            mPasswordWidth = ta.getDimensionPixelSize(R.styleable.PasswordInputView_password_size, ScreenUtil.dp2px(getContext(), mPasswordWidth));
+            mPasswordWidth = ta.getDimensionPixelSize(R.styleable.PasswordInputView_password_size, dp2px(mPasswordWidth));
             mPasswordColor = ta.getColor(R.styleable.PasswordInputView_password_color, mPasswordColor);
             mPasswordLength = ta.getInt(R.styleable.PasswordInputView_password_length, mPasswordLength);
             mPasswordDrawable = ta.getDrawable(R.styleable.PasswordInputView_password_drawable);
-            mPasswordInterval = ta.getDimensionPixelSize(R.styleable.PasswordInputView_password_interval, ScreenUtil.dp2px(getContext(), mPasswordInterval));
+            mPasswordInterval = ta.getDimensionPixelSize(R.styleable.PasswordInputView_password_interval, dp2px(mPasswordInterval));
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -123,8 +123,18 @@ public class PasswordInputView extends EditText {
         }
     }
 
-    public void setmOnPasswordListener(OnPasswordListener mOnPasswordListener) {
+    public void setOnPasswordListener(OnPasswordListener mOnPasswordListener) {
         this.mOnPasswordListener = mOnPasswordListener;
+    }
+
+    /**
+     * 根据手机的分辨率从 dp 的单位 转成为 px(像素)
+     * @param dpValue
+     * @return
+     */
+    public int dp2px(float dpValue) {
+        final float scale = getContext().getResources().getDisplayMetrics().density;
+        return (int) (dpValue * scale + 0.5f);
     }
 
     public interface OnPasswordListener {

@@ -16,6 +16,9 @@ android {
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
         }
     }
+    lintOptions {
+        abortOnError false
+    }
 }
 
 dependencies {
@@ -35,11 +38,11 @@ publish {
 
     groupId = 'com.liux'
     artifactId = 'list'
-    publishVersion = '0.3.0'
+    publishVersion = '0.1.0'
 
     licences = ['MIT']
 
     desc = 'My rapid development framework'
-    website = 'https://git.oschina.net/lx0758/Framework'
-    repository = 'https://git.oschina.net/lx0758/Framework.git'
+    website = 'https://gitee.com/lx0758/Framework'
+    repository = 'https://gitee.com/lx0758/Framework.git'
 }

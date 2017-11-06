@@ -45,7 +45,7 @@ public abstract class UnionRequest extends Request<String, UnionResult> {
 
     /**
      * 安装银联支付插件
-     * 下载地址 http://mobile.unionpay.com/getclient?platform=android&type=securepayplugin
+     * 下载地址 <a href="http://mobile.unionpay.com/getclient?platform=android&type=securepayplugin">下载地址</a>
      */
     public void installPlugin() {
         UPPayAssistEx.installUPPayPlugin(activity);

@@ -105,18 +105,18 @@ public class ClipImageLayout extends RelativeLayout {
         GradientDrawable background_pressed = new GradientDrawable();
         background_pressed.setColor(Color.parseColor("#30FFFFFF"));
         background_pressed.setCornerRadius(20);
-        background_pressed.setStroke(ScreenUtil.dp2px(getContext(), 1.0f), Color.parseColor("#A0A0A0"));
+        background_pressed.setStroke(dp2px( 1.0f), Color.parseColor("#A0A0A0"));
         GradientDrawable background_normal = new GradientDrawable();
         background_normal.setColor(Color.TRANSPARENT);
         background_normal.setCornerRadius(20);
-        background_normal.setStroke(ScreenUtil.dp2px(getContext(), 1.0f), Color.WHITE);
+        background_normal.setStroke(dp2px(1.0f), Color.WHITE);
         StateListDrawable background = new StateListDrawable();
         background.addState(new int[]{android.R.attr.state_pressed}, background_pressed);
         background.addState(new int[]{-android.R.attr.state_pressed}, background_normal);
         mButton.setBackgroundDrawable(background);
         /* 布局 */
-        LayoutParams lp = new LayoutParams(ScreenUtil.dp2px(getContext(), 120.0f), ScreenUtil.dp2px(getContext(), 40.0f));
-        lp.bottomMargin = ScreenUtil.dp2px(getContext(), 20.0f);
+        LayoutParams lp = new LayoutParams(dp2px(120.0f), dp2px(40.0f));
+        lp.bottomMargin = dp2px(20.0f);
         lp.addRule(CENTER_HORIZONTAL, TRUE);
         lp.addRule(ALIGN_PARENT_BOTTOM, TRUE);
         mButton.setLayoutParams(lp);
@@ -520,6 +520,16 @@ public class ClipImageLayout extends RelativeLayout {
 //            }
             mMatrix.postTranslate(deltaX, deltaY);
         }
+    }
+
+    /**
+     * 根据手机的分辨率从 dp 的单位 转成为 px(像素)
+     * @param dpValue
+     * @return
+     */
+    public int dp2px(float dpValue) {
+        final float scale = getContext().getResources().getDisplayMetrics().density;
+        return (int) (dpValue * scale + 0.5f);
     }
 
     /* 边框视图 */
