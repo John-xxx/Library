@@ -4,7 +4,6 @@ import android.support.v7.app.AppCompatActivity;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.Window;
-import android.view.WindowManager;
 import android.widget.FrameLayout;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
@@ -20,7 +19,7 @@ import com.liux.base.R;
  * http://blog.csdn.net/yewei02538/article/details/60979075
  */
 public class DefaultTitleBar extends TransparentTitleBar {
-    private View mTitleBar, mBack, mMore;
+    private View mRoot, mStatusBar, mTitleBar, mBack, mMore;
     private TextView mTitle, mBackText, mMoreText;
     private ImageView mBackImage, mMoreImage;
 
@@ -44,9 +43,6 @@ public class DefaultTitleBar extends TransparentTitleBar {
 
     public DefaultTitleBar(AppCompatActivity activity) {
         super(activity);
-
-        // 默认开启自适应输入法模式
-        getActivity().getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_ADJUST_RESIZE);
     }
 
     @Override
@@ -60,14 +56,8 @@ public class DefaultTitleBar extends TransparentTitleBar {
         LinearLayout content_chlid = new LinearLayout(activity);
         content_chlid.setOrientation(LinearLayout.VERTICAL);
 
-        mTitleBar = LayoutInflater.from(activity).inflate(R.layout.view_titlebar_default, content_chlid, false);
-        mTitleBar.setPadding(
-                mTitleBar.getPaddingLeft(),
-                topPadding,
-                mTitleBar.getPaddingRight(),
-                mTitleBar.getPaddingBottom()
-        );
-        content_chlid.addView(mTitleBar);
+        mRoot = LayoutInflater.from(activity).inflate(R.layout.view_titlebar_default, content_chlid, false);
+        content_chlid.addView(mRoot);
 
         for (int i = 0; i < content.getChildCount(); i++) {
             View view = content.getChildAt(i);
@@ -77,31 +67,47 @@ public class DefaultTitleBar extends TransparentTitleBar {
 
         content.addView(content_chlid);
 
-        mBack = mTitleBar.findViewById(R.id.view_titlebar_default_back);
-        mMore = mTitleBar.findViewById(R.id.view_titlebar_default_more);
-        mTitle = (TextView) mTitleBar.findViewById(R.id.view_titlebar_default_title);
-        mBackText = (TextView) mTitleBar.findViewById(R.id.view_titlebar_default_back_text);
-        mMoreText = (TextView) mTitleBar.findViewById(R.id.view_titlebar_default_more_text);
-        mBackImage = (ImageView) mTitleBar.findViewById(R.id.view_titlebar_default_back_image);
-        mMoreImage = (ImageView) mTitleBar.findViewById(R.id.view_titlebar_default_more_image);
+        mStatusBar = mRoot.findViewById(R.id.view_titlebar_default_statusbar);
+        mTitleBar = mRoot.findViewById(R.id.view_titlebar_default_titlebar);
+        mBack = mRoot.findViewById(R.id.view_titlebar_default_back);
+        mMore = mRoot.findViewById(R.id.view_titlebar_default_more);
+        mTitle = (TextView) mRoot.findViewById(R.id.view_titlebar_default_title);
+        mBackText = (TextView) mRoot.findViewById(R.id.view_titlebar_default_back_text);
+        mMoreText = (TextView) mRoot.findViewById(R.id.view_titlebar_default_more_text);
+        mBackImage = (ImageView) mRoot.findViewById(R.id.view_titlebar_default_back_image);
+        mMoreImage = (ImageView) mRoot.findViewById(R.id.view_titlebar_default_more_image);
+
+        mStatusBar.setPadding(0, topPadding, 0, 0);
+        //TypedValue typedValue = new TypedValue();
+        //activity.getTheme().resolveAttribute(R.attr.colorPrimaryDark, typedValue, true);
+        //mStatusBar.setBackgroundColor(typedValue.data);
+        //activity.getTheme().resolveAttribute(R.attr.colorPrimary, typedValue, true);
+        //mTitleBar.setBackgroundColor(typedValue.data);
 
         mBack.setOnClickListener(mOnClickListener);
         mMore.setOnClickListener(mOnClickListener);
-
-//            TypedValue typedValue = new TypedValue();
-//
-//            activity.getTheme().resolveAttribute(R.attr.colorPrimaryDark, typedValue, true);
-//            mTitleBar.setBackgroundColor(typedValue.data);
-//
-//            activity.getTheme().resolveAttribute(R.attr.colorPrimary, typedValue, true);
-//            ((ViewGroup) mTitleBar).getChildAt(0).setBackgroundColor(typedValue.data);
     }
 
     @Override
     public void setTitle(String title) {
         super.setTitle(title);
-
         mTitle.setText(title);
+    }
+
+    @Override
+    public void setTitleColor(int color) {
+        super.setTitleColor(color);
+        mTitle.setTextColor(color);
+    }
+
+    @Override
+    public View getStatusBar() {
+        return mStatusBar;
+    }
+
+    @Override
+    public View getTitleBar() {
+        return mTitleBar;
     }
 
     public DefaultTitleBar hasBack(boolean has) {
@@ -133,6 +139,10 @@ public class DefaultTitleBar extends TransparentTitleBar {
 
     public ImageView getMoreIcon() {
         return mMoreImage;
+    }
+
+    public TextView getTitleText() {
+        return mTitle;
     }
 
     public TextView getBackText() {

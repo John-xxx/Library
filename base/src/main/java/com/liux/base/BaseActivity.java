@@ -158,6 +158,7 @@ public abstract class BaseActivity extends AppCompatActivity {
         super.onTitleChanged(title, color);
         if (mTitleBar != null) {
             mTitleBar.setTitle(title.toString());
+            //mTitleBar.setTitleColor(color);
         }
     }
 
@@ -336,8 +337,8 @@ public abstract class BaseActivity extends AppCompatActivity {
      * 获取当前使用的TitleBar
      * @return
      */
-    protected TitleBar getTitleBar() {
-        return mTitleBar;
+    protected <T extends TitleBar>T getTitleBar() {
+        return (T) mTitleBar;
     }
 
     /* ============== TitleBar_End ============== */

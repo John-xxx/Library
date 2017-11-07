@@ -4,9 +4,16 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:background="?attr/colorPrimaryDark">
+    android:orientation="vertical">
+
+    <FrameLayout
+        android:id="@+id/view_titlebar_default_statusbar"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="?attr/colorPrimaryDark"/>
 
     <RelativeLayout
+        android:id="@+id/view_titlebar_default_titlebar"
         android:layout_width="match_parent"
         android:layout_height="45dp"
         android:paddingLeft="5dp"

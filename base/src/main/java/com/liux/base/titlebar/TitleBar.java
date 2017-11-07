@@ -2,6 +2,7 @@ package com.liux.base.titlebar;
 
 import android.content.Intent;
 import android.os.Bundle;
+import android.view.View;
 
 /**
  * 自定义TitleBar需要实现此接口 <br>
@@ -18,4 +19,10 @@ public interface TitleBar {
     void initView();
 
     void setTitle(String title);
+
+    void setTitleColor(int color);
+
+    View getStatusBar();
+
+    View getTitleBar();
 }

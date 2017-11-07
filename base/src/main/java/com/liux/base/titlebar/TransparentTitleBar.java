@@ -80,6 +80,21 @@ public class TransparentTitleBar implements TitleBar {
 
     }
 
+    @Override
+    public void setTitleColor(int color) {
+
+    }
+
+    @Override
+    public View getStatusBar() {
+        return null;
+    }
+
+    @Override
+    public View getTitleBar() {
+        return null;
+    }
+
     /**
      * 初始化 TitleBar 的View <br>
      * {@link #initView()} 后调用
@@ -145,18 +160,29 @@ public class TransparentTitleBar implements TitleBar {
      * @return 成功执行返回true
      */
     private boolean setMiuiStatusBarMode(AppCompatActivity activity, boolean darkmode) {
+        // 开发版 7.7.13 以前版本
         try {
             int darkModeFlag = 0;
             Class<? extends Window> clazz = activity.getWindow().getClass();
             Class<?> layoutParams = Class.forName("android.view.MiuiWindowManager$LayoutParams");
             Field field = layoutParams.getField("EXTRA_FLAG_STATUS_BAR_DARK_MODE");
             darkModeFlag = field.getInt(layoutParams);
-            Method extraFlagField = clazz.getMethod("setExtraFlags", int.class, int.class);
-            extraFlagField.invoke(activity.getWindow(), darkmode ? darkModeFlag : 0, darkModeFlag);
-            return true;
+            Method extraFlagField = clazz.getMethod(darkmode ? "addExtraFlags" : "clearExtraFlags", int.class);
+            extraFlagField.invoke(activity.getWindow(), darkModeFlag);
         } catch (Exception e) {
             e.printStackTrace();
         }
+
+        // 开发版 7.7.13 及以后版本
+        // http://www.miui.com/thread-8946673-1-1.html
+        //try {
+        //    Window window = activity.getWindow();
+        //    window.addFlags(WindowManager.LayoutParams.FLAG_DRAWS_SYSTEM_BAR_BACKGROUNDS);
+        //    window.clearFlags(WindowManager.LayoutParams.FLAG_TRANSLUCENT_STATUS);
+        //    window.getDecorView().setSystemUiVisibility(View.SYSTEM_UI_FLAG_LIGHT_STATUS_BAR);
+        //} catch (Exception e) {
+        //    e.printStackTrace();
+        //}
         return false;
     }
 
