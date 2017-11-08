@@ -69,3 +69,8 @@ ext {
             IJKPLAYER : '0.8.4'
     ]
 }
+
+// 打包某个库到JCenter
+// ..\gradlew.bat assemble bintrayUpload -PbintrayUser=Liux -PbintrayKey=xxxxx -PdryRun=false
+// 打包某个库到本地
+// ..\gradlew.bat assemble publishToMavenLocal
