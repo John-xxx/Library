@@ -41,10 +41,9 @@ public abstract class BaseActivity extends AppCompatActivity {
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-
-        // 设置TitleBar控件
         mTitleBar = onInitTitleBar();
+
+        super.onCreate(savedInstanceState);
 
         onCreate(savedInstanceState, getIntent());
 

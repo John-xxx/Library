@@ -1,94 +1,83 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout
-    xmlns:android="http://schemas.android.com/apk/res/android"
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/view_titlebar_default_titlebar"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:orientation="vertical">
+    android:paddingTop="2.5dp"
+    android:paddingBottom="2.5dp"
+    android:paddingLeft="5dp"
+    android:paddingRight="5dp"
+    android:background="?attr/colorPrimary">
+    <!-- android:layout_height="?attr/actionBarSize" -->
 
-    <FrameLayout
-        android:id="@+id/view_titlebar_default_statusbar"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:background="?attr/colorPrimaryDark"/>
+    <LinearLayout
+        android:id="@+id/view_titlebar_default_back"
+        android:layout_width="wrap_content"
+        android:layout_height="40dp"
+        android:layout_alignParentLeft="true"
+        android:layout_centerVertical="true"
+        android:orientation="horizontal"
+        android:visibility="visible"
+        android:paddingLeft="10dp"
+        android:paddingRight="10dp"
+        android:minWidth="40dp">
 
-    <RelativeLayout
-        android:id="@+id/view_titlebar_default_titlebar"
-        android:layout_width="match_parent"
-        android:layout_height="45dp"
-        android:paddingLeft="5dp"
-        android:paddingRight="5dp"
-        android:background="?attr/colorPrimary">
-
-        <LinearLayout
-            android:id="@+id/view_titlebar_default_back"
+        <ImageView
+            android:id="@+id/view_titlebar_default_back_image"
             android:layout_width="wrap_content"
-            android:layout_height="40dp"
-            android:layout_alignParentLeft="true"
-            android:layout_centerVertical="true"
-            android:orientation="horizontal"
-            android:visibility="visible"
-            android:paddingLeft="10dp"
-            android:paddingRight="10dp"
-            android:minWidth="40dp">
-
-            <ImageView
-                android:id="@+id/view_titlebar_default_back_image"
-                android:layout_width="wrap_content"
-                android:layout_height="match_parent"
-                android:gravity="center_vertical"
-                android:src="@drawable/view_titlebar_default_back"/>
-
-            <TextView
-                android:id="@+id/view_titlebar_default_back_text"
-                android:layout_width="wrap_content"
-                android:layout_height="match_parent"
-                android:textColor="#FFFFFF"
-                android:gravity="center_vertical"
-                tools:text="@string/view_titlebar_default_back"/>
-
-        </LinearLayout>
+            android:layout_height="match_parent"
+            android:gravity="center_vertical"
+            android:src="@drawable/view_titlebar_default_back"/>
 
         <TextView
-            android:id="@+id/view_titlebar_default_title"
+            android:id="@+id/view_titlebar_default_back_text"
             android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_centerInParent="true"
-            android:layout_marginLeft="20dp"
-            android:layout_marginRight="20dp"
-            android:singleLine="true"
-            android:ellipsize="marquee"
+            android:layout_height="match_parent"
             android:textColor="#FFFFFF"
-            android:textSize="18dp"
-            android:maxLines="1"/>
+            android:gravity="center_vertical"
+            tools:text="@string/view_titlebar_default_back"/>
 
-        <RelativeLayout
-            android:id="@+id/view_titlebar_default_more"
+    </LinearLayout>
+
+    <TextView
+        android:id="@+id/view_titlebar_default_title"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_centerInParent="true"
+        android:layout_marginLeft="40dp"
+        android:layout_marginRight="40dp"
+        android:singleLine="true"
+        android:ellipsize="marquee"
+        android:textColor="#FFFFFF"
+        android:textSize="18dp"
+        android:maxLines="1"/>
+
+    <RelativeLayout
+        android:id="@+id/view_titlebar_default_more"
+        android:layout_width="wrap_content"
+        android:layout_height="40dp"
+        android:layout_alignParentRight="true"
+        android:layout_centerVertical="true"
+        android:visibility="gone"
+        android:paddingLeft="10dp"
+        android:paddingRight="10dp"
+        android:minWidth="40dp">
+
+        <ImageView
+            android:id="@+id/view_titlebar_default_more_image"
             android:layout_width="wrap_content"
-            android:layout_height="40dp"
-            android:layout_alignParentRight="true"
-            android:layout_centerVertical="true"
-            android:visibility="gone"
-            android:paddingLeft="10dp"
-            android:paddingRight="10dp"
-            android:minWidth="40dp">
+            android:layout_height="match_parent"
+            android:gravity="center_vertical" />
 
-            <ImageView
-                android:id="@+id/view_titlebar_default_more_image"
-                android:layout_width="wrap_content"
-                android:layout_height="match_parent"
-                android:gravity="center_vertical" />
-
-            <TextView
-                android:id="@+id/view_titlebar_default_more_text"
-                android:layout_width="wrap_content"
-                android:layout_height="match_parent"
-                android:textColor="#FFFFFF"
-                android:gravity="center_vertical"
-                tools:text="@string/view_titlebar_default_more"/>
-
-        </RelativeLayout>
+        <TextView
+            android:id="@+id/view_titlebar_default_more_text"
+            android:layout_width="wrap_content"
+            android:layout_height="match_parent"
+            android:textColor="#FFFFFF"
+            android:gravity="center_vertical"
+            tools:text="@string/view_titlebar_default_more"/>
 
     </RelativeLayout>
 
-</LinearLayout>
+</RelativeLayout>

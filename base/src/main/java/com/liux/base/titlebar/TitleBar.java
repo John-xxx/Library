@@ -21,8 +21,4 @@ public interface TitleBar {
     void setTitle(String title);
 
     void setTitleColor(int color);
-
-    View getStatusBar();
-
-    View getTitleBar();
 }

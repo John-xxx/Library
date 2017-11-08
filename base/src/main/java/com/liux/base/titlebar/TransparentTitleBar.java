@@ -17,14 +17,13 @@ import java.lang.reflect.Method;
 import java.util.IllegalFormatFlagsException;
 
 /**
- * 透明的{@link TitleBar}实现,只会透明状态栏 <br>
+ * 透明的{@link TitleBar}实现,开启沉浸式状态栏,隐藏标题栏 <br>
  *
  * http://www.jianshu.com/p/f02abf30fc82 <br>
  * http://www.jianshu.com/p/140be70b84cd <br>
  * https://juejin.im/post/5989ded56fb9a03c3b6c8bde
  */
 public class TransparentTitleBar implements TitleBar {
-    private FrameLayout mContent;
     private AppCompatActivity mActivity;
 
     public TransparentTitleBar(AppCompatActivity activity) {
@@ -67,9 +66,7 @@ public class TransparentTitleBar implements TitleBar {
             throw new IllegalFormatFlagsException("The window style do not contain Window.FEATURE_NO_TITLE");
         }
 
-        TransparentAndResizeFix.install(getActivity());
-
-        mContent = (FrameLayout) getActivity().findViewById(Window.ID_ANDROID_CONTENT);
+        TransparentAndResizeFix.install(mActivity);
 
         int topPadding = getTransparentStatusBarHeight();
         initView(topPadding);
@@ -85,16 +82,6 @@ public class TransparentTitleBar implements TitleBar {
 
     }
 
-    @Override
-    public View getStatusBar() {
-        return null;
-    }
-
-    @Override
-    public View getTitleBar() {
-        return null;
-    }
-
     /**
      * 初始化 TitleBar 的View <br>
      * {@link #initView()} 后调用
@@ -102,14 +89,6 @@ public class TransparentTitleBar implements TitleBar {
      */
     public void initView(int topPadding) {
 
-    }
-
-    public AppCompatActivity getActivity() {
-        return mActivity;
-    }
-
-    public FrameLayout getContent() {
-        return mContent;
     }
 
     /**
@@ -120,9 +99,9 @@ public class TransparentTitleBar implements TitleBar {
     public int getTransparentStatusBarHeight() {
         int result = 0;
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT) {
-            int resourceId = getActivity().getResources().getIdentifier("status_bar_height", "dimen", "android");
+            int resourceId = mActivity.getResources().getIdentifier("status_bar_height", "dimen", "android");
             if (resourceId > 0) {
-                result = getActivity().getResources().getDimensionPixelSize(resourceId);
+                result = mActivity.getResources().getDimensionPixelSize(resourceId);
             }
         }
         return result;
@@ -134,12 +113,11 @@ public class TransparentTitleBar implements TitleBar {
      * @return 成功执行返回true
      */
     public boolean setStatusBarMode(boolean darkmode) {
-        AppCompatActivity activity = getActivity();
-        if (setMiuiStatusBarMode(activity, darkmode)) return true;
-        if (setMeizuStatusBarMode(activity, darkmode)) return true;
+        if (setMiuiStatusBarMode(mActivity, darkmode)) return true;
+        if (setMeizuStatusBarMode(mActivity, darkmode)) return true;
 
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-            View decor = activity.getWindow().getDecorView();
+            View decor = mActivity.getWindow().getDecorView();
             int ui = decor.getSystemUiVisibility();
             if (darkmode) {
                 ui |= View.SYSTEM_UI_FLAG_LIGHT_STATUS_BAR;

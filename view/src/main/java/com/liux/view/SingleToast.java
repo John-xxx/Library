@@ -29,7 +29,7 @@ public class SingleToast {
     public static Toast makeText(Context context, CharSequence text, int duration) {
         if (TOAST == null) {
             if (LAYOUT != 0) {
-                LayoutInflater inflate = (LayoutInflater) context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+                LayoutInflater inflate = (LayoutInflater) context.getApplicationContext().getSystemService(Context.LAYOUT_INFLATER_SERVICE);
                 View view = inflate.inflate(LAYOUT, null);
 
                 TOAST = new Toast(context.getApplicationContext());
@@ -44,5 +44,12 @@ public class SingleToast {
             TOAST.setDuration(duration);
         }
         return TOAST;
+    }
+
+    public static void cancel() {
+        if (TOAST != null) {
+            TOAST.cancel();
+            TOAST = null;
+        }
     }
 }
