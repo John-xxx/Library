@@ -9,7 +9,6 @@ import android.support.v7.widget.Toolbar;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.view.Window;
 import android.widget.FrameLayout;
 import android.widget.ImageView;
 import android.widget.TextView;
@@ -20,13 +19,11 @@ import java.lang.reflect.Field;
 
 /**
  * 默认的自定义{@link TitleBar}实现 <br>
- * 处理默认的Toolbar,并填充一个自定义TitleBar
+ * 处理默认的Toolbar,并填充一个自定义TitleBar <br>
  *
  * http://blog.csdn.net/yewei02538/article/details/60979075
  */
-public class DefaultTitleBar implements TitleBar {
-    private AppCompatActivity mActivity;
-
+public class DefaultTitleBar extends TitleBar {
     private View mRoot, mBack, mMore;
     private TextView mTitle, mBackText, mMoreText;
     private ImageView mBackImage, mMoreImage;
@@ -39,7 +36,7 @@ public class DefaultTitleBar implements TitleBar {
             int i = v.getId();
             if (i == R.id.view_titlebar_default_back) {
                 if (mOnTitleBarListener == null || !mOnTitleBarListener.onBack()) {
-                    mActivity.onBackPressed();
+                    getActivity().onBackPressed();
                 }
             } else if (i == R.id.view_titlebar_default_more) {
                 if (mOnTitleBarListener == null || !mOnTitleBarListener.onMore()) {
@@ -50,18 +47,18 @@ public class DefaultTitleBar implements TitleBar {
     };
 
     public DefaultTitleBar(AppCompatActivity activity) {
-        mActivity = activity;
+        super(activity);
     }
 
     @Override
     public void initView() {
-        mRoot = LayoutInflater.from(mActivity).inflate(
+        mRoot = LayoutInflater.from(getActivity()).inflate(
                 R.layout.view_titlebar_default,
                 null,
                 false
         );
-        mActivity.getSupportActionBar().setDisplayOptions(ActionBar.DISPLAY_SHOW_CUSTOM);
-        mActivity.getSupportActionBar().setCustomView(
+        getActivity().getSupportActionBar().setDisplayOptions(ActionBar.DISPLAY_SHOW_CUSTOM);
+        getActivity().getSupportActionBar().setCustomView(
                 mRoot,
                 new ActionBar.LayoutParams(
                         ViewGroup.LayoutParams.MATCH_PARENT,
@@ -105,7 +102,7 @@ public class DefaultTitleBar implements TitleBar {
 
     public DefaultTitleBar setStatusBarColor(int color) {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-            mActivity.getWindow().setStatusBarColor(color);
+            getActivity().getWindow().setStatusBarColor(color);
         }
         return this;
     }
@@ -118,6 +115,10 @@ public class DefaultTitleBar implements TitleBar {
     public DefaultTitleBar setOnTitleBarListener(OnTitleBarListener listener) {
         mOnTitleBarListener = listener;
         return this;
+    }
+
+    public View getView() {
+        return mRoot;
     }
 
     public View getBack() {
