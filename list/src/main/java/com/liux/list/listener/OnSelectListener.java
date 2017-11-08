@@ -11,8 +11,9 @@ public interface OnSelectListener<T> {
      * @param t
      * @param position
      * @param isSelect
+     * @return
      */
-    void onSelectChange(T t, int position, boolean isSelect);
+    boolean onSelectChange(T t, int position, boolean isSelect);
 
     /**
      * 选择个数大于最大限制数

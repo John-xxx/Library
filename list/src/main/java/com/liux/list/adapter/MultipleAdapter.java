@@ -260,7 +260,7 @@ public class MultipleAdapter<T> extends RecyclerView.Adapter {
 
     private int mMaxSelectCount = 0;
     private boolean mOpenSelect = false;
-    private OnSelectListener mOnSelectListener;
+    private OnSelectListener<T> mOnSelectListener;
 
     /**
      * 设置开启选择(单选)
@@ -359,10 +359,17 @@ public class MultipleAdapter<T> extends RecyclerView.Adapter {
                 List<T> ts = mDataSource.getStateAll(State.STATE_SELECTED);
                 for (T t : ts) {
                     int index = mDataSource.indexOf(t);
-                    mDataSource.setState(index, State.STATE_UNSELECTED);
+                    boolean result = true;
                     if (mOnSelectListener != null) {
-                        mOnSelectListener.onSelectChange(t, index, false);
+                        result = mOnSelectListener.onSelectChange(t, index, false);
                     }
+                    if (!result) {
+                        //if (mOnSelectListener != null) {
+                        //    mOnSelectListener.onSelectFailure();
+                        //}
+                        return false;
+                    }
+                    mDataSource.setState(index, State.STATE_UNSELECTED);
                     index = getShamPosition(index);
                     notifyItemChanged(index);
                 }
@@ -374,11 +381,18 @@ public class MultipleAdapter<T> extends RecyclerView.Adapter {
             }
         }
 
-        mDataSource.getState(position).state = selected ? State.STATE_SELECTED : State.STATE_UNSELECTED;
-
+        boolean result = true;
         if (mOnSelectListener != null) {
-            mOnSelectListener.onSelectChange(mDataSource.get(position), position, selected);
+            result = mOnSelectListener.onSelectChange(mDataSource.get(position), position, selected);
         }
+        if (!result) {
+            //if (mOnSelectListener != null) {
+            //    mOnSelectListener.onSelectFailure();
+            //}
+            return false;
+        }
+
+        mDataSource.getState(position).state = selected ? State.STATE_SELECTED : State.STATE_UNSELECTED;
 
         if (mDataSource.getStateAllCount(State.STATE_SELECTED) >= mMaxSelectCount) {
             if (mOnSelectListener != null) {

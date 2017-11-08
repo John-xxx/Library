@@ -7,7 +7,6 @@ import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.Toast;
 
 import com.liux.base.BaseFragment;
 import com.liux.list.adapter.MultipleAdapter;
@@ -16,6 +15,7 @@ import com.liux.list.adapter.State;
 import com.liux.list.decoration.AbsItemDecoration;
 import com.liux.list.holder.SuperHolder;
 import com.liux.list.listener.OnSelectListener;
+import com.liux.view.SingleToast;
 
 import java.util.List;
 
@@ -101,19 +101,20 @@ public class MainFourFragment extends BaseFragment {
                 });
         mMultipleAdapter.setOnSelectListener(new OnSelectListener<Object>() {
             @Override
-            public void onSelectChange(Object o, int position, boolean isSelect) {
-                Toast.makeText(getActivity(), o + " isSelect:" + isSelect, Toast.LENGTH_SHORT).show();
+            public boolean onSelectChange(Object o, int position, boolean isSelect) {
+                SingleToast.makeText(getActivity(), o + " request select:" + isSelect, SingleToast.LENGTH_SHORT).show();
+                return position % 3 != 0;
             }
 
             @Override
             public void onSelectFailure() {
-                Toast.makeText(getActivity(), "select failure", Toast.LENGTH_SHORT).show();
+                SingleToast.makeText(getActivity(), "select failure", SingleToast.LENGTH_SHORT).show();
             }
 
             @Override
             public void onSelectComplete() {
                 List<Object> list = mMultipleAdapter.getStateAll(State.STATE_SELECTED);
-                Toast.makeText(getActivity(), list.toString(), Toast.LENGTH_SHORT).show();
+                SingleToast.makeText(getActivity(), list.toString(), SingleToast.LENGTH_SHORT).show();
             }
         });
         rvList.setAdapter(mMultipleAdapter);

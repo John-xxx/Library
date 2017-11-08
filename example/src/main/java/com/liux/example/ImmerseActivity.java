@@ -8,7 +8,6 @@ import android.view.View;
 import android.view.WindowManager;
 import android.widget.Button;
 import android.widget.ImageView;
-import android.widget.Toast;
 
 import com.liux.banner.BannerAdapter;
 import com.liux.banner.BannerHolder;
@@ -22,6 +21,7 @@ import com.liux.other.CountDownTimer;
 import com.liux.player.listener.OnPlayerListener;
 import com.liux.player.view.SurfacePlayerView;
 import com.liux.player.view.TexturePlayerView;
+import com.liux.view.SingleToast;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -137,7 +137,7 @@ public class ImmerseActivity extends BaseActivity {
                 holder.setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View v) {
-                        Toast.makeText(ImmerseActivity.this, "点击了Banner:" + s, Toast.LENGTH_SHORT).show();
+                        SingleToast.makeText(ImmerseActivity.this, "点击了Banner:" + s, SingleToast.LENGTH_SHORT).show();
                     }
                 });
             }

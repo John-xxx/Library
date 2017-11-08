@@ -12,7 +12,6 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
-import android.widget.Toast;
 
 import com.bilibili.boxing.Boxing;
 import com.bilibili.boxing.BoxingMediaLoader;
@@ -27,6 +26,7 @@ import com.liux.list.adapter.State;
 import com.liux.list.decoration.GridItemDecoration;
 import com.liux.list.adapter.MultipleAdapter;
 import com.liux.list.holder.SuperHolder;
+import com.liux.view.SingleToast;
 
 import java.util.List;
 import java.util.Locale;
@@ -142,7 +142,7 @@ public class MainThreeFragment extends BaseFragment {
             case R.id.btn_select_pic_clip:
                 String cachePath = BoxingFileHelper.getCacheDir(getContext());
                 if (TextUtils.isEmpty(cachePath)) {
-                    Toast.makeText(getContext().getApplicationContext(), R.string.boxing_storage_deny, Toast.LENGTH_SHORT).show();
+                    SingleToast.makeText(getContext().getApplicationContext(), R.string.boxing_storage_deny, SingleToast.LENGTH_SHORT).show();
                     return;
                 }
                 Uri destUri = new Uri.Builder()
