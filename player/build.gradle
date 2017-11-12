@@ -1,12 +1,14 @@
 apply plugin: 'com.android.library'
 
-android {
-    compileSdkVersion rootProject.ext.android.COMPILE_SDK_VERSION
-    buildToolsVersion rootProject.ext.android.BUILD_TOOLS_VERSION
+def versions = rootProject.ext.versions
+def librarys = rootProject.ext.librarys
 
+android {
+    compileSdkVersion versions.compileSdkVersion
+    buildToolsVersion versions.buildToolsVersion
     defaultConfig {
-        minSdkVersion rootProject.ext.android.MIN_SDK_VERSION
-        targetSdkVersion rootProject.ext.android.TARGET_SDK_VERSION
+        minSdkVersion versions.minSdkVersion
+        targetSdkVersion versions.targetSdkVersion
         versionCode 10000
         versionName "1.0.0"
     }
@@ -22,35 +24,23 @@ android {
 }
 
 dependencies {
-    compile fileTree(dir: 'libs', include: ['*.jar'])
-    compile "tv.danmaku.ijk.media:ijkplayer-java:${rootProject.ext.library.IJKPLAYER}"
-    compile "tv.danmaku.ijk.media:ijkplayer-exo:${rootProject.ext.library.IJKPLAYER}"
-    compile "tv.danmaku.ijk.media:ijkplayer-armv5:${rootProject.ext.library.IJKPLAYER}"
-    compile "tv.danmaku.ijk.media:ijkplayer-armv7a:${rootProject.ext.library.IJKPLAYER}"
-    compile "tv.danmaku.ijk.media:ijkplayer-arm64:${rootProject.ext.library.IJKPLAYER}"
-    compile "tv.danmaku.ijk.media:ijkplayer-x86:${rootProject.ext.library.IJKPLAYER}"
-    compile "tv.danmaku.ijk.media:ijkplayer-x86_64:${rootProject.ext.library.IJKPLAYER}"
-
-    provided "com.android.support:appcompat-v7:${rootProject.ext.library.SUPPORT}"
-    provided "com.android.support:support-annotations:${rootProject.ext.library.SUPPORT}"
+    api fileTree(dir: 'libs', include: ['*.jar'])
+    api "tv.danmaku.ijk.media:ijkplayer-java:${librarys.ijkplayer}"
+    api "tv.danmaku.ijk.media:ijkplayer-exo:${librarys.ijkplayer}"
+    api "tv.danmaku.ijk.media:ijkplayer-armv5:${librarys.ijkplayer}"
+    api "tv.danmaku.ijk.media:ijkplayer-armv7a:${librarys.ijkplayer}"
+    api "tv.danmaku.ijk.media:ijkplayer-arm64:${librarys.ijkplayer}"
+    api "tv.danmaku.ijk.media:ijkplayer-x86:${librarys.ijkplayer}"
+    api "tv.danmaku.ijk.media:ijkplayer-x86_64:${librarys.ijkplayer}"
+    compileOnly "com.android.support:appcompat-v7:${librarys.support}"
+    compileOnly "com.android.support:support-annotations:${librarys.support}"
 }
 
-
-
-// release to JCenter
-apply plugin: 'com.novoda.bintray-release'
-
-publish {
-    userOrg = 'lx0758'
-    repoName = 'maven'
-
-    groupId = 'com.liux'
-    artifactId = 'player'
-    publishVersion = '0.1.0'
-
-    licences = ['MIT']
-
-    desc = 'My rapid development framework'
-    website = 'https://gitee.com/lx0758/Framework'
-    repository = 'https://gitee.com/lx0758/Framework.git'
+// Release Library Param
+ext {
+    params = [
+            artifactId : 'player',
+            version : '0.1.0'
+    ]
 }
+// apply from: '../release.gradle'

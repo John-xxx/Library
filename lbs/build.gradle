@@ -1,12 +1,14 @@
 apply plugin: 'com.android.library'
 
-android {
-    compileSdkVersion rootProject.ext.android.COMPILE_SDK_VERSION
-    buildToolsVersion rootProject.ext.android.BUILD_TOOLS_VERSION
+def versions = rootProject.ext.versions
+def librarys = rootProject.ext.librarys
 
+android {
+    compileSdkVersion versions.compileSdkVersion
+    buildToolsVersion versions.buildToolsVersion
     defaultConfig {
-        minSdkVersion rootProject.ext.android.MIN_SDK_VERSION
-        targetSdkVersion rootProject.ext.android.TARGET_SDK_VERSION
+        minSdkVersion versions.minSdkVersion
+        targetSdkVersion versions.targetSdkVersion
         versionCode 10000
         versionName "1.0.0"
     }
@@ -22,29 +24,18 @@ android {
 }
 
 dependencies {
-    compile fileTree(dir: 'libs', include: ['*.jar'])
-    provided "io.reactivex.rxjava2:rxjava:${rootProject.ext.library.RXJAVA2}"
-    provided "io.reactivex.rxjava2:rxandroid:${rootProject.ext.library.RXANDROID}"
-    provided files('../jarlibs/BaiduLBS_Android_4.4.1.jar')
-    provided files('../jarlibs/AMap3DMap_5.3.0_AMapSearch_5.3.1_AMapLocation_3.5.0_20170817.jar')
+    api fileTree(dir: 'libs', include: ['*.jar'])
+    compileOnly "io.reactivex.rxjava2:rxjava:${librarys.rxjava2}"
+    compileOnly "io.reactivex.rxjava2:rxandroid:${librarys.rxandroid}"
+    compileOnly files('../jarlibs/BaiduLBs_android_4.4.1.jar')
+    compileOnly files('../jarlibs/AMap3DMap_5.3.0_amapsearch_5.3.1_amaplocation_3.5.0_20170817.jar')
 }
 
-
-
-// release to JCenter
-apply plugin: 'com.novoda.bintray-release'
-
-publish {
-    userOrg = 'lx0758'
-    repoName = 'maven'
-
-    groupId = 'com.liux'
-    artifactId = 'lbs'
-    publishVersion = '0.1.0'
-
-    licences = ['MIT']
-
-    desc = 'My rapid development framework'
-    website = 'https://gitee.com/lx0758/Framework'
-    repository = 'https://gitee.com/lx0758/Framework.git'
+// Release Library Param
+ext {
+    params = [
+            artifactId : 'lbs',
+            version : '0.1.0'
+    ]
 }
+apply from: '../release.gradle'

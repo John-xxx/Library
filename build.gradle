@@ -4,11 +4,12 @@ buildscript {
             dirs '../aarlibs'
         }
         maven {
-            url 'http://maven.aliyun.com/nexus/content/groups/public/'
+            url 'http://maven.lx0758.cc/nexus/content/groups/public/'
         }
         google()
         jcenter()
         mavenLocal()
+        mavenCentral()
     }
     dependencies {
         classpath 'com.android.tools.build:gradle:3.0.0'
@@ -27,11 +28,12 @@ allprojects{
             dirs '../aarlibs'
         }
         maven {
-            url 'http://maven.aliyun.com/nexus/content/groups/public/'
+            url 'http://maven.lx0758.cc/nexus/content/groups/public/'
         }
         google()
         jcenter()
         mavenLocal()
+        mavenCentral()
     }
     // 设置全局代码编码
     tasks.withType(JavaCompile) {
@@ -51,26 +53,33 @@ task clean(type: Delete) {
     delete rootProject.buildDir
 }
 
+/**
+ * def versions = rootProject.ext.versions
+ * def librarys = rootProject.ext.librarys
+ *
+ * compileSdkVersion versions.compileSdkVersion
+ * buildToolsVersion versions.buildToolsVersion
+ *
+ * minSdkVersion versions.minSdkVersion
+ * targetSdkVersion versions.targetSdkVersion
+ *
+ * implementation "com.android.support:appcompat-v7:${librarys.support}"
+ */
 ext {
-    android = [
-            MIN_SDK_VERSION : 15,
-            TARGET_SDK_VERSION  : 25,
-            COMPILE_SDK_VERSION : 25,
-            BUILD_TOOLS_VERSION : '27.0.0'
+    versions = [
+            minSdkVersion : 15,
+            targetSdkVersion  : 25,
+            compileSdkVersion : 25,
+            buildToolsVersion : '27.0.1'
     ]
-    library = [
-            GLIDE : '4.0.0',
-            OKHTTP3 : '3.9.0',
-            RETROFIT2 : '2.3.0',
-            FASTJSON : '1.1.64.android',
-            RXJAVA2 : '2.1.5',
-            RXANDROID : '2.0.1',
-            SUPPORT : '25.4.0',
-            IJKPLAYER : '0.8.4'
+    librarys = [
+            glide : '4.0.0',
+            okhttp3 : '3.9.0',
+            retrofit2 : '2.3.0',
+            fastjson : '1.1.64.android',
+            rxjava2 : '2.1.5',
+            rxandroid : '2.0.1',
+            support : '25.4.0',
+            ijkplayer : '0.8.4'
     ]
 }
-
-// 打包某个库到JCenter
-// ..\gradlew.bat assemble bintrayUpload -PbintrayUser=Liux -PbintrayKey=xxxxx -PdryRun=false
-// 打包某个库到本地
-// ..\gradlew.bat assemble publishToMavenLocal

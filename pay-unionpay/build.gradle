@@ -1,12 +1,14 @@
 apply plugin: 'com.android.library'
 
-android {
-    compileSdkVersion rootProject.ext.android.COMPILE_SDK_VERSION
-    buildToolsVersion rootProject.ext.android.BUILD_TOOLS_VERSION
+def versions = rootProject.ext.versions
+def librarys = rootProject.ext.librarys
 
+android {
+    compileSdkVersion versions.compileSdkVersion
+    buildToolsVersion versions.buildToolsVersion
     defaultConfig {
-        minSdkVersion rootProject.ext.android.MIN_SDK_VERSION
-        targetSdkVersion rootProject.ext.android.TARGET_SDK_VERSION
+        minSdkVersion versions.minSdkVersion
+        targetSdkVersion versions.targetSdkVersion
         versionCode 10000
         versionName "1.0.0"
     }
@@ -22,26 +24,15 @@ android {
 }
 
 dependencies {
-    compile fileTree(include: ['*.jar'], dir: 'libs')
-    provided project(':pay')
+    api fileTree(include: ['*.jar'], dir: 'libs')
+    compileOnly project(':pay')
 }
 
-
-
-// release to JCenter
-apply plugin: 'com.novoda.bintray-release'
-
-publish {
-    userOrg = 'lx0758'
-    repoName = 'maven'
-
-    groupId = 'com.liux'
-    artifactId = 'pay-unionpay'
-    publishVersion = '0.1.0'
-
-    licences = ['MIT']
-
-    desc = 'My rapid development framework'
-    website = 'https://gitee.com/lx0758/Framework'
-    repository = 'https://gitee.com/lx0758/Framework.git'
+// Release Library Param
+ext {
+    params = [
+            artifactId : 'pay-unionpay',
+            version : '0.1.0'
+    ]
 }
+apply from: '../release.gradle'

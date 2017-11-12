@@ -1,0 +1,72 @@
+// 打包某个库到JCenter
+// ..\gradlew.bat clean build assemble bintrayUpload -PbintrayUser=Liux -PbintrayKey=xxxxx -PdryRun=false
+// 打包某个库到本地
+// ..\gradlew.bat clean build assemble publishToMavenLocal
+// 打包某个库到私服
+// ..\gradlew.bat clean build assemble uploadArchives
+
+def params = project.ext.params
+
+// release to JCenter
+apply plugin: 'com.novoda.bintray-release'
+
+publish {
+    userOrg = 'lx0758'
+    repoName = 'maven'
+
+    groupId = 'com.liux'
+    artifactId = params.artifactId
+    publishVersion = params.version
+
+    licences = ['MIT']
+
+    desc = 'My rapid development framework'
+    website = 'https://gitee.com/lx0758/Framework'
+    repository = 'https://gitee.com/lx0758/Framework.git'
+}
+
+// release to Nexus
+apply plugin: 'maven'
+
+uploadArchives {
+    repositories {
+        mavenDeployer {
+            repository(url: "http://maven.lx0758.cc/nexus/content/repositories/android/") {
+                Properties properties = new Properties()
+                InputStream inputStream = project.rootProject.file('local.properties').newDataInputStream()
+                properties.load(inputStream)
+                def uploadName = properties.getProperty('uploadUser')
+                def uploadPassword = properties.getProperty('uploadPassword')
+                inputStream.close()
+
+                authentication(userName:uploadName, password:uploadPassword)
+            }
+            pom.project {
+                groupId = 'com.liux'
+                artifactId = params.artifactId
+                version = params.version
+            }
+        }
+    }
+}
+
+task androidJavadocs(type: Javadoc) {
+    source = android.sourceSets.main.java.srcDirs
+    //source = android.sourceSets.main.java.sourceFiles
+    classpath += project.files(android.getBootClasspath().join(File.pathSeparator))
+}
+
+task androidJavadocsJar(type: Jar) {
+    classifier = 'javadoc'
+    from androidJavadocs.destinationDir
+}
+
+task androidSourcesJar(type: Jar) {
+    classifier = 'sources'
+    from android.sourceSets.main.java.sourceFiles
+}
+
+artifacts {
+    archives androidSourcesJar
+    archives androidJavadocsJar
+}

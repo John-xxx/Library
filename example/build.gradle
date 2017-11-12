@@ -1,30 +1,31 @@
 apply plugin: 'com.android.application'
 
+def versions = rootProject.ext.versions
+def librarys = rootProject.ext.librarys
+
 android {
     signingConfigs {
         config {
-            // 加载资源
             Properties properties = new Properties()
-            InputStream inputStream = project.rootProject.file('local.properties').newDataInputStream() ;
+            InputStream inputStream = project.rootProject.file('local.properties').newDataInputStream()
             properties.load(inputStream)
-
-            // 读取字段
             def key_keyAlias = properties.getProperty('keyAlias')
             def key_keyPassword = properties.getProperty('keyPassword')
             def key_storePassword = properties.getProperty('storePassword')
+            inputStream.close()
 
             keyAlias key_keyAlias
             keyPassword key_keyPassword
             storePassword key_storePassword
-            storeFile file('./keystore.jks')
+            storeFile file('./public.jks')
         }
     }
-    compileSdkVersion rootProject.ext.android.COMPILE_SDK_VERSION
-    buildToolsVersion rootProject.ext.android.BUILD_TOOLS_VERSION
+    compileSdkVersion versions.compileSdkVersion
+    buildToolsVersion versions.buildToolsVersion
     defaultConfig {
         applicationId "com.liux.example"
-        minSdkVersion rootProject.ext.android.MIN_SDK_VERSION
-        targetSdkVersion rootProject.ext.android.TARGET_SDK_VERSION
+        minSdkVersion versions.minSdkVersion
+        targetSdkVersion versions.targetSdkVersion
         versionCode 10000
         versionName "1.0.0"
         multiDexEnabled true
@@ -53,26 +54,26 @@ android {
 }
 
 dependencies {
-    compile fileTree(dir: '../jarlibs', include: ['*.jar'])
+    api fileTree(dir: '../jarlibs', include: ['*.jar'])
     androidTestCompile('com.android.support.test.espresso:espresso-core:2.2.2', {
         exclude group: 'com.android.support', module: 'support-annotations'
     })
     testCompile 'junit:junit:4.12'
 
-    compile project(':banner')
-    compile project(':base')
-    compile project(':boxing')
-    compile project(':glide')
-    compile project(':http')
-    compile project(':lbs')
-    compile project(':list')
-    compile project(':other')
-    compile project(':pay')
-    compile project(':pay-unionpay')
-    compile project(':permission')
-    compile project(':player')
-    compile project(':util')
-    compile project(':view')
+    implementation project(':banner')
+    implementation project(':base')
+    implementation project(':boxing')
+    implementation project(':glide')
+    implementation project(':http')
+    implementation project(':lbs')
+    implementation project(':list')
+    implementation project(':other')
+    implementation project(':pay')
+    implementation project(':pay-unionpay')
+    implementation project(':permission')
+    implementation project(':player')
+    implementation project(':util')
+    implementation project(':view')
 
     /* ViewBind */
     compile ('com.jakewharton:butterknife:8.6.0', {
