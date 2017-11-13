@@ -3,8 +3,8 @@ package com.liux.lbs.model.impl;
 import android.content.Context;
 import android.text.TextUtils;
 
-import com.baidu.location.BDAbstractLocationListener;
 import com.baidu.location.BDLocation;
+import com.baidu.location.BDLocationListener;
 import com.baidu.location.LocationClient;
 import com.baidu.location.LocationClientOption;
 import com.baidu.mapapi.model.LatLng;
@@ -87,7 +87,7 @@ public class BaiduLBSModelImpl implements LBSModel {
     private LocationClientOption mLocationClientOption;
 
     private List<OnLocationListener> mOnLocationListeners = new ArrayList<>();
-    private BDAbstractLocationListener mBDAbstractLocationListener = new BDAbstractLocationListener() {
+    private BDLocationListener mBDLocationListener = new BDLocationListener() {
         @Override
         public void onReceiveLocation(BDLocation bdLocation) {
             if (mOnLocationListeners.isEmpty()) {
@@ -142,7 +142,7 @@ public class BaiduLBSModelImpl implements LBSModel {
         mLocationClientOption.setNeedDeviceDirect(true);
 
         mLocationClient.setLocOption(mLocationClientOption);
-        mLocationClient.registerLocationListener(mBDAbstractLocationListener);
+        mLocationClient.registerNotifyLocationListener(mBDLocationListener);
     }
 
     /**
@@ -194,7 +194,7 @@ public class BaiduLBSModelImpl implements LBSModel {
                             public void subscribe(@NonNull final ObservableEmitter<BDLocation> observableEmitter) throws Exception {
                                 final LocationClient locationClient = new LocationClient(mContext);
                                 locationClient.setLocOption(locationClientOption);
-                                locationClient.registerLocationListener(new BDAbstractLocationListener() {
+                                locationClient.registerNotifyLocationListener(new BDLocationListener() {
                                     @Override
                                     public void onReceiveLocation(BDLocation bdLocation) {
                                         locationClient.unRegisterLocationListener(this);

@@ -13,23 +13,22 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
 
-import com.bilibili.boxing.Boxing;
 import com.bilibili.boxing.BoxingMediaLoader;
-import com.bilibili.boxing.model.config.BoxingConfig;
-import com.bilibili.boxing.model.config.BoxingCropOption;
 import com.bilibili.boxing.model.entity.BaseMedia;
-import com.bilibili.boxing.utils.BoxingFileHelper;
-import com.bilibili.boxing_impl.ui.BoxingActivity;
+import com.bilibili.boxing.model.entity.impl.ImageMedia;
+import com.bilibili.boxing.model.entity.impl.VideoMedia;
 import com.liux.base.BaseFragment;
+import com.liux.boxing.BoxingTool;
+import com.liux.boxing.OnMultiSelectListener;
+import com.liux.boxing.OnSingleSelectListener;
+import com.liux.boxing.OnVideoSelectListener;
 import com.liux.list.adapter.Rule;
 import com.liux.list.adapter.State;
 import com.liux.list.decoration.GridItemDecoration;
 import com.liux.list.adapter.MultipleAdapter;
 import com.liux.list.holder.SuperHolder;
-import com.liux.view.SingleToast;
 
 import java.util.List;
-import java.util.Locale;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
@@ -41,7 +40,6 @@ import butterknife.Unbinder;
  */
 
 public class MainThreeFragment extends BaseFragment {
-    private static final int REQUEST_CODE = 1024;
 
     @BindView(R.id.rv_list)
     RecyclerView rvList;
@@ -111,22 +109,6 @@ public class MainThreeFragment extends BaseFragment {
     }
 
     @Override
-    public void onActivityResult(int requestCode, int resultCode, Intent data) {
-        super.onActivityResult(requestCode, resultCode, data);
-        if (resultCode != Activity.RESULT_OK) return;
-        List<BaseMedia> medias = Boxing.getResult(data);
-        switch (requestCode) {
-            case REQUEST_CODE:
-                break;
-        }
-        mMultipleAdapter.getDataSource().clear();
-        for (BaseMedia media : medias) {
-            mMultipleAdapter.getDataSource().add(media.getPath());
-        }
-        mMultipleAdapter.notifyDataSetChanged();
-    }
-
-    @Override
     public void onDestroyView() {
         super.onDestroyView();
         unbinder.unbind();
@@ -136,31 +118,46 @@ public class MainThreeFragment extends BaseFragment {
     public void onViewClicked(View view) {
         switch (view.getId()) {
             case R.id.btn_select_pic:
-                BoxingConfig singleImgConfig = new BoxingConfig(BoxingConfig.Mode.SINGLE_IMG).withMediaPlaceHolderRes(R.drawable.ic_boxing_default_image);
-                Boxing.of(singleImgConfig).withIntent(getContext(), BoxingActivity.class).start(this, REQUEST_CODE);
+                BoxingTool.startSingle(this, true, false, new OnSingleSelectListener() {
+                    @Override
+                    public void onSingleSelect(ImageMedia imageMedia) {
+                        mMultipleAdapter.getDataSource().clear();
+                        mMultipleAdapter.getDataSource().add(imageMedia.getPath());
+                        mMultipleAdapter.notifyDataSetChanged();
+                    }
+                });
                 break;
             case R.id.btn_select_pic_clip:
-                String cachePath = BoxingFileHelper.getCacheDir(getContext());
-                if (TextUtils.isEmpty(cachePath)) {
-                    SingleToast.makeText(getContext().getApplicationContext(), R.string.boxing_storage_deny, SingleToast.LENGTH_SHORT).show();
-                    return;
-                }
-                Uri destUri = new Uri.Builder()
-                        .scheme("file")
-                        .appendPath(cachePath)
-                        .appendPath(String.format(Locale.US, "%s.png", System.currentTimeMillis()))
-                        .build();
-                BoxingConfig singleCropImgConfig = new BoxingConfig(BoxingConfig.Mode.SINGLE_IMG).withCropOption(new BoxingCropOption(destUri))
-                        .withMediaPlaceHolderRes(R.drawable.ic_boxing_default_image);
-                Boxing.of(singleCropImgConfig).withIntent(getContext(), BoxingActivity.class).start(this, REQUEST_CODE);
+                BoxingTool.startSingle(this, true, true, new OnSingleSelectListener() {
+                    @Override
+                    public void onSingleSelect(ImageMedia imageMedia) {
+                        mMultipleAdapter.getDataSource().clear();
+                        mMultipleAdapter.getDataSource().add(imageMedia.getPath());
+                        mMultipleAdapter.notifyDataSetChanged();
+                    }
+                });
                 break;
             case R.id.btn_select_pics:
-                BoxingConfig config = new BoxingConfig(BoxingConfig.Mode.MULTI_IMG).needCamera(R.drawable.ic_boxing_camera_white).needGif();
-                Boxing.of(config).withIntent(getContext(), BoxingActivity.class).start(this, REQUEST_CODE);
+                BoxingTool.startMulti(this, 5, true, new OnMultiSelectListener() {
+                    @Override
+                    public void onMultiSelect(List<ImageMedia> imageMedias) {
+                        mMultipleAdapter.getDataSource().clear();
+                        for (BaseMedia media : imageMedias) {
+                            mMultipleAdapter.getDataSource().add(media.getPath());
+                        }
+                        mMultipleAdapter.notifyDataSetChanged();
+                    }
+                });
                 break;
             case R.id.btn_select_video:
-                BoxingConfig videoConfig = new BoxingConfig(BoxingConfig.Mode.VIDEO).withVideoDurationRes(R.drawable.ic_boxing_play);
-                Boxing.of(videoConfig).withIntent(getContext(), BoxingActivity.class).start(this, REQUEST_CODE);
+                BoxingTool.startVideo(this, new OnVideoSelectListener() {
+                    @Override
+                    public void onVideoSelect(VideoMedia videoMedia) {
+                        mMultipleAdapter.getDataSource().clear();
+                        mMultipleAdapter.getDataSource().add(videoMedia.getPath());
+                        mMultipleAdapter.notifyDataSetChanged();
+                    }
+                });
                 break;
         }
     }

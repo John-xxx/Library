@@ -9,6 +9,8 @@ import android.support.v4.view.ViewPager;
 import android.widget.RadioGroup;
 
 import com.liux.base.BaseActivity;
+import com.liux.base.titlebar.TitleBar;
+import com.liux.base.titlebar.WhiteTitleBar;
 
 import java.util.Map;
 
@@ -30,6 +32,11 @@ public class ChildActivity extends BaseActivity {
             new ChildOneFragment(),
             new ChildTwoFragment()
     };
+
+    @Override
+    protected TitleBar onInitTitleBar() {
+        return new WhiteTitleBar(this);
+    }
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState, Intent intent) {
