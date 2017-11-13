@@ -28,17 +28,17 @@ public class BannerHolder {
         mItemViews = new SparseArray<>();
     }
 
-    public View getItemView() {
-        return mItemView;
+    public <T extends View>T getItemView() {
+        return (T) mItemView;
     }
 
-    public View getView(@IdRes int id){
+    public <T extends View>T getView(@IdRes int id){
         View view = mItemViews.get(id);
         if(view == null){
             view = mItemView.findViewById(id);
             mItemViews.put(id,view);
         }
-        return view;
+        return (T) view;
     }
 
     public BannerHolder setText(@IdRes int id, String text) {

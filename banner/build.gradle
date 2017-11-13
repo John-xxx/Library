@@ -33,7 +33,7 @@ dependencies {
 ext {
     params = [
             artifactId : 'banner',
-            version : '0.1.0'
+            version : '0.1.2'
     ]
 }
 apply from: '../release.gradle'

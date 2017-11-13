@@ -27,8 +27,8 @@ public class SuperHolder extends RecyclerView.ViewHolder {
         mItemViews = new SparseArray<>();
     }
 
-    public View getItemView() {
-        return itemView;
+    public <T extends View>T getItemView() {
+        return (T) itemView;
     }
 
     public <T extends View>T getView(@IdRes int id){

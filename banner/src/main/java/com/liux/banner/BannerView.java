@@ -98,6 +98,7 @@ public class BannerView extends RelativeLayout {
                 mHandler.removeMessages(MESSAGE_WHAT);
                 break;
             case MotionEvent.ACTION_UP:
+            case MotionEvent.ACTION_CANCEL:
                 mHandler.sendEmptyMessageDelayed(MESSAGE_WHAT, mInterval);
                 break;
 
@@ -178,6 +179,9 @@ public class BannerView extends RelativeLayout {
 
     public void setIndicator(Indicator indicator) {
         mIndicator = indicator;
+        if (mBannerAdapter != null) {
+            mBannerAdapter.notifyDataSetChanged();
+        }
     }
 
     /**

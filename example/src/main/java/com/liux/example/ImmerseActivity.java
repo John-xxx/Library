@@ -125,7 +125,7 @@ public class ImmerseActivity extends BaseActivity {
         mBannerAdapter = new BannerAdapter<String>(mBanners, R.layout.item_banner) {
             @Override
             public void onBindData(BannerHolder holder, final String s, int index) {
-                ImageView imageView = (ImageView) holder.getItemView();
+                ImageView imageView = holder.getItemView();
                 if (s == null && s.length() == 0) {
                     imageView.setImageResource(R.drawable.background);
                 } else {
@@ -148,11 +148,11 @@ public class ImmerseActivity extends BaseActivity {
 
     @Override
     protected void onLazyLoad() {
-        Observable.fromArray(
-                "http://i1.s2.dpfile.com/pc/ee1f5ee79a4683619b26a8a795da2990(700x700)/thumb.jpg",
-                "http://pic5.qiyipic.com/common/20130524/7dc5679567cd4243a0a41e5bf626ad77.jpg",
-                "http://f.hiphotos.baidu.com/zhidao/pic/item/8b82b9014a90f60326b707453b12b31bb051eda9.jpg"
-        )
+        String[] paths = new String[20];
+        for (int i = 0; i < paths.length; i++) {
+            paths[i] = "http://lx0758.cc/templates/themes/default/static/img/rand/" + (i + 1) + ".jpg";
+        }
+        Observable.fromArray(paths)
                 .delay(1000, TimeUnit.MILLISECONDS)
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
