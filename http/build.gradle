@@ -33,6 +33,8 @@ dependencies {
     api "io.reactivex.rxjava2:rxjava:${librarys.rxjava2}"
     api "io.reactivex.rxjava2:rxandroid:${librarys.rxandroid}"
     api "com.alibaba:fastjson:${librarys.fastjson}"
+    api "com.liulishuo.filedownloader:library:1.6.8"
+    api "com.github.franmontiel:PersistentCookieJar:v1.0.1"
     api "org.ligboy.retrofit2:converter-fastjson-android:2.2.0"
 }
 
@@ -40,7 +42,7 @@ dependencies {
 ext {
     params = [
             artifactId : 'http',
-            version : '0.1.0'
+            version : '0.1.1'
     ]
 }
 apply from: '../release.gradle'

@@ -3,9 +3,9 @@ package com.liux.http;
 import android.content.Context;
 import android.util.Log;
 
-import com.liux.http.cookie.PersistentCookieJar;
-import com.liux.http.cookie.cache.SetCookieCache;
-import com.liux.http.cookie.persistence.SharedPrefsCookiePersistor;
+import com.franmontiel.persistentcookiejar.PersistentCookieJar;
+import com.franmontiel.persistentcookiejar.cache.SetCookieCache;
+import com.franmontiel.persistentcookiejar.persistence.SharedPrefsCookiePersistor;
 
 import java.io.File;
 import java.io.IOException;
