@@ -359,6 +359,7 @@ public class MultipleAdapter<T> extends RecyclerView.Adapter {
                 List<T> ts = mDataSource.getStateAll(State.STATE_SELECTED);
                 for (T t : ts) {
                     int index = mDataSource.indexOf(t);
+
                     boolean result = true;
                     if (mOnSelectListener != null) {
                         result = mOnSelectListener.onSelectChange(t, index, false);
@@ -369,6 +370,7 @@ public class MultipleAdapter<T> extends RecyclerView.Adapter {
                         //}
                         return false;
                     }
+
                     mDataSource.setState(index, State.STATE_UNSELECTED);
                     index = getShamPosition(index);
                     notifyItemChanged(index);
