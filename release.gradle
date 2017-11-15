@@ -31,7 +31,7 @@ apply plugin: 'maven'
 uploadArchives {
     repositories {
         mavenDeployer {
-            repository(url: "http://maven.lx0758.cc/nexus/content/repositories/android/") {
+            repository(url: 'http://maven.lx0758.cc/artifactory/android/') {
                 Properties properties = new Properties()
                 InputStream inputStream = project.rootProject.file('local.properties').newDataInputStream()
                 properties.load(inputStream)
@@ -50,17 +50,6 @@ uploadArchives {
     }
 }
 
-task androidJavadocs(type: Javadoc) {
-    source = android.sourceSets.main.java.srcDirs
-    //source = android.sourceSets.main.java.sourceFiles
-    classpath += project.files(android.getBootClasspath().join(File.pathSeparator))
-}
-
-task androidJavadocsJar(type: Jar) {
-    classifier = 'javadoc'
-    from androidJavadocs.destinationDir
-}
-
 task androidSourcesJar(type: Jar) {
     classifier = 'sources'
     from android.sourceSets.main.java.sourceFiles
@@ -68,5 +57,4 @@ task androidSourcesJar(type: Jar) {
 
 artifacts {
     archives androidSourcesJar
-    archives androidJavadocsJar
 }
