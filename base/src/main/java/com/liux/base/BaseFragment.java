@@ -36,6 +36,8 @@ public abstract class BaseFragment extends Fragment {
 
         if (savedInstanceState != null && savedInstanceState.containsKey(STATE_SAVE_IS_HIDDEN)) {
             boolean isHidden = savedInstanceState.getBoolean(STATE_SAVE_IS_HIDDEN);
+            savedInstanceState.remove(STATE_SAVE_IS_HIDDEN);
+
             FragmentTransaction ft = getFragmentManager().beginTransaction();
             if (isHidden) {
                 ft.hide(this);
@@ -44,14 +46,17 @@ public abstract class BaseFragment extends Fragment {
             }
             ft.commit();
         }
+
+        onInitData(getArguments());
+
+        if (savedInstanceState != null && !savedInstanceState.isEmpty()) {
+            onRestoreData(savedInstanceState);
+        }
     }
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
-        onInitData(savedInstanceState);
-
         View view = onInitView(inflater, container, savedInstanceState);
-
         return view;
     }
 
@@ -71,10 +76,6 @@ public abstract class BaseFragment extends Fragment {
     @Override
     public void onViewStateRestored(@Nullable Bundle savedInstanceState) {
         super.onViewStateRestored(savedInstanceState);
-
-        if (savedInstanceState != null && !savedInstanceState.isEmpty()) {
-            onRestoreData(savedInstanceState);
-        }
     }
 
     @Override
@@ -170,14 +171,20 @@ public abstract class BaseFragment extends Fragment {
     /* ============== 数据和View_Begin ============== */
 
     /**
-     * {@link #onCreateView(LayoutInflater, ViewGroup, Bundle)} 后调用 <br>
+     * {@link #onCreate(Bundle)} 后调用 <br>
      * 初始化数据
      * @param savedInstanceState
      */
     protected abstract void onInitData(Bundle savedInstanceState);
 
     /**
-     * {@link #onInitData(Bundle)} 后调用 <br>
+     * {@link #onInitData(Bundle)} 后调用
+     * @param data
+     */
+    protected abstract void onRestoreData(Bundle data);
+
+    /**
+     * {@link #onCreateView(LayoutInflater, ViewGroup, Bundle)} 后调用 <br>
      * 初始化布局
      * @param inflater
      * @param container
@@ -191,12 +198,6 @@ public abstract class BaseFragment extends Fragment {
      * {@link #setUserVisibleHint(boolean)}
      */
     protected abstract void onLazyLoad();
-
-    /**
-     * {@link #onViewStateRestored(Bundle)} 后调用
-     * @param data
-     */
-    protected abstract void onRestoreData(Bundle data);
 
     /**
      * {@link #onSaveInstanceState(Bundle)} 后调用

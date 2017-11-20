@@ -49,6 +49,11 @@ public class ChildActivity extends BaseActivity {
     }
 
     @Override
+    protected void onRestoreData(Map<String, Object> data) {
+
+    }
+
+    @Override
     protected void onInitView(@Nullable Bundle savedInstanceState) {
 
 
@@ -96,11 +101,6 @@ public class ChildActivity extends BaseActivity {
 
     @Override
     protected void onLazyLoad() {
-
-    }
-
-    @Override
-    protected void onRestoreData(Map<String, Object> data) {
 
     }
 

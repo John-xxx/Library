@@ -45,6 +45,11 @@ public class MainActivity extends BaseActivity {
     }
 
     @Override
+    protected void onRestoreData(Map<String, Object> data) {
+        long time = (long) data.get("time");
+    }
+
+    @Override
     protected void onInitView(@Nullable Bundle savedInstanceState) {
         DefaultTitleBar titleBar = (DefaultTitleBar) getTitleBar();
         titleBar
@@ -129,11 +134,6 @@ public class MainActivity extends BaseActivity {
                     }
                 })
                 .request();
-    }
-
-    @Override
-    protected void onRestoreData(Map<String, Object> data) {
-        long time = (long) data.get("time");
     }
 
     @Override

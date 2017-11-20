@@ -101,6 +101,11 @@ public class ImmerseActivity extends BaseActivity {
     }
 
     @Override
+    protected void onRestoreData(Map<String, Object> data) {
+
+    }
+
+    @Override
     protected void onInitView(@Nullable Bundle savedInstanceState) {
         // findViewById(R.id.rl_root).setPadding(0, mTopPadding, 0, 0);
         mSend = (Button) findViewById(R.id.btn_send);
@@ -188,11 +193,6 @@ public class ImmerseActivity extends BaseActivity {
 //                .asBitmap()
 //                .load(VideoUrl.from("http://zhongjinshidai.zpftech.com/uploads/20170908/7d09ad02df3b8d031792ba7a8f0c3bcb.mp4"))
 //                .into(mThumb);
-    }
-
-    @Override
-    protected void onRestoreData(Map<String, Object> data) {
-
     }
 
     @Override

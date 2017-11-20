@@ -53,6 +53,15 @@ public abstract class BaseActivity extends AppCompatActivity {
 
         onInitData(savedInstanceState, getIntent());
 
+        try {
+            Map<String, Object> data = (Map<String, Object>) getLastCustomNonConfigurationInstance();
+            if (data != null && !data.isEmpty()) {
+                onRestoreData(data);
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
         onInitView(savedInstanceState);
     }
 
@@ -78,15 +87,6 @@ public abstract class BaseActivity extends AppCompatActivity {
     @Override
     protected void onRestoreInstanceState(Bundle savedInstanceState) {
         super.onRestoreInstanceState(savedInstanceState);
-
-        try {
-            Map<String, Object> data = (Map<String, Object>) getLastCustomNonConfigurationInstance();
-            if (data != null && !data.isEmpty()) {
-                onRestoreData(data);
-            }
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
     }
 
     @Override
@@ -291,17 +291,17 @@ public abstract class BaseActivity extends AppCompatActivity {
     protected abstract void onInitData(@Nullable Bundle savedInstanceState, Intent intent);
 
     /**
-     * 调用 {@link #onInitData(Bundle, Intent)} 后调用
-     * @param savedInstanceState
-     */
-    protected abstract void onInitView(@Nullable Bundle savedInstanceState);
-
-    /**
-     * 调用 {@link #onRestoreInstanceState(Bundle)} 后调用 <br>
+     * 调用 {@link #onInitData(Bundle, Intent)} 后调用 <br>
      * 使用 {@link #getLastCustomNonConfigurationInstance()}
      * @param data
      */
     protected abstract void onRestoreData(Map<String, Object> data);
+
+    /**
+     * 调用 {@link #onInitData(Bundle, Intent)} 后调用
+     * @param savedInstanceState
+     */
+    protected abstract void onInitView(@Nullable Bundle savedInstanceState);
 
     /**
      * 懒加载模式, {@link #onPostCreate(Bundle)} 后调用
