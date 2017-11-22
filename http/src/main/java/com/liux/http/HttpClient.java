@@ -230,7 +230,8 @@ public class HttpClient {
 
             MultipartBody.Builder builder = new MultipartBody.Builder();
             // 修复默认为 multipart/mixed 时,PHP 无法识别的问题
-            builder.setType(MultipartBody.FORM);
+            // builder.setType(MultipartBody.FORM);
+            builder.setType(oldMultipartBody.type());
             for (MultipartBody.Part part : oldParts) {
                 builder.addPart(part);
             }
