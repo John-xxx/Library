@@ -65,7 +65,8 @@ public class HttpClient {
     }
 
     private static final String TAG = "[HttpClient]";
-    private static final MediaType MEDIATYPE_TEXT =  MediaType.parse("application/json; charset=UTF-8");
+    private static final MediaType MEDIA_TYPE_TEXT = MediaType.parse("text/plain; charset=UTF-8");
+    private static final MediaType MEDIA_TYPE_JSON = MediaType.parse("application/json; charset=UTF-8");
 
     private Context mContext;
     private Retrofit mRetrofit;
@@ -107,12 +108,14 @@ public class HttpClient {
                 if ("GET".equals(request.method().toUpperCase())) {
                     checkGetParams(request, requestBuilder);
                 } else if ("POST".equals(request.method().toUpperCase())){
-                    if (requestBody.contentLength() == -1) {
-                        requestBody = checkPostParams(request);
+                    if (requestBody instanceof MultipartBody) {
+                        requestBody = checkPostMultipartParams(request);
                     } else if (requestBody instanceof FormBody) {
                         requestBody = checkPostFormParams(request);
-                    } else if (requestBody instanceof MultipartBody) {
-                        requestBody = checkPostMultipartParams(request);
+                    } else if (requestBody.contentLength() == -1) {
+                        requestBody = checkPostParams(request);
+                    } else {
+                        // 纯文本/二进制方式直接放行
                     }
                 }
             }
@@ -211,7 +214,7 @@ public class HttpClient {
                         Headers head  = part.headers();
                         RequestBody body  = part.body();
                         MediaType type = body.contentType();
-                        if (type != null && MEDIATYPE_TEXT.equals(type)) {
+                        if (type != null && (MEDIA_TYPE_TEXT.equals(type) || MEDIA_TYPE_JSON.equals(type))) {
                             Buffer buffer = new Buffer();
                             body.writeTo(buffer);
                             String key = head.value(0).substring(head.value(0).lastIndexOf("=") + 1).replace("\"", "");
@@ -482,10 +485,12 @@ public class HttpClient {
     }
 
     public interface OnCheckHeadersListener {
+
         void onCheckHeaders(Request request, Map<String, String> headers);
     }
 
     public interface OnCheckParamsListener {
+
         void onCheckParams(Request request, Map<String, String> params);
     }
 }
