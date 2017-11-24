@@ -8,6 +8,7 @@ import android.view.ViewGroup;
 import com.liux.base.R;
 
 /**
+ * 白色背景的 TitleBar 实现
  * Created by Liux on 2017/11/7.
  */
 

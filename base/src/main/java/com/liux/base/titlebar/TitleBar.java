@@ -94,20 +94,16 @@ public abstract class TitleBar {
             darkModeFlag = field.getInt(layoutParams);
             Method extraFlagField = clazz.getMethod(darkmode ? "addExtraFlags" : "clearExtraFlags", int.class);
             extraFlagField.invoke(activity.getWindow(), darkModeFlag);
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
+        } catch (Exception e) {}
 
-        // 开发版 7.7.13 及以后版本
+        // 开发版 7.7.13 及以后版本(和原生一致)
         // http://www.miui.com/thread-8946673-1-1.html
         //try {
         //    Window window = activity.getWindow();
         //    window.addFlags(WindowManager.LayoutParams.FLAG_DRAWS_SYSTEM_BAR_BACKGROUNDS);
         //    window.clearFlags(WindowManager.LayoutParams.FLAG_TRANSLUCENT_STATUS);
         //    window.getDecorView().setSystemUiVisibility(View.SYSTEM_UI_FLAG_LIGHT_STATUS_BAR);
-        //} catch (Exception e) {
-        //    e.printStackTrace();
-        //}
+        //} catch (Exception e) {}
         return false;
     }
 
@@ -134,9 +130,7 @@ public abstract class TitleBar {
             meizuFlags.setInt(lp, value);
             activity.getWindow().setAttributes(lp);
             return true;
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
+        } catch (Exception e) {}
         return false;
     }
 }
