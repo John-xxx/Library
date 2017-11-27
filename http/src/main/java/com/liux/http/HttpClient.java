@@ -436,7 +436,7 @@ public class HttpClient {
                         Log.e(TAG, "postMultipart: Value not exists");
                         continue;
                     }
-                    builder.addFormDataPart(entry.getKey(), file.getName(), RequestBody.create(HttpUtil.getContentType(file), file));
+                    builder.addFormDataPart(entry.getKey(), file.getName(), RequestBody.create(HttpUtil.getMimeType(file), file));
                 } else {
                     if (entry.getKey() == null || entry.getKey().equals("")) {
                         Log.e(TAG, "postMultipart: Params key is null");
