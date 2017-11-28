@@ -15,6 +15,7 @@ import com.bilibili.boxing.model.entity.impl.ImageMedia;
 import com.bilibili.boxing.model.entity.impl.VideoMedia;
 import com.bilibili.boxing.utils.BoxingFileHelper;
 import com.bilibili.boxing_impl.ui.BoxingActivity;
+import com.bilibili.boxing_impl.ui.BoxingPreviewActivity;
 
 import java.io.File;
 import java.util.ArrayList;
@@ -136,6 +137,27 @@ public class BoxingTool {
         manager.executePendingTransactions();
         Boxing.of(config).withIntent(fragment.getActivity(), BoxingActivity.class).start(fragment, requestCode);
         BOXINGS.put(fragment, listener);
+    }
+
+    public static void startPreview(Context context, String[] medias, int pos) {
+        ArrayList<BaseMedia> media_list = new ArrayList<>();
+        for (String path : medias) {
+            media_list.add(new ImageMedia(String.valueOf(System.currentTimeMillis()), path));
+        }
+        startPreview(context, media_list, pos);
+    }
+
+    /**
+     * 开始预览
+     * @param context
+     * @param medias
+     * @param pos
+     */
+    public static void startPreview(Context context, ArrayList<BaseMedia> medias, int pos) {
+        Intent intent = new Intent(context, BoxingPreviewActivity.class);
+        intent.putParcelableArrayListExtra(BoxingPreviewActivity.PARAM_IMAGES, medias);
+        intent.putExtra(BoxingPreviewActivity.PARAM_POS, pos);
+        context.startActivity(intent);
     }
 
     /**

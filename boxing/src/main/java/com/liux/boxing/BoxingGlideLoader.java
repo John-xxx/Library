@@ -32,10 +32,10 @@ public class BoxingGlideLoader implements IBoxingMediaLoader {
 
     @Override
     public void displayRaw(@NonNull final ImageView img, @NonNull String absPath, int width, int height, final IBoxingCallback callback) {
-        String path = "file://" + absPath;
         GlideRequest<Bitmap> request = GlideApp.with(img.getContext())
                 .asBitmap()
-                .load(path);
+                .centerInside()
+                .load(absPath);
         if (width > 0 && height > 0) {
             request.override(width, height);
         }

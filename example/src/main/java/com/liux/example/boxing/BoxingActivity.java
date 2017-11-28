@@ -1,5 +1,6 @@
 package com.liux.example.boxing;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v7.app.AppCompatActivity;
@@ -12,6 +13,7 @@ import com.bilibili.boxing.BoxingMediaLoader;
 import com.bilibili.boxing.model.entity.BaseMedia;
 import com.bilibili.boxing.model.entity.impl.ImageMedia;
 import com.bilibili.boxing.model.entity.impl.VideoMedia;
+import com.bilibili.boxing_impl.ui.BoxingPreviewActivity;
 import com.liux.boxing.BoxingTool;
 import com.liux.boxing.OnMultiSelectListener;
 import com.liux.boxing.OnSingleSelectListener;
@@ -23,6 +25,7 @@ import com.liux.list.adapter.State;
 import com.liux.list.decoration.GridItemDecoration;
 import com.liux.list.holder.SuperHolder;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import butterknife.BindView;
@@ -58,10 +61,19 @@ public class BoxingActivity extends AppCompatActivity {
                     }
 
                     @Override
-                    public void onDataBind(SuperHolder holder, String path, State state, int position) {
+                    public void onDataBind(SuperHolder holder, String path, State state, final int position) {
                         ImageView imageView = holder.getView(R.id.iv_image);
                         BoxingMediaLoader.getInstance().displayThumbnail(imageView, path, 150, 150);
                         // GlideApp.with(imageView.getContext()).asBitmap().load(path).override(150, 150).into(imageView);
+
+                        holder.setOnClickListener(new View.OnClickListener() {
+                            @Override
+                            public void onClick(View v) {
+                                String[] medias = new String[mMultipleAdapter.getDataSource().size()];
+                                mMultipleAdapter.getDataSource().toArray(medias);
+                                BoxingTool.startPreview(BoxingActivity.this, medias, position);
+                            }
+                        });
                     }
                 });
         rvList.setAdapter(mMultipleAdapter);

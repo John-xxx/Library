@@ -79,7 +79,7 @@ public class BannerActivity extends AppCompatActivity {
             paths[i] = "http://lx0758.cc/templates/themes/default/static/img/rand/" + (i + 1) + ".jpg";
         }
         Observable.fromArray(paths)
-                .delay(1000, TimeUnit.MILLISECONDS)
+                .delay(100, TimeUnit.MILLISECONDS)
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe(new Observer<String>() {

@@ -61,7 +61,7 @@ public class MainActivity extends AppCompatActivity {
 
         add("Banner", "一个支持Adapter的Banner封装", BannerActivity.class);
         add("Base", "对于Activity和Fragment的封装", BaseActivity.class);
-        add("Boxing", "基于Boxing封装的图片选择库", BoxingActivity.class);
+        add("Boxing", "基于Boxing封装的图片选择/预览库", BoxingActivity.class);
         add("Glide", "基于Glide4实现自定义加载过程", GlideActivity.class);
         add("HTTP", "基于Retorfit/OkHttp的封装", HTTPActivity.class);
         add("LBS", "封装百度/高德的LBS数据层", LBSActivity.class);
