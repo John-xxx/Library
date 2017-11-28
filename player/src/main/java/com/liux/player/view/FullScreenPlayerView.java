@@ -1,69 +1,74 @@
 package com.liux.player.view;
 
+import android.content.Context;
+import android.view.SurfaceHolder;
+import android.view.SurfaceView;
 import android.view.View;
-import android.view.ViewGroup;
-import android.view.ViewParent;
-import android.view.Window;
-import android.widget.FrameLayout;
+
+import com.liux.player.util.ViewUtil;
+
+import tv.danmaku.ijk.media.player.IMediaPlayer;
 
 /**
- * Created by Liux on 2017/9/25.
+ * Created by Liux on 2017/11/21.
  */
 
-public class FullScreenPlayerView extends SurfacePlayerView implements RenderView {
+public class FullScreenPlayerView extends AbstractRenderView<SurfaceView> {
 
-    private PlayerView mPlayerView;
+    public FullScreenPlayerView(AbstractPlayerView playerView) {
+        super(playerView.getContext());
 
-    public FullScreenPlayerView(PlayerView view) {
-        super(view.getView().getContext());
-        mPlayerView = view;
+        ViewUtil.installToContentView(playerView, this);
     }
 
     @Override
-    public boolean getFullScreen() {
-        return true;
-    }
+    protected SurfaceView initView() {
+        setControlView(new FullScreenControlView(this));
 
-    @Override
-    public void setFullScreen(boolean fullScreen) {
-        mPlayerView.setFullScreen(fullScreen);
-    }
-
-    /**
-     * 从当前布局开始向上查找根内容布局
-     * @param view
-     * @return
-     */
-    private ViewGroup findContentView(View view) {
-        ViewParent parent = view.getParent();
-        while (parent != null && parent instanceof ViewGroup) {
-            if (((ViewGroup) parent).getId() == Window.ID_ANDROID_CONTENT) {
-                return (ViewGroup) parent;
-            } else {
-                parent = parent.getParent();
+        SurfaceView surfaceView = new SurfaceView(getContext()) {
+            @Override
+            protected void onMeasure(int widthMeasureSpec, int heightMeasureSpec) {
+                getMeasureHelper().doMeasure(widthMeasureSpec,heightMeasureSpec);
+                setMeasuredDimension(getMeasureHelper().getMeasuredWidth(), getMeasureHelper().getMeasuredHeight());
             }
-        }
-        return null;
+        };
+
+
+        surfaceView.getHolder().setType(SurfaceHolder.SURFACE_TYPE_NORMAL);
+        surfaceView.getHolder().addCallback(new SurfaceHolder.Callback() {
+            @Override
+            public void surfaceCreated(SurfaceHolder holder) {
+                getRenderCallback().created();
+            }
+
+            @Override
+            public void surfaceChanged(SurfaceHolder holder, int format, int width, int height) {
+
+            }
+
+            @Override
+            public void surfaceDestroyed(SurfaceHolder holder) {
+                getRenderCallback().destroyed();
+            }
+        });
+
+        return surfaceView;
     }
 
-    /**
-     * 开启全屏模式
-     */
-    public void openFullScreen() {
-        ViewGroup contentView = findContentView(mPlayerView.getView());
-        LayoutParams lp = new LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT);
-        contentView.addView(this, lp);
-
-        setPlayer(mPlayerView.getPlayer());
+    @Override
+    protected void bindRenderView(IMediaPlayer player) {
+        player.setDisplay(getRenderView().getHolder());
     }
 
-    /**
-     * 关闭全屏模式
-     */
-    public void closeFullScreen() {
-        mPlayerView.setPlayer(getPlayer());
+    @Override
+    protected void onAttachedToWindow() {
+        super.onAttachedToWindow();
+        ViewUtil.openFullScreen(getContext());
+    }
 
-        ViewGroup contentView = findContentView(mPlayerView.getView());
-        contentView.removeView(this);
+    @Override
+    protected void onDetachedFromWindow() {
+        super.onDetachedFromWindow();
+        ViewUtil.closeFullScreen(getContext());
     }
 }

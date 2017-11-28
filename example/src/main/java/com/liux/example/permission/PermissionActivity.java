@@ -68,9 +68,11 @@ public class PermissionActivity extends AppCompatActivity {
                         .listener(new OnPermissionListener() {
                             @Override
                             public void onPermission(List<String> allow, List<String> reject, List<String> prohibit) {
-                                Intent intent = new Intent(Intent.ACTION_CALL);
-                                intent.setData(Uri.parse("tel:10010"));
-                                startActivity(intent);
+                                if (allow.contains(Manifest.permission.CALL_PHONE)) {
+                                    Intent intent = new Intent(Intent.ACTION_CALL);
+                                    intent.setData(Uri.parse("tel:10010"));
+                                    startActivity(intent);
+                                }
                             }
                         })
                         .request();
@@ -81,8 +83,10 @@ public class PermissionActivity extends AppCompatActivity {
                         .listener(new OnPermissionListener() {
                             @Override
                             public void onPermission(List<String> allow, List<String> reject, List<String> prohibit) {
-                                mTempFile = UriUtil.getProviderCacheUri(PermissionActivity.this, System.currentTimeMillis() + ".jpg");
-                                IntentUtil.callCamera(PermissionActivity.this, mTempFile, REQUEST_CODE_CAMERA);
+                                if (allow.contains(Manifest.permission.CAMERA)) {
+                                    mTempFile = UriUtil.getProviderCacheUri(PermissionActivity.this, System.currentTimeMillis() + ".jpg");
+                                    IntentUtil.callCamera(PermissionActivity.this, mTempFile, REQUEST_CODE_CAMERA);
+                                }
                             }
                         })
                         .request();
@@ -93,12 +97,16 @@ public class PermissionActivity extends AppCompatActivity {
                         .listener(new OnPermissionListener() {
                             @Override
                             public void onPermission(List<String> allow, List<String> reject, List<String> prohibit) {
-                                Intent intent = new Intent(Intent.ACTION_CALL);
-                                intent.setData(Uri.parse("tel:10010"));
-                                startActivity(intent);
+                                if (allow.contains(Manifest.permission.CALL_PHONE)) {
+                                    Intent intent = new Intent(Intent.ACTION_CALL);
+                                    intent.setData(Uri.parse("tel:10010"));
+                                    startActivity(intent);
+                                }
 
-                                mTempFile = UriUtil.getProviderCacheUri(PermissionActivity.this, System.currentTimeMillis() + ".jpg");
-                                IntentUtil.callCamera(PermissionActivity.this, mTempFile, REQUEST_CODE_CAMERA);
+                                if (allow.contains(Manifest.permission.CAMERA)) {
+                                    mTempFile = UriUtil.getProviderCacheUri(PermissionActivity.this, System.currentTimeMillis() + ".jpg");
+                                    IntentUtil.callCamera(PermissionActivity.this, mTempFile, REQUEST_CODE_CAMERA);
+                                }
                             }
                         })
                         .request();

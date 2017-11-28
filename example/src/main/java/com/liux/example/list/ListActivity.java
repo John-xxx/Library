@@ -39,7 +39,7 @@ public class ListActivity extends AppCompatActivity {
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        setContentView(R.layout.fragment_main_four);
+        setContentView(R.layout.activity_list);
         ButterKnife.bind(this);
 
 

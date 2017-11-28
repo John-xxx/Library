@@ -3,86 +3,144 @@ package com.liux.player;
 import android.net.Uri;
 import android.os.Parcel;
 import android.os.Parcelable;
+import android.text.TextUtils;
 
 import java.util.HashMap;
 import java.util.Map;
 
 /**
- * Created by Liux on 2017/9/23.
+ * Created by Liux on 2017/10/27.
  */
 
 public class Media implements Parcelable {
-
     private Uri uri;
     private Map<String, String> headers;
 
-    private int position;
+    private int pos;
     private String title;
+    private Object tag;
 
-    /**
-     * 媒体 Uri 和请求头
-     * @param uri
-     */
-    public Media(Uri uri, Map<String, String> headers) {
-        if (uri == null) throw new NullPointerException("Media sources cannot be empty");
-
-        this.uri = uri;
-        this.headers = headers;
-
-        position = 0;
-        title = null;
+    public static Media create(Uri uri) {
+        return new Media().setUri(uri);
     }
 
-    /**
-     * 获取媒体 Uri
-     * @return
-     */
+    public static Media create(String path) {
+        return new Media().setPath(path);
+    }
+
+    public static Media create(Uri uri, Map<String, String> headers) {
+        return new Media().setUri(uri).setHeaders(headers);
+    }
+
+    public static Media create(String path, Map<String, String> headers) {
+        return new Media().setPath(path).setHeaders(headers);
+    }
+
+    public static boolean isEmpty(Media media) {
+        if (media == null) return true;
+        if (media.getUri() == null || Uri.EMPTY.equals(media.getUri())) return true;
+        return false;
+    }
+
+    public static void checkEmpty(Media media) {
+        if (Media.isEmpty(media)) {
+            throw new NullPointerException("Player media is empty");
+        }
+    }
+
+    public Media() {
+        
+    }
+
+    public Media setUri(Uri uri) {
+        this.uri = uri;
+        return this;
+    }
+
+    public Media setPath(String path) {
+        this.uri = Uri.parse(path);
+        return this;
+    }
+
+    public Media setHeaders(Map<String, String> headers) {
+        this.headers = headers;
+        return this;
+    }
+
     public Uri getUri() {
         return uri;
     }
 
-    /**
-     * 获取媒体请求头
-     * @return
-     */
     public Map<String, String> getHeaders() {
         return headers;
     }
 
-    /**
-     * 获取缓存的位置
-     * @return
-     */
-    public int getPosition() {
-        return position;
+    public int getPos() {
+        return pos;
     }
 
-    /**
-     * 保存当前播放进度
-     * @param position
-     * @return
-     */
-    public Media setPosition(int position) {
-        this.position = position;
+    public Media setPos(int pos) {
+        this.pos = pos;
         return this;
     }
 
-    /**
-     * 获取视频标题
-     * @return
-     */
     public String getTitle() {
-        return title;
+        if (!TextUtils.isEmpty(title)) {
+            return title;
+        }
+        return uri.toString();
     }
 
-    /**
-     * 保存视频标题
-     * @param title
-     * @return
-     */
     public Media setTitle(String title) {
         this.title = title;
         return this;
+    }
+
+    public Object getTag() {
+        return tag;
+    }
+
+    public Media setTag(Object tag) {
+        this.tag = tag;
+        return this;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+
+        Media media = (Media) o;
+
+        if (uri == null) {
+            if (media.uri != null) {
+                return false;
+            }
+        } else if (!uri.equals(media.uri)) {
+            return false;
+        }
+        if (headers == null) {
+            if (media.headers != null) {
+                return false;
+            }
+        } else if (!headers.equals(media.headers)){
+            return false;
+        }
+//        if (pos != media.pos) return false;
+//        if (title == null && media.title != null) return false;
+//        if (!title.equals(media.title)) return false;
+        return true;
+    }
+
+    @Override
+    public String toString() {
+        return "Media{" +
+                "uri=" + uri +
+                ", headers=" + headers +
+                ", pos=" + pos +
+                ", title='" + title + '\'' +
+                ", tag=" + tag +
+                '}';
     }
 
     @Override
@@ -101,7 +159,7 @@ public class Media implements Parcelable {
                 dest.writeString(entry.getValue());
             }
         }
-        dest.writeInt(this.position);
+        dest.writeInt(this.pos);
         dest.writeString(this.title);
     }
 
@@ -116,7 +174,7 @@ public class Media implements Parcelable {
                 this.headers.put(key, value);
             }
         }
-        this.position = in.readInt();
+        this.pos = in.readInt();
         this.title = in.readString();
     }
 

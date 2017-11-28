@@ -66,6 +66,16 @@
         <activity android:name=".player.PlayerActivity"
             android:label="Player"/>
 
+        <activity
+            android:name=".player.OneMediaActiviy"
+            android:label="OneMedia"
+            android:configChanges="orientation|keyboardHidden|screenSize"/>
+
+        <activity
+            android:name=".player.MoreMediaActiviy"
+            android:label="MoreMedia"
+            android:configChanges="orientation|keyboardHidden|screenSize"/>
+
         <activity android:name=".util.UtilActivity"
             android:label="Util"/>
 

@@ -32,6 +32,8 @@ dependencies {
     api "tv.danmaku.ijk.media:ijkplayer-arm64:${librarys.ijkplayer}"
     api "tv.danmaku.ijk.media:ijkplayer-x86:${librarys.ijkplayer}"
     api "tv.danmaku.ijk.media:ijkplayer-x86_64:${librarys.ijkplayer}"
+    api "com.danikula:videocache:2.7.0"
+
     compileOnly "com.android.support:appcompat-v7:${librarys.support}"
     compileOnly "com.android.support:support-annotations:${librarys.support}"
 }
