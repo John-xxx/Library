@@ -1,16 +1,17 @@
-package com.liux.example;
+package com.liux.example.permission;
 
 import android.Manifest;
+import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
-import android.view.LayoutInflater;
+import android.support.annotation.Nullable;
+import android.support.v7.app.AppCompatActivity;
 import android.view.View;
-import android.view.ViewGroup;
 import android.widget.ImageView;
 
-import com.liux.base.BaseFragment;
+import com.liux.example.R;
 import com.liux.glide.GlideApp;
 import com.liux.permission.OnPermissionListener;
 import com.liux.permission.PermissionTool;
@@ -22,46 +23,25 @@ import java.util.List;
 import butterknife.BindView;
 import butterknife.ButterKnife;
 import butterknife.OnClick;
-import butterknife.Unbinder;
 
 /**
- * Created by Liux on 2017/8/9.
+ * Created by Liux on 2017/11/28.
  */
 
-public class MainTwoFragment extends BaseFragment {
+public class PermissionActivity extends AppCompatActivity {
     private static final int REQUEST_CODE_CAMERA = 1;
 
     @BindView(R.id.iv_preview)
     ImageView ivPreview;
-    Unbinder unbinder;
 
     private Uri mTempFile;
 
     @Override
-    protected void onInitData(Bundle savedInstanceState) {
+    protected void onCreate(@Nullable Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
 
-    }
-
-    @Override
-    protected void onRestoreData(Bundle data) {
-
-    }
-
-    @Override
-    protected View onInitView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
-        View view = inflater.inflate(R.layout.fragment_main_two, container, false);
-        unbinder = ButterKnife.bind(this, view);
-        return view;
-    }
-
-    @Override
-    protected void onLazyLoad() {
-
-    }
-
-    @Override
-    protected void onSaveData(Bundle data) {
-
+        setContentView(R.layout.activity_permission);
+        ButterKnife.bind(this);
     }
 
     @Override
@@ -78,12 +58,7 @@ public class MainTwoFragment extends BaseFragment {
         }
     }
 
-    @Override
-    public void onDestroyView() {
-        super.onDestroyView();
-        unbinder.unbind();
-    }
-
+    @SuppressLint("MissingPermission")
     @OnClick({R.id.btn_call, R.id.btn_camera, R.id.btn_call_camera})
     public void onViewClicked(View view) {
         switch (view.getId()) {
@@ -106,8 +81,8 @@ public class MainTwoFragment extends BaseFragment {
                         .listener(new OnPermissionListener() {
                             @Override
                             public void onPermission(List<String> allow, List<String> reject, List<String> prohibit) {
-                                mTempFile = UriUtil.getProviderCacheUri(getContext(), System.currentTimeMillis() + ".jpg");
-                                IntentUtil.callCamera(MainTwoFragment.this, mTempFile, REQUEST_CODE_CAMERA);
+                                mTempFile = UriUtil.getProviderCacheUri(PermissionActivity.this, System.currentTimeMillis() + ".jpg");
+                                IntentUtil.callCamera(PermissionActivity.this, mTempFile, REQUEST_CODE_CAMERA);
                             }
                         })
                         .request();
@@ -122,8 +97,8 @@ public class MainTwoFragment extends BaseFragment {
                                 intent.setData(Uri.parse("tel:10010"));
                                 startActivity(intent);
 
-                                mTempFile = UriUtil.getProviderCacheUri(getContext(), System.currentTimeMillis() + ".jpg");
-                                IntentUtil.callCamera(MainTwoFragment.this, mTempFile, REQUEST_CODE_CAMERA);
+                                mTempFile = UriUtil.getProviderCacheUri(PermissionActivity.this, System.currentTimeMillis() + ".jpg");
+                                IntentUtil.callCamera(PermissionActivity.this, mTempFile, REQUEST_CODE_CAMERA);
                             }
                         })
                         .request();

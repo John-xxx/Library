@@ -1,14 +1,15 @@
-package com.liux.example;
+package com.liux.example.list;
 
 import android.graphics.Color;
 import android.os.Bundle;
+import android.support.annotation.Nullable;
+import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
-import android.view.ViewGroup;
 
-import com.liux.base.BaseFragment;
+import com.liux.example.R;
 import com.liux.list.adapter.MultipleAdapter;
 import com.liux.list.adapter.Rule;
 import com.liux.list.adapter.State;
@@ -22,36 +23,28 @@ import java.util.List;
 import butterknife.BindView;
 import butterknife.ButterKnife;
 import butterknife.OnClick;
-import butterknife.Unbinder;
 
 /**
- * Created by Liux on 2017/8/11.
+ * Created by Liux on 2017/11/28.
  */
 
-public class MainFourFragment extends BaseFragment {
+public class ListActivity extends AppCompatActivity {
 
     @BindView(R.id.rv_list)
     RecyclerView rvList;
-    Unbinder unbinder;
 
     private MultipleAdapter<Object> mMultipleAdapter;
 
     @Override
-    protected void onInitData(Bundle savedInstanceState) {
+    protected void onCreate(@Nullable Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
 
-    }
+        setContentView(R.layout.fragment_main_four);
+        ButterKnife.bind(this);
 
-    @Override
-    protected void onRestoreData(Bundle data) {
 
-    }
 
-    @Override
-    protected View onInitView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
-        View view = inflater.inflate(R.layout.fragment_main_four, container, false);
-        unbinder = ButterKnife.bind(this, view);
-
-        rvList.setLayoutManager(new LinearLayoutManager(getContext()));
+        rvList.setLayoutManager(new LinearLayoutManager(this));
         rvList.addItemDecoration(new AbsItemDecoration() {
             @Override
             public Decoration getItemOffsets(int position) {
@@ -67,8 +60,8 @@ public class MainFourFragment extends BaseFragment {
             }
         });
         mMultipleAdapter = new MultipleAdapter<Object>()
-                .setHeader(LayoutInflater.from(getContext()).inflate(R.layout.layout_header, rvList, false))
-                .setFooter(LayoutInflater.from(getContext()).inflate(R.layout.layout_footer, rvList, false))
+                .setHeader(LayoutInflater.from(this).inflate(R.layout.layout_header, rvList, false))
+                .setFooter(LayoutInflater.from(this).inflate(R.layout.layout_footer, rvList, false))
                 .addRule(new Rule<String>(android.R.layout.simple_list_item_1) {
                     @Override
                     public boolean doBindData(Object object) {
@@ -107,40 +100,22 @@ public class MainFourFragment extends BaseFragment {
         mMultipleAdapter.setOnSelectListener(new OnSelectListener<Object>() {
             @Override
             public boolean onSelectChange(Object o, int position, boolean isSelect) {
-                SingleToast.makeText(getActivity(), o + " request select:" + isSelect, SingleToast.LENGTH_SHORT).show();
+                SingleToast.makeText(ListActivity.this, o + " request select:" + isSelect, SingleToast.LENGTH_SHORT).show();
                 return position % 3 != 0;
             }
 
             @Override
             public void onSelectFailure() {
-                SingleToast.makeText(getActivity(), "select failure", SingleToast.LENGTH_SHORT).show();
+                SingleToast.makeText(ListActivity.this, "select failure", SingleToast.LENGTH_SHORT).show();
             }
 
             @Override
             public void onSelectComplete() {
                 List<Object> list = mMultipleAdapter.getStateAll(State.STATE_SELECTED);
-                SingleToast.makeText(getActivity(), list.toString(), SingleToast.LENGTH_SHORT).show();
+                SingleToast.makeText(ListActivity.this, list.toString(), SingleToast.LENGTH_SHORT).show();
             }
         });
         rvList.setAdapter(mMultipleAdapter);
-
-        return view;
-    }
-
-    @Override
-    protected void onLazyLoad() {
-
-    }
-
-    @Override
-    protected void onSaveData(Bundle data) {
-
-    }
-
-    @Override
-    public void onDestroyView() {
-        super.onDestroyView();
-        unbinder.unbind();
     }
 
     @OnClick({R.id.btn_add_string, R.id.btn_add_integer, R.id.btn_del_first, R.id.btn_open5, R.id.btn_set8, R.id.btn_close})

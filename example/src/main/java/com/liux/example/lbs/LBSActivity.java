@@ -1,12 +1,12 @@
-package com.liux.example;
+package com.liux.example.lbs;
 
 import android.Manifest;
 import android.os.Bundle;
-import android.view.LayoutInflater;
+import android.support.annotation.Nullable;
+import android.support.v7.app.AppCompatActivity;
 import android.view.View;
-import android.view.ViewGroup;
 
-import com.liux.base.BaseFragment;
+import com.liux.example.R;
 import com.liux.lbs.bean.PointBean;
 import com.liux.lbs.bean.RouteBean;
 import com.liux.lbs.listener.OnLocationListener;
@@ -21,79 +21,52 @@ import java.util.List;
 
 import butterknife.ButterKnife;
 import butterknife.OnClick;
-import butterknife.Unbinder;
 import io.reactivex.observers.DisposableObserver;
 
 /**
- * Created by Liux on 2017/8/13.
+ * Created by Liux on 2017/11/28.
  */
 
-public class ChildTwoFragment extends BaseFragment {
+public class LBSActivity extends AppCompatActivity {
 
-    String[] permissions = {
+    private static final String[] permissions = {
             Manifest.permission.ACCESS_FINE_LOCATION,
             Manifest.permission.ACCESS_COARSE_LOCATION
     };
 
-    Unbinder unbinder;
-
-    private LBSModel mAMapLBSModel = AMapLBSModelImpl.getInstance(), mBaiduLBSModel = BaiduLBSModelImpl.getInstance();
+    private LBSModel mAMapLBSModel = AMapLBSModelImpl.getInstance();
+    private LBSModel mBaiduLBSModel = BaiduLBSModelImpl.getInstance();
 
     private OnLocationListener mAMapOnLocationListener = new OnLocationListener() {
         @Override
         public void onSucceed(PointBean position) {
-            SingleToast.makeText(getContext(), String.format("高德持续定位成功:%s_%s", position.getTitle(), position.getAddress()), SingleToast.LENGTH_SHORT).show();
+            makeText(String.format("高德持续定位成功:%s_%s", position.getTitle(), position.getAddress()));
         }
 
         @Override
         public void onFailure(String msg) {
-            SingleToast.makeText(getContext(), "高德持续定位失败 " + msg, SingleToast.LENGTH_SHORT).show();
+            makeText("高德持续定位失败 " + msg);
         }
     };
 
     private OnLocationListener mBaiduOnLocationListener = new OnLocationListener() {
         @Override
         public void onSucceed(PointBean position) {
-            SingleToast.makeText(getContext(), String.format("百度持续定位成功:%s_%s", position.getTitle(), position.getAddress()), SingleToast.LENGTH_SHORT).show();
+            makeText(String.format("百度持续定位成功:%s_%s", position.getTitle(), position.getAddress()));
         }
 
         @Override
         public void onFailure(String msg) {
-            SingleToast.makeText(getContext(), "百度持续定位失败 " + msg, SingleToast.LENGTH_SHORT).show();
+            makeText("百度持续定位失败 " + msg);
         }
     };
-
+    
     @Override
-    protected void onInitData(Bundle savedInstanceState) {
+    protected void onCreate(@Nullable Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
 
-    }
-
-    @Override
-    protected void onRestoreData(Bundle data) {
-
-    }
-
-    @Override
-    protected View onInitView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
-        View view = inflater.inflate(R.layout.fragment_child_two, container, false);
-        unbinder = ButterKnife.bind(this, view);
-        return view;
-    }
-
-    @Override
-    protected void onLazyLoad() {
-
-    }
-
-    @Override
-    protected void onSaveData(Bundle data) {
-
-    }
-
-    @Override
-    public void onDestroyView() {
-        super.onDestroyView();
-        unbinder.unbind();
+        setContentView(R.layout.activity_lbs);
+        ButterKnife.bind(this);
     }
 
     @OnClick({R.id.btn_quick_location_amap, R.id.btn_accuracy_location_amap, R.id.btn_start_location_amap, R.id.btn_stop_location_amap, R.id.btn_geocode_amap, R.id.btn_regeocode_amap, R.id.btn_city_poi_amap, R.id.btn_nearby_poi_amap, R.id.btn_region_poi_amap, R.id.btn_driver_route_amap, R.id.btn_boundary_amap, R.id.btn_quick_location_baidu, R.id.btn_accuracy_location_baidu, R.id.btn_start_location_baidu, R.id.btn_stop_location_baidu, R.id.btn_geocode_baidu, R.id.btn_regeocode_baidu, R.id.btn_city_poi_baidu, R.id.btn_nearby_poi_baidu, R.id.btn_region_poi_baidu, R.id.btn_driver_route_baidu, R.id.btn_boundary_baidu})
@@ -104,7 +77,7 @@ public class ChildTwoFragment extends BaseFragment {
                     @Override
                     public void onPermission(List<String> allow, List<String> reject, List<String> prohibit) {
                         if (!reject.isEmpty() || !prohibit.isEmpty()) {
-                            SingleToast.makeText(getContext(), "请求定位权限没有成功,无法进行操作.", SingleToast.LENGTH_SHORT).show();
+                            makeText("请求定位权限没有成功,无法进行操作.");
                             return;
                         }
                         onCallLBS(view);
@@ -119,12 +92,12 @@ public class ChildTwoFragment extends BaseFragment {
                 mAMapLBSModel.quickLocation(new DisposableObserver<PointBean>() {
                     @Override
                     public void onNext(PointBean pointBean) {
-                        SingleToast.makeText(getContext(), String.format("高德网络定位成功:%s_%s", pointBean.getTitle(), pointBean.getAddress()), SingleToast.LENGTH_SHORT).show();
+                        makeText(String.format("高德网络定位成功:%s_%s", pointBean.getTitle(), pointBean.getAddress()));
                     }
 
                     @Override
                     public void onError(Throwable throwable) {
-                        SingleToast.makeText(getContext(), String.format("高德网络定位失败:%s", throwable.getMessage()), SingleToast.LENGTH_SHORT).show();
+                        makeText(String.format("高德网络定位失败:%s", throwable.getMessage()));
                     }
 
                     @Override
@@ -137,12 +110,12 @@ public class ChildTwoFragment extends BaseFragment {
                 mAMapLBSModel.accuracyLocation(new DisposableObserver<PointBean>() {
                     @Override
                     public void onNext(PointBean pointBean) {
-                        SingleToast.makeText(getContext(), String.format("高德高精度定位成功:%s_%s", pointBean.getTitle(), pointBean.getAddress()), SingleToast.LENGTH_SHORT).show();
+                        makeText(String.format("高德高精度定位成功:%s_%s", pointBean.getTitle(), pointBean.getAddress()));
                     }
 
                     @Override
                     public void onError(Throwable throwable) {
-                        SingleToast.makeText(getContext(), String.format("高德高精度定位失败:%s", throwable.getMessage()), SingleToast.LENGTH_SHORT).show();
+                        makeText(String.format("高德高精度定位失败:%s", throwable.getMessage()));
                     }
 
                     @Override
@@ -161,12 +134,12 @@ public class ChildTwoFragment extends BaseFragment {
                 mAMapLBSModel.geoCode("成都", "倪家桥站", new DisposableObserver<PointBean>() {
                     @Override
                     public void onNext(PointBean pointBean) {
-                        SingleToast.makeText(getContext(), String.format("高德地理位置编码成功:%s", pointBean.getAddress()), SingleToast.LENGTH_SHORT).show();
+                        makeText(String.format("高德地理位置编码成功:%s", pointBean.getAddress()));
                     }
 
                     @Override
                     public void onError(Throwable throwable) {
-                        SingleToast.makeText(getContext(), String.format("高德地理位置编码失败:%s", throwable.getMessage()), SingleToast.LENGTH_SHORT).show();
+                        makeText(String.format("高德地理位置编码失败:%s", throwable.getMessage()));
                     }
 
                     @Override
@@ -179,12 +152,12 @@ public class ChildTwoFragment extends BaseFragment {
                 mAMapLBSModel.reverseGeoCode(new PointBean().setLat(30.542385).setLon(104.067652), new DisposableObserver<PointBean>() {
                     @Override
                     public void onNext(PointBean pointBean) {
-                        SingleToast.makeText(getContext(), String.format("高德逆向地理位置编码成功:%s_%s", pointBean.getTitle(), pointBean.getAddress()), SingleToast.LENGTH_SHORT).show();
+                        makeText(String.format("高德逆向地理位置编码成功:%s_%s", pointBean.getTitle(), pointBean.getAddress()));
                     }
 
                     @Override
                     public void onError(Throwable throwable) {
-                        SingleToast.makeText(getContext(), String.format("高德逆向地理位置编码失败:%s", throwable.getMessage()), SingleToast.LENGTH_SHORT).show();
+                        makeText(String.format("高德逆向地理位置编码失败:%s", throwable.getMessage()));
                     }
 
                     @Override
@@ -197,12 +170,12 @@ public class ChildTwoFragment extends BaseFragment {
                 mAMapLBSModel.queryCityPois("成都", "倪家桥", null, 0, 10, new DisposableObserver<List<PointBean>>() {
                     @Override
                     public void onNext(List<PointBean> pointBeen) {
-                        SingleToast.makeText(getContext(), String.format("高德城市检索成功:%s", pointBeen.toString()), SingleToast.LENGTH_SHORT).show();
+                        makeText(String.format("高德城市检索成功:%s", pointBeen.toString()));
                     }
 
                     @Override
                     public void onError(Throwable throwable) {
-                        SingleToast.makeText(getContext(), String.format("高德城市检索失败:%s", throwable.getMessage()), SingleToast.LENGTH_SHORT).show();
+                        makeText(String.format("高德城市检索失败:%s", throwable.getMessage()));
                     }
 
                     @Override
@@ -215,12 +188,12 @@ public class ChildTwoFragment extends BaseFragment {
                 mAMapLBSModel.queryNearbyPois(new PointBean().setLat(30.542385).setLon(104.067652), "天府三街", null, 0, 10, new DisposableObserver<List<PointBean>>() {
                     @Override
                     public void onNext(List<PointBean> pointBeen) {
-                        SingleToast.makeText(getContext(), String.format("高德周边检索成功:%s", pointBeen.toString()), SingleToast.LENGTH_SHORT).show();
+                        makeText(String.format("高德周边检索成功:%s", pointBeen.toString()));
                     }
 
                     @Override
                     public void onError(Throwable throwable) {
-                        SingleToast.makeText(getContext(), String.format("高德周边检索失败:%s", throwable.getMessage()), SingleToast.LENGTH_SHORT).show();
+                        makeText(String.format("高德周边检索失败:%s", throwable.getMessage()));
                     }
 
                     @Override
@@ -240,12 +213,12 @@ public class ChildTwoFragment extends BaseFragment {
                         new DisposableObserver<List<PointBean>>() {
                             @Override
                             public void onNext(List<PointBean> pointBeen) {
-                                SingleToast.makeText(getContext(), String.format("高德区域检索成功:%s", pointBeen.toString()), SingleToast.LENGTH_SHORT).show();
+                                makeText(String.format("高德区域检索成功:%s", pointBeen.toString()));
                             }
 
                             @Override
                             public void onError(Throwable throwable) {
-                                SingleToast.makeText(getContext(), String.format("高德区域检索失败:%s", throwable.getMessage()), SingleToast.LENGTH_SHORT).show();
+                                makeText(String.format("高德区域检索失败:%s", throwable.getMessage()));
                             }
 
                             @Override
@@ -264,12 +237,12 @@ public class ChildTwoFragment extends BaseFragment {
                         new DisposableObserver<List<RouteBean>>() {
                             @Override
                             public void onNext(List<RouteBean> routeBeen) {
-                                SingleToast.makeText(getContext(), String.format("高德驾车路径规划成功:%s", routeBeen.toString()), SingleToast.LENGTH_SHORT).show();
+                                makeText(String.format("高德驾车路径规划成功:%s", routeBeen.toString()));
                             }
 
                             @Override
                             public void onError(Throwable throwable) {
-                                SingleToast.makeText(getContext(), String.format("高德驾车路径规划失败:%s", throwable.getMessage()), SingleToast.LENGTH_SHORT).show();
+                                makeText(String.format("高德驾车路径规划失败:%s", throwable.getMessage()));
                             }
 
                             @Override
@@ -283,12 +256,12 @@ public class ChildTwoFragment extends BaseFragment {
                 mAMapLBSModel.queryAdministrativeRegion("成都", "金堂", new DisposableObserver<List<List<PointBean>>>() {
                     @Override
                     public void onNext(List<List<PointBean>> lists) {
-                        SingleToast.makeText(getContext(), String.format("高德查询行政区边界成功:%s", lists.toString()), SingleToast.LENGTH_SHORT).show();
+                        makeText(String.format("高德查询行政区边界成功:%s", lists.toString()));
                     }
 
                     @Override
                     public void onError(Throwable throwable) {
-                        SingleToast.makeText(getContext(), String.format("高德查询行政区边界失败:%s", throwable.getMessage()), SingleToast.LENGTH_SHORT).show();
+                        makeText(String.format("高德查询行政区边界失败:%s", throwable.getMessage()));
                     }
 
                     @Override
@@ -301,12 +274,12 @@ public class ChildTwoFragment extends BaseFragment {
                 mBaiduLBSModel.quickLocation(new DisposableObserver<PointBean>() {
                     @Override
                     public void onNext(PointBean pointBean) {
-                        SingleToast.makeText(getContext(), String.format("百度网络定位成功:%s_%s", pointBean.getTitle(), pointBean.getAddress()), SingleToast.LENGTH_SHORT).show();
+                        makeText(String.format("百度网络定位成功:%s_%s", pointBean.getTitle(), pointBean.getAddress()));
                     }
 
                     @Override
                     public void onError(Throwable throwable) {
-                        SingleToast.makeText(getContext(), String.format("百度网络定位失败:%s", throwable.getMessage()), SingleToast.LENGTH_SHORT).show();
+                        makeText(String.format("百度网络定位失败:%s", throwable.getMessage()));
                     }
 
                     @Override
@@ -319,12 +292,12 @@ public class ChildTwoFragment extends BaseFragment {
                 mBaiduLBSModel.accuracyLocation(new DisposableObserver<PointBean>() {
                     @Override
                     public void onNext(PointBean pointBean) {
-                        SingleToast.makeText(getContext(), String.format("百度高精度定位成功:%s_%s", pointBean.getTitle(), pointBean.getAddress()), SingleToast.LENGTH_SHORT).show();
+                        makeText(String.format("百度高精度定位成功:%s_%s", pointBean.getTitle(), pointBean.getAddress()));
                     }
 
                     @Override
                     public void onError(Throwable throwable) {
-                        SingleToast.makeText(getContext(), String.format("百度高精度定位失败:%s", throwable.getMessage()), SingleToast.LENGTH_SHORT).show();
+                        makeText(String.format("百度高精度定位失败:%s", throwable.getMessage()));
                     }
 
                     @Override
@@ -343,12 +316,12 @@ public class ChildTwoFragment extends BaseFragment {
                 mBaiduLBSModel.geoCode("成都", "倪家桥站", new DisposableObserver<PointBean>() {
                     @Override
                     public void onNext(PointBean pointBean) {
-                        SingleToast.makeText(getContext(), String.format("百度地理位置编码成功:%s", pointBean.getAddress()), SingleToast.LENGTH_SHORT).show();
+                        makeText(String.format("百度地理位置编码成功:%s", pointBean.getAddress()));
                     }
 
                     @Override
                     public void onError(Throwable throwable) {
-                        SingleToast.makeText(getContext(), String.format("百度地理位置编码失败:%s", throwable.getMessage()), SingleToast.LENGTH_SHORT).show();
+                        makeText(String.format("百度地理位置编码失败:%s", throwable.getMessage()));
                     }
 
                     @Override
@@ -361,12 +334,12 @@ public class ChildTwoFragment extends BaseFragment {
                 mBaiduLBSModel.reverseGeoCode(new PointBean().setLat(30.542385).setLon(104.067652), new DisposableObserver<PointBean>() {
                     @Override
                     public void onNext(PointBean pointBean) {
-                        SingleToast.makeText(getContext(), String.format("百度逆向地理位置编码成功:%s_%s", pointBean.getTitle(), pointBean.getAddress()), SingleToast.LENGTH_SHORT).show();
+                        makeText(String.format("百度逆向地理位置编码成功:%s_%s", pointBean.getTitle(), pointBean.getAddress()));
                     }
 
                     @Override
                     public void onError(Throwable throwable) {
-                        SingleToast.makeText(getContext(), String.format("百度逆向地理位置编码失败:%s", throwable.getMessage()), SingleToast.LENGTH_SHORT).show();
+                        makeText(String.format("百度逆向地理位置编码失败:%s", throwable.getMessage()));
                     }
 
                     @Override
@@ -379,12 +352,12 @@ public class ChildTwoFragment extends BaseFragment {
                 mBaiduLBSModel.queryCityPois("成都", "倪家桥", null, 0, 10, new DisposableObserver<List<PointBean>>() {
                     @Override
                     public void onNext(List<PointBean> pointBeen) {
-                        SingleToast.makeText(getContext(), String.format("百度城市检索成功:%s", pointBeen.toString()), SingleToast.LENGTH_SHORT).show();
+                        makeText(String.format("百度城市检索成功:%s", pointBeen.toString()));
                     }
 
                     @Override
                     public void onError(Throwable throwable) {
-                        SingleToast.makeText(getContext(), String.format("百度城市检索失败:%s", throwable.getMessage()), SingleToast.LENGTH_SHORT).show();
+                        makeText(String.format("百度城市检索失败:%s", throwable.getMessage()));
                     }
 
                     @Override
@@ -397,12 +370,12 @@ public class ChildTwoFragment extends BaseFragment {
                 mBaiduLBSModel.queryNearbyPois(new PointBean().setLat(30.542385).setLon(104.067652), "天府三街", null, 0, 10, new DisposableObserver<List<PointBean>>() {
                     @Override
                     public void onNext(List<PointBean> pointBeen) {
-                        SingleToast.makeText(getContext(), String.format("百度周边检索成功:%s", pointBeen.toString()), SingleToast.LENGTH_SHORT).show();
+                        makeText(String.format("百度周边检索成功:%s", pointBeen.toString()));
                     }
 
                     @Override
                     public void onError(Throwable throwable) {
-                        SingleToast.makeText(getContext(), String.format("百度周边检索失败:%s", throwable.getMessage()), SingleToast.LENGTH_SHORT).show();
+                        makeText(String.format("百度周边检索失败:%s", throwable.getMessage()));
                     }
 
                     @Override
@@ -422,12 +395,12 @@ public class ChildTwoFragment extends BaseFragment {
                         new DisposableObserver<List<PointBean>>() {
                             @Override
                             public void onNext(List<PointBean> pointBeen) {
-                                SingleToast.makeText(getContext(), String.format("百度区域检索成功:%s", pointBeen.toString()), SingleToast.LENGTH_SHORT).show();
+                                makeText(String.format("百度区域检索成功:%s", pointBeen.toString()));
                             }
 
                             @Override
                             public void onError(Throwable throwable) {
-                                SingleToast.makeText(getContext(), String.format("百度区域检索失败:%s", throwable.getMessage()), SingleToast.LENGTH_SHORT).show();
+                                makeText(String.format("百度区域检索失败:%s", throwable.getMessage()));
                             }
 
                             @Override
@@ -446,12 +419,12 @@ public class ChildTwoFragment extends BaseFragment {
                         new DisposableObserver<List<RouteBean>>() {
                             @Override
                             public void onNext(List<RouteBean> routeBeen) {
-                                SingleToast.makeText(getContext(), String.format("百度驾车路径规划成功:%s", routeBeen.toString()), SingleToast.LENGTH_SHORT).show();
+                                makeText(String.format("百度驾车路径规划成功:%s", routeBeen.toString()));
                             }
 
                             @Override
                             public void onError(Throwable throwable) {
-                                SingleToast.makeText(getContext(), String.format("百度驾车路径规划失败:%s", throwable.getMessage()), SingleToast.LENGTH_SHORT).show();
+                                makeText(String.format("百度驾车路径规划失败:%s", throwable.getMessage()));
                             }
 
                             @Override
@@ -465,12 +438,12 @@ public class ChildTwoFragment extends BaseFragment {
                 mBaiduLBSModel.queryAdministrativeRegion("成都", "金堂", new DisposableObserver<List<List<PointBean>>>() {
                     @Override
                     public void onNext(List<List<PointBean>> lists) {
-                        SingleToast.makeText(getContext(), String.format("百度查询行政区边界成功:%s", lists.toString()), SingleToast.LENGTH_SHORT).show();
+                        makeText(String.format("百度查询行政区边界成功:%s", lists.toString()));
                     }
 
                     @Override
                     public void onError(Throwable throwable) {
-                        SingleToast.makeText(getContext(), String.format("百度查询行政区边界失败:%s", throwable.getMessage()), SingleToast.LENGTH_SHORT).show();
+                        makeText(String.format("百度查询行政区边界失败:%s", throwable.getMessage()));
                     }
 
                     @Override
@@ -480,5 +453,9 @@ public class ChildTwoFragment extends BaseFragment {
                 });
                 break;
         }
+    }
+
+    private void makeText(String msg) {
+        SingleToast.makeText(this, msg, SingleToast.LENGTH_SHORT).show();
     }
 }

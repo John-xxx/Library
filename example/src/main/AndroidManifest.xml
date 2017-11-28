@@ -26,20 +26,51 @@
 
         <activity
             android:name=".MainActivity"
-            android:label="@string/activity_main_title">
+            android:label="Example">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
 
-        <activity
-            android:name=".ChildActivity"
-            android:label="@string/activity_child_title"/>
+        <activity android:name=".banner.BannerActivity"
+            android:label="Banner"/>
 
-        <activity
-            android:name=".ImmerseActivity"
-            android:label="@string/activity_immerse_title"/>
+        <activity android:name=".base.BaseActivity"
+            android:label="Base"/>
+
+        <activity android:name=".boxing.BoxingActivity"
+            android:label="Boxing"/>
+
+        <activity android:name=".glide.GlideActivity"
+            android:label="Glide"/>
+
+        <activity android:name=".http.HTTPActivity"
+            android:label="HTTP"/>
+
+        <activity android:name=".lbs.LBSActivity"
+            android:label="LBS"/>
+
+        <activity android:name=".list.ListActivity"
+            android:label="List"/>
+
+        <activity android:name=".other.OtherActivity"
+            android:label="Other"/>
+
+        <activity android:name=".pay.PayActivity"
+            android:label="Pay"/>
+
+        <activity android:name=".permission.PermissionActivity"
+            android:label="Permission"/>
+
+        <activity android:name=".player.PlayerActivity"
+            android:label="Player"/>
+
+        <activity android:name=".util.UtilActivity"
+            android:label="Util"/>
+
+        <activity android:name=".view.ViewActivity"
+            android:label="View"/>
 
     </application>
 

@@ -1,11 +1,11 @@
-package com.liux.example;
+package com.liux.example.pay;
 
 import android.os.Bundle;
-import android.view.LayoutInflater;
+import android.support.annotation.Nullable;
+import android.support.v7.app.AppCompatActivity;
 import android.view.View;
-import android.view.ViewGroup;
 
-import com.liux.base.BaseFragment;
+import com.liux.example.R;
 import com.liux.pay.PayTool;
 import com.liux.pay.alipay.AliRequest;
 import com.liux.pay.alipay.AliResult;
@@ -18,83 +18,55 @@ import com.tencent.mm.opensdk.modelpay.PayResp;
 
 import butterknife.ButterKnife;
 import butterknife.OnClick;
-import butterknife.Unbinder;
 
 /**
- * Created by Liux on 2017/8/13.
+ * Created by Liux on 2017/11/28.
  */
 
-public class ChildOneFragment extends BaseFragment {
-
-    Unbinder unbinder;
-
+public class PayActivity extends AppCompatActivity {
     @Override
-    protected void onInitData(Bundle savedInstanceState) {
+    protected void onCreate(@Nullable Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+
+        setContentView(R.layout.activity_pay);
+        ButterKnife.bind(this);
+
         PayTool.DEBUG = true;
-    }
-
-    @Override
-    protected void onRestoreData(Bundle data) {
-
-    }
-
-    @Override
-    protected View onInitView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
-        View view = inflater.inflate(R.layout.fragment_child_one, container, false);
-        unbinder = ButterKnife.bind(this, view);
-        return view;
-    }
-
-    @Override
-    protected void onLazyLoad() {
-
-    }
-
-    @Override
-    protected void onSaveData(Bundle data) {
-
-    }
-
-    @Override
-    public void onDestroyView() {
-        super.onDestroyView();
-        unbinder.unbind();
     }
 
     @OnClick({R.id.btn_ali, R.id.btn_wx, R.id.btn_union})
     public void onViewClicked(View view) {
         switch (view.getId()) {
             case R.id.btn_ali:
-                PayTool.DEBUG = true;
-                PayTool.with(getActivity())
+                PayTool.with(this)
                         .request(new AliRequest("") {
                             @Override
                             public void callback(AliResult aliResult) {
                                 String result = aliResult.getResultStatus();
                                 switch (result) {
                                     case ALI_MEMO_SUCCEED:
-                                        SingleToast.makeText(getContext(), "支付成功", SingleToast.LENGTH_SHORT).show();
+                                        makeText("支付成功");
                                         break;
                                     case ALI_MEMO_UNDERWAY:
-                                        SingleToast.makeText(getContext(), "支付处理中", SingleToast.LENGTH_SHORT).show();
+                                        makeText("支付处理中");
                                         break;
                                     case ALI_MEMO_FAILURE:
-                                        SingleToast.makeText(getContext(), "支付失败", SingleToast.LENGTH_SHORT).show();
+                                        makeText("支付失败");
                                         break;
                                     case ALI_MEMO_CANCEL:
-                                        SingleToast.makeText(getContext(), "取消支付", SingleToast.LENGTH_SHORT).show();
+                                        makeText("取消支付");
                                         break;
                                     case ALI_MEMO_REPEAT:
-                                        SingleToast.makeText(getContext(), "重复支付", SingleToast.LENGTH_SHORT).show();
+                                        makeText("重复支付");
                                         break;
                                     case ALI_MEMO_ERROR:
-                                        SingleToast.makeText(getContext(), "网络错误", SingleToast.LENGTH_SHORT).show();
+                                        makeText("网络错误");
                                         break;
                                     case ALI_MEMO_UNKNOWN:
-                                        SingleToast.makeText(getContext(), "支付状态未知", SingleToast.LENGTH_SHORT).show();
+                                        makeText("支付状态未知");
                                         break;
                                     default:
-                                        SingleToast.makeText(getContext(), "支付错误 [" + result + "]", SingleToast.LENGTH_SHORT).show();
+                                        makeText("支付错误 [" + result + "]");
                                         break;
                                 }
                             }
@@ -105,8 +77,7 @@ public class ChildOneFragment extends BaseFragment {
                 PayReq payReq = new PayReq();
                 payReq.extData = "我是附加数据,可以随便写;";
 
-                PayTool.DEBUG = true;
-                PayTool.with(getActivity())
+                PayTool.with(this)
                         .request(new WxRequest(payReq) {
                             @Override
                             public void callback(PayResp payResp) {
@@ -115,29 +86,29 @@ public class ChildOneFragment extends BaseFragment {
 
                                 switch (payResp.errCode) {
                                     case ERR_PARAM:
-                                        SingleToast.makeText(getContext(), "参数错误", SingleToast.LENGTH_SHORT).show();
+                                        makeText("参数错误");
                                         break;
                                     case ERR_CONFIG:
-                                        SingleToast.makeText(getContext(), "配置错误", SingleToast.LENGTH_SHORT).show();
+                                        makeText("配置错误");
                                         break;
                                     case ERR_VERSION:
-                                        SingleToast.makeText(getContext(), "微信客户端未安装或版本过低", SingleToast.LENGTH_SHORT).show();
+                                        makeText("微信客户端未安装或版本过低");
                                         break;
                                     case PayResp.ErrCode.ERR_OK:
-                                        SingleToast.makeText(getContext(), "支付成功", SingleToast.LENGTH_SHORT).show();
+                                        makeText("支付成功");
                                         break;
                                     case PayResp.ErrCode.ERR_COMM:
-                                        SingleToast.makeText(getContext(), "支付错误", SingleToast.LENGTH_SHORT).show();
+                                        makeText("支付错误");
                                         break;
                                     case PayResp.ErrCode.ERR_USER_CANCEL:
-                                        SingleToast.makeText(getContext(), "取消支付", SingleToast.LENGTH_SHORT).show();
+                                        makeText("取消支付");
                                         break;
                                     case PayResp.ErrCode.ERR_SENT_FAILED:
                                     case PayResp.ErrCode.ERR_AUTH_DENIED:
                                     case PayResp.ErrCode.ERR_UNSUPPORT:
                                     case PayResp.ErrCode.ERR_BAN:
                                     default:
-                                        SingleToast.makeText(getContext(), "支付错误 [" + payResp.errStr + "]", SingleToast.LENGTH_SHORT).show();
+                                        makeText("支付错误 [" + payResp.errStr + "]");
                                         break;
                                 }
                             }
@@ -145,7 +116,7 @@ public class ChildOneFragment extends BaseFragment {
                         .pay();
                 break;
             case R.id.btn_union:
-                PayTool.with(getActivity())
+                PayTool.with(this)
                         .request(new UnionRequest("") {
                             @Override
                             public void callback(UnionResult unionResult) {
@@ -153,16 +124,16 @@ public class ChildOneFragment extends BaseFragment {
                                 switch (result) {
                                     case RESULT_SUCCEED:
                                         String data = unionResult.getData();
-                                        SingleToast.makeText(getContext(), "支付成功", SingleToast.LENGTH_SHORT).show();
+                                        makeText("支付成功");
                                         break;
                                     case RESULT_FAILURE:
-                                        SingleToast.makeText(getContext(), "支付失败", SingleToast.LENGTH_SHORT).show();
+                                        makeText("支付失败");
                                         break;
                                     case RESULT_CANCEL:
-                                        SingleToast.makeText(getContext(), "取消支付", SingleToast.LENGTH_SHORT).show();
+                                        makeText("取消支付");
                                         break;
                                     case RESULT_NOPLUG:
-                                        SingleToast.makeText(getContext(), "未安装银联支付控件", SingleToast.LENGTH_SHORT).show();
+                                        makeText("未安装银联支付控件");
                                         break;
                                 }
                             }
@@ -170,5 +141,9 @@ public class ChildOneFragment extends BaseFragment {
                         .pay();
                 break;
         }
+    }
+
+    private void makeText(String msg) {
+        SingleToast.makeText(this, msg, SingleToast.LENGTH_SHORT).show();
     }
 }

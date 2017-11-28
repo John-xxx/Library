@@ -35,8 +35,8 @@ dependencies {
     api "com.alibaba:fastjson:${librarys.fastjson}"
     api "com.github.franmontiel:PersistentCookieJar:v1.0.1"
 
-    provided "com.liulishuo.filedownloader:library:1.6.8"
-    provided "eu.medsea.mimeutil:mime-util:2.1.3"
+    compileOnly "com.liulishuo.filedownloader:library:1.6.8"
+    compileOnly "eu.medsea.mimeutil:mime-util:2.1.3"
 }
 
 // Release Library Param
