@@ -20,9 +20,9 @@ publish {
 
     licences = ['MIT']
 
-    desc = 'My rapid development framework'
-    website = 'https://gitee.com/lx0758/Framework'
-    repository = 'https://gitee.com/lx0758/Framework.git'
+    desc = 'My rapid development library'
+    website = 'https://gitee.com/lx0758/Library'
+    repository = 'https://gitee.com/lx0758/Library.git'
 }
 
 // release to Nexus
