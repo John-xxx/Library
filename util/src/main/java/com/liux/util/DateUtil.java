@@ -247,6 +247,22 @@ public class DateUtil {
     }
 
     /**
+     * 时间转换为文本
+     * 2017年11月27日
+     * @param time
+     * @return
+     */
+    public static String date2string10(Date time) {
+        String s = null;
+        try {
+            s = new SimpleDateFormat("yyyy年MM月dd日").format(time);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return s;
+    }
+
+    /**
      * 取相差天数
      * @param old
      * @param now
