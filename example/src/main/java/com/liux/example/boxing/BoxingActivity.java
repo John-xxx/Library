@@ -9,12 +9,15 @@ import android.support.v7.widget.RecyclerView;
 import android.view.View;
 import android.widget.ImageView;
 
+import com.bilibili.boxing.BoxingCrop;
 import com.bilibili.boxing.BoxingMediaLoader;
 import com.bilibili.boxing.model.entity.BaseMedia;
 import com.bilibili.boxing.model.entity.impl.ImageMedia;
 import com.bilibili.boxing.model.entity.impl.VideoMedia;
 import com.bilibili.boxing_impl.ui.BoxingPreviewActivity;
+import com.liux.boxing.BoxingGlideLoader;
 import com.liux.boxing.BoxingTool;
+import com.liux.boxing.BoxingUcrop;
 import com.liux.boxing.OnMultiSelectListener;
 import com.liux.boxing.OnSingleSelectListener;
 import com.liux.boxing.OnVideoSelectListener;
@@ -77,6 +80,10 @@ public class BoxingActivity extends AppCompatActivity {
                     }
                 });
         rvList.setAdapter(mMultipleAdapter);
+
+        /* 初始化Boxing */
+        BoxingCrop.getInstance().init(new BoxingUcrop());
+        BoxingMediaLoader.getInstance().init(new BoxingGlideLoader());
     }
 
     @OnClick({R.id.btn_select_pic, R.id.btn_select_pic_clip, R.id.btn_select_pics, R.id.btn_select_video})

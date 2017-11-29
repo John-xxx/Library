@@ -2,13 +2,16 @@ package com.liux.http;
 
 import android.content.Context;
 import android.content.pm.PackageManager;
-import android.os.Build;
 
 import java.io.File;
+import java.io.UnsupportedEncodingException;
+import java.net.URLEncoder;
+import java.util.Locale;
 
 import okhttp3.MediaType;
 import okhttp3.MultipartBody;
 import okhttp3.RequestBody;
+import okhttp3.internal.http.HttpMethod;
 
 /**
  * Http 协议配套工具类
@@ -17,6 +20,62 @@ import okhttp3.RequestBody;
 
 public class HttpUtil {
     private static final MediaType TYPE_UNKNOWN = MediaType.parse("*/*");
+
+    /**
+     * 查询某字符串是否是HTTP请求方法(支持HTTP/1.1)
+     * @param method
+     * @return
+     */
+    public static boolean isHttpMethod(String method) {
+        if (method == null || method.isEmpty()) return false;
+        switch (method.toUpperCase()) {
+            // HTTP/0.9
+            case "GET":
+            // HTTP/1.0
+            case "HEAD":
+            case "POST":
+            // HTTP/1.1
+            case "PUT":
+            case "CONNECT":
+            case "TRACE":
+            case "OPTIONS":
+            case "DELETE":
+                return true;
+            default:
+                return false;
+        }
+    }
+
+    /**
+     * 不需要请求体的方法
+     * @param method
+     * @return
+     */
+    public static boolean notRequiresRequestBody(String method) {
+        return !HttpMethod.permitsRequestBody(method)
+                || method.equals("GET")
+                || method.equals("HEAD")
+                || method.equals("TRACE")
+                || method.equals("CONNECT");
+    }
+
+    /**
+     * 需要请求体的方法(DELETE可以为空)
+     * @param method
+     * @return
+     */
+    public static boolean requiresRequestBody(String method) {
+        return HttpMethod.requiresRequestBody(method);
+    }
+
+    /**
+     * 允许有请求体的方法
+     * @param method
+     * @return
+     */
+    public static boolean permitsRequestBody(String method) {
+        return HttpMethod.permitsRequestBody(method);
+    }
 
     /**
      * 根据文件后缀名解析类型
@@ -174,23 +233,50 @@ public class HttpUtil {
     }
 
     /**
-     * Android_OS-Version_packageName_versionName
+     * Dalvik/2.1.0 (Linux; U; Android 6.0.1; MI 4LTE MIUI/7.11.9) App_packageName_versionCode
      * @param context
      * @return
      */
     public static String getDefaultUserAgent(Context context) {
-        String versionName = "Unknown";
+        // Mozilla/5.0 (Linux; Android 6.0.1; MI 4LTE Build/MMB29M; wv) AppleWebKit/537.36 (KHTML, like Gecko) Version/4.0 Chrome/57.0.2987.132 Mobile Safari/537.36
+        // WebSettings.getDefaultUserAgent(context);
+        // Dalvik/2.1.0 (Linux; U; Android 6.0.1; MI 4LTE MIUI/7.11.9)
+        // System.getProperty("http.agent");
+
+        int versionCode = -1;
         try {
-            versionName = context.getPackageManager().getPackageInfo(context.getPackageName(), PackageManager.GET_CONFIGURATIONS).versionName;
+            versionCode = context.getPackageManager().getPackageInfo(context.getPackageName(), PackageManager.GET_CONFIGURATIONS).versionCode;
         } catch (Exception e) {
             e.printStackTrace();
         }
 
         return String.format(
-                "Android_%s_%s_%s",
-                Build.VERSION.RELEASE,
+                Locale.CHINA,
+                "%s App_%s_%d",
+                System.getProperty("http.agent"),
                 context.getPackageName(),
-                versionName
+                versionCode
         );
+    }
+
+    /**
+     * OkHttp 请求头不能是 null/换行符/中文 等一些字符
+     * @param text
+     * @return
+     */
+    public static String checkChar(String text) {
+        if (text == null) return "";
+        String newValue = text.replace("\n", "");
+        for (int i = 0, length = newValue.length(); i < length; i++) {
+            char c = newValue.charAt(i);
+            if (c <= '\u001f' || c >= '\u007f') {
+                try {
+                    return URLEncoder.encode(newValue, "UTF-8");
+                } catch (UnsupportedEncodingException e) {
+                    break;
+                }
+            }
+        }
+        return newValue;
     }
 }

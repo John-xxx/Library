@@ -4,14 +4,12 @@ import android.app.Application;
 import android.content.Context;
 import android.support.multidex.MultiDex;
 
-import com.baidu.mapapi.CoordType;
-import com.baidu.mapapi.SDKInitializer;
-import com.bilibili.boxing.BoxingCrop;
-import com.bilibili.boxing.BoxingMediaLoader;
-import com.liux.lbs.model.impl.AMapLBSModelImpl;
-import com.liux.lbs.model.impl.BaiduLBSModelImpl;
-import com.liux.boxing.BoxingGlideLoader;
-import com.liux.boxing.BoxingUcrop;
+import com.liux.http.HttpClient;
+import com.liux.http.OnRequestListener;
+
+import java.util.Map;
+
+import okhttp3.Request;
 
 /**
  * Created by Liux on 2017/8/16.
@@ -29,16 +27,28 @@ public class ApplocationCus extends Application {
     public void onCreate() {
         super.onCreate();
 
-        /* 初始化百度SDK */
-        SDKInitializer.initialize(this);
-        SDKInitializer.setCoordType(CoordType.GCJ02);
+        /* 初始化 HttpClient */
+        HttpClient.initialize(this, "http://lx0758.cc/");
+        HttpClient.getInstance().setOnRequestListener(new OnRequestListener() {
+            @Override
+            public void onHeaders(Request request, Map<String, String> headers) {
 
-        /* 初始化LBSModel */
-        AMapLBSModelImpl.initialize(this);
-        BaiduLBSModelImpl.initialize(this);
+            }
 
-        /* 初始化Boxing */
-        BoxingCrop.getInstance().init(new BoxingUcrop());
-        BoxingMediaLoader.getInstance().init(new BoxingGlideLoader());
+            @Override
+            public void onQueryRequest(Request request, Map<String, String> queryParams) {
+
+            }
+
+            @Override
+            public void onBodyRequest(Request request, Map<String, String> bodyParams) {
+
+            }
+
+            @Override
+            public void onBodyRequest(Request request, String param) {
+
+            }
+        });
     }
 }

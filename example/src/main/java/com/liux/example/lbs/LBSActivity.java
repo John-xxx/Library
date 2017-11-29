@@ -6,6 +6,8 @@ import android.support.annotation.Nullable;
 import android.support.v7.app.AppCompatActivity;
 import android.view.View;
 
+import com.baidu.mapapi.CoordType;
+import com.baidu.mapapi.SDKInitializer;
 import com.liux.example.R;
 import com.liux.lbs.bean.PointBean;
 import com.liux.lbs.bean.RouteBean;
@@ -34,8 +36,8 @@ public class LBSActivity extends AppCompatActivity {
             Manifest.permission.ACCESS_COARSE_LOCATION
     };
 
-    private LBSModel mAMapLBSModel = AMapLBSModelImpl.getInstance();
-    private LBSModel mBaiduLBSModel = BaiduLBSModelImpl.getInstance();
+    private LBSModel mAMapLBSModel;
+    private LBSModel mBaiduLBSModel;
 
     private OnLocationListener mAMapOnLocationListener = new OnLocationListener() {
         @Override
@@ -67,6 +69,26 @@ public class LBSActivity extends AppCompatActivity {
 
         setContentView(R.layout.activity_lbs);
         ButterKnife.bind(this);
+
+        /* 初始化百度SDK */
+        SDKInitializer.initialize(getApplicationContext());
+        SDKInitializer.setCoordType(CoordType.GCJ02);
+
+        /* 初始化LBSModelImpl */
+        AMapLBSModelImpl.initialize(this);
+        BaiduLBSModelImpl.initialize(this);
+
+        mAMapLBSModel = AMapLBSModelImpl.getInstance();
+        mBaiduLBSModel = BaiduLBSModelImpl.getInstance();
+    }
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+
+        /* 销毁LBSModelImpl */
+        AMapLBSModelImpl.destroy();
+        BaiduLBSModelImpl.destroy();
     }
 
     @OnClick({R.id.btn_quick_location_amap, R.id.btn_accuracy_location_amap, R.id.btn_start_location_amap, R.id.btn_stop_location_amap, R.id.btn_geocode_amap, R.id.btn_regeocode_amap, R.id.btn_city_poi_amap, R.id.btn_nearby_poi_amap, R.id.btn_region_poi_amap, R.id.btn_driver_route_amap, R.id.btn_boundary_amap, R.id.btn_quick_location_baidu, R.id.btn_accuracy_location_baidu, R.id.btn_start_location_baidu, R.id.btn_stop_location_baidu, R.id.btn_geocode_baidu, R.id.btn_regeocode_baidu, R.id.btn_city_poi_baidu, R.id.btn_nearby_poi_baidu, R.id.btn_region_poi_baidu, R.id.btn_driver_route_baidu, R.id.btn_boundary_baidu})

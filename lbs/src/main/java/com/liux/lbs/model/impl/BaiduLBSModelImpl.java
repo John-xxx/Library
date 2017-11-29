@@ -80,6 +80,11 @@ public class BaiduLBSModelImpl implements LBSModel {
             mInstance = new BaiduLBSModelImpl(context);
         }
     }
+    public static void destroy() {
+        if (mInstance != null) {
+            ((BaiduLBSModelImpl) mInstance).destroyInstance();
+        }
+    }
 
     private Context mContext;
 
@@ -143,6 +148,18 @@ public class BaiduLBSModelImpl implements LBSModel {
 
         mLocationClient.setLocOption(mLocationClientOption);
         mLocationClient.registerNotifyLocationListener(mBDLocationListener);
+    }
+
+    /**
+     * 销毁实例
+     */
+    private void destroyInstance() {
+        mInstance = null;
+        mContext = null;
+        mOnLocationListeners.clear();
+        mLocationClient.unRegisterLocationListener(mBDLocationListener);
+        mLocationClient.stop();
+        mLocationClient = null;
     }
 
     /**

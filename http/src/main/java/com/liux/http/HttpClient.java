@@ -1,38 +1,28 @@
 package com.liux.http;
 
 import android.content.Context;
-import android.util.Log;
 
 import com.franmontiel.persistentcookiejar.PersistentCookieJar;
 import com.franmontiel.persistentcookiejar.cache.SetCookieCache;
 import com.franmontiel.persistentcookiejar.persistence.SharedPrefsCookiePersistor;
+import com.liux.http.interceptor.CheckInterceptor;
+import com.liux.http.interceptor.UserAgentInterceptor;
 
 import java.io.File;
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.IdentityHashMap;
-import java.util.List;
 import java.util.Map;
-import java.util.Set;
 import java.util.concurrent.TimeUnit;
 
 import okhttp3.Cache;
 import okhttp3.Call;
 import okhttp3.Callback;
-import okhttp3.CookieJar;
 import okhttp3.FormBody;
-import okhttp3.Headers;
-import okhttp3.HttpUrl;
-import okhttp3.Interceptor;
-import okhttp3.MediaType;
 import okhttp3.MultipartBody;
 import okhttp3.OkHttpClient;
 import okhttp3.Request;
 import okhttp3.RequestBody;
 import okhttp3.Response;
 import okhttp3.logging.HttpLoggingInterceptor;
-import okio.Buffer;
 import retrofit2.Retrofit;
 import retrofit2.adapter.rxjava2.RxJava2CallAdapterFactory;
 import retrofit2.converter.fastjson.FastJsonConverterFactory;
@@ -49,6 +39,9 @@ import retrofit2.converter.fastjson.FastJsonConverterFactory;
 
 public class HttpClient {
     private static volatile HttpClient mInstance;
+    public static boolean isInitialize() {
+        return mInstance != null;
+    }
     public static HttpClient getInstance() {
         if (mInstance == null) throw new NullPointerException("HttpClient has not been initialized");
         return mInstance;
@@ -65,199 +58,11 @@ public class HttpClient {
     }
 
     private static final String TAG = "[HttpClient]";
-    private static final MediaType MEDIA_TYPE_TEXT = MediaType.parse("text/plain; charset=UTF-8");
-    private static final MediaType MEDIA_TYPE_JSON = MediaType.parse("application/json; charset=UTF-8");
 
     private Context mContext;
     private Retrofit mRetrofit;
-    private CookieJar mCookieJar;
     private OkHttpClient mOkHttpClient;
-
-    private OnCheckHeadersListener mOnCheckHeadersListener;
-    private OnCheckParamsListener mOnCheckParamsListener;
-
-    /* 应用拦截器 */
-    private Interceptor mInterceptor = new Interceptor() {
-        @Override
-        public Response intercept(Chain chain) throws IOException {
-            Request request = chain.request();
-            if (request == null) throw new IOException("Request is null");
-
-            Request.Builder requestBuilder = request.newBuilder();
-
-            /* 请求定制：自定义请求头 */
-            Map<String, String> headers = new HashMap<>();
-            // 移除Accept-Encoding请求头,OkHttp会自动添加
-            // 手动添加时OkHttp不会自动解压响应数据
-            // headers.put("Accept", "text/html,application/json,application/xhtml+xml,application/xml,image/*");
-            // headers.put("Accept-Charset", "utf-8");
-            // headers.put("Accept-Language", "zh-CN");
-            // headers.put("Accept-Encoding", "gzip,deflate");
-            // headers.put("Cache-Control", "no-cache");
-            headers.put("User-Agent", HttpUtil.getDefaultUserAgent(mContext));
-
-            if (mOnCheckHeadersListener != null) mOnCheckHeadersListener.onCheckHeaders(request, headers);
-
-            for(Map.Entry<String, String> entry:headers.entrySet()){
-                requestBuilder.header(entry.getKey(), entry.getValue());
-            }
-
-            /* 请求体定制：自定义参数(针对文本型) */
-            RequestBody requestBody = request.body();
-            if (mOnCheckParamsListener != null && requestBody != null) {
-                if ("GET".equals(request.method().toUpperCase())) {
-                    checkGetParams(request, requestBuilder);
-                } else if ("POST".equals(request.method().toUpperCase())){
-                    if (requestBody instanceof MultipartBody) {
-                        requestBody = checkPostMultipartParams(request);
-                    } else if (requestBody instanceof FormBody) {
-                        requestBody = checkPostFormParams(request);
-                    } else if (requestBody.contentLength() == -1) {
-                        requestBody = checkPostParams(request);
-                    } else {
-                        // 纯文本/二进制方式直接放行
-                    }
-                }
-            }
-
-            request = requestBuilder.method(request.method(), requestBody).build();
-
-            // 请求前
-
-            Response response = chain.proceed(request);
-
-            // 请求后
-
-            return response;
-        }
-
-        /**
-         * 逆向解析GET请求并检查参数
-         * @param request
-         * @return
-         */
-        private void checkGetParams(Request request, Request.Builder requestBuilder) {
-            Map<String, String> params = new IdentityHashMap<>();
-
-            Set<String> set = request.url().queryParameterNames();
-            for (String key : set) {
-                params.put(new String(key), request.url().queryParameter(key));
-            }
-
-            mOnCheckParamsListener.onCheckParams(request, params);
-
-            HttpUrl.Builder builder = request.url().newBuilder();
-            for (Map.Entry<String, String> param : params.entrySet()) {
-                builder.removeAllQueryParameters(param.getKey());
-                builder.addQueryParameter(param.getKey(), param.getValue());
-            }
-            requestBuilder.url(builder.build());
-        }
-
-        /**
-         * 逆向解析空参数POST请求并检查参数
-         * @param request
-         * @return
-         */
-        private RequestBody checkPostParams(Request request) {
-            Map<String, String> params = new IdentityHashMap<>();
-
-            mOnCheckParamsListener.onCheckParams(request, params);
-
-            FormBody.Builder builder = new FormBody.Builder();
-            for (Map.Entry<String, String> entry : params.entrySet()) {
-                builder.addEncoded(entry.getKey(), entry.getValue());
-            }
-            return builder.build();
-        }
-
-        /**
-         * 逆向解析 FormBody 并检查参数
-         * @param request
-         * @return
-         */
-        private RequestBody checkPostFormParams(Request request) {
-            FormBody oldFormBody = (FormBody) request.body();
-
-            Map<String, String> params = new IdentityHashMap<>();
-
-            if (oldFormBody != null) {
-                for (int i = 0; i < oldFormBody.size(); i++) {
-                    params.put(new String(oldFormBody.name(i)), oldFormBody.value(i));
-                }
-            }
-
-            mOnCheckParamsListener.onCheckParams(request, params);
-
-            FormBody.Builder builder = new FormBody.Builder();
-            for (Map.Entry<String, String> entry : params.entrySet()) {
-                builder.addEncoded(entry.getKey(), entry.getValue());
-            }
-            return builder.build();
-        }
-
-        /**
-         * 逆向解析 MultipartBody 并检查参数
-         * @param request
-         * @return
-         */
-        private RequestBody checkPostMultipartParams(Request request) {
-            MultipartBody oldMultipartBody = (MultipartBody) request.body();
-
-            List<MultipartBody.Part> oldParts = new ArrayList<>();
-            Map<String, String> params = new IdentityHashMap<>();
-
-            if (oldMultipartBody != null && oldMultipartBody.parts() != null) {
-                List<MultipartBody.Part> parts = oldMultipartBody.parts();
-                for (MultipartBody.Part part : parts) {
-                    try {
-                        Headers head  = part.headers();
-                        RequestBody body  = part.body();
-                        MediaType type = body.contentType();
-                        if (type != null && (MEDIA_TYPE_TEXT.equals(type) || MEDIA_TYPE_JSON.equals(type))) {
-                            Buffer buffer = new Buffer();
-                            body.writeTo(buffer);
-                            String key = head.value(0).substring(head.value(0).lastIndexOf("=") + 1).replace("\"", "");
-                            String value = HttpUtil.json2String(buffer.readUtf8());
-                            params.put(new String(key), value);
-                        } else {
-                            oldParts.add(part);
-                        }
-                    } catch (Exception e) {
-                        e.printStackTrace();
-                    }
-                }
-            }
-
-            mOnCheckParamsListener.onCheckParams(request, params);
-
-            MultipartBody.Builder builder = new MultipartBody.Builder();
-            // 修复默认为 multipart/mixed 时,PHP 无法识别的问题
-            // builder.setType(MultipartBody.FORM);
-            builder.setType(oldMultipartBody.type());
-            for (MultipartBody.Part part : oldParts) {
-                builder.addPart(part);
-            }
-            for (Map.Entry<String, String> entry : params.entrySet()) {
-                builder.addFormDataPart(entry.getKey(), entry.getValue());
-            }
-            return builder.build();
-        }
-    };
-
-    /* 网络拦截器,根本他吖的不能在这里修改参数!!! */
-    private Interceptor mNetworkInterceptor = new Interceptor() {
-        @Override
-        public Response intercept(Chain chain) throws IOException {
-            Request request = chain.request();
-            // 请求前部分
-
-            Response response = chain.proceed(request);
-            // 请求后部分
-
-            return response;
-        }
-    };
+    private CheckInterceptor mCheckInterceptor = new CheckInterceptor();
 
     private HttpClient(Context context, String baseUrl, OkHttpClient.Builder builder) {
         if (context == null) throw new NullPointerException("Context required.");
@@ -267,29 +72,28 @@ public class HttpClient {
 
         if (builder != null) {
             mOkHttpClient = builder
-                    .addInterceptor(mInterceptor)
-                    .addInterceptor(new HttpLoggingInterceptor().setLevel(HttpLoggingInterceptor.Level.BASIC))
-                    .addNetworkInterceptor(mNetworkInterceptor)
+                    .addInterceptor(new UserAgentInterceptor(mContext))
+                    .addInterceptor(mCheckInterceptor)
                     .build();
         } else {
             File cacheDir = mContext.getExternalCacheDir();
             if (cacheDir == null || !cacheDir.exists()) cacheDir = mContext.getCacheDir();
 
-            mCookieJar = new PersistentCookieJar(
-                    new SetCookieCache(),
-                    new SharedPrefsCookiePersistor(mContext)
-            );
-
             mOkHttpClient = new OkHttpClient.Builder()
-                    .cookieJar(mCookieJar)
+                    .cookieJar(new PersistentCookieJar(
+                            new SetCookieCache(),
+                            new SharedPrefsCookiePersistor(mContext)
+                    ))
                     .connectTimeout(10, TimeUnit.SECONDS)
                     .writeTimeout(30, TimeUnit.SECONDS)
                     .readTimeout(30, TimeUnit.SECONDS)
                     .cache(new Cache(cacheDir.getAbsoluteFile(), 200 * 1024 * 1024))
                     .retryOnConnectionFailure(true)
-                    .addInterceptor(mInterceptor)
+                    .addInterceptor(new UserAgentInterceptor(mContext))
+                    .addInterceptor(mCheckInterceptor)
                     .addInterceptor(new HttpLoggingInterceptor().setLevel(HttpLoggingInterceptor.Level.BASIC))
-                    .addNetworkInterceptor(mNetworkInterceptor)
+                    // 不能通过网络拦截器修改参数
+                    // .addNetworkInterceptor()
                     .build();
         }
 
@@ -302,195 +106,191 @@ public class HttpClient {
     }
 
     /**
-     * 异步GET方式访问HTTP
-     * @param url      地址
-     * @param callback 回调接口
+     * 同步 Form 表单请求
+     * @param method
+     * @param url
+     * @param param
+     * @return
+     * @throws IOException
      */
-    public void getAsync(String url, Callback callback) {
-        try {
-            get(url, callback);
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-    }
-
-    /**
-     * 同步GET方式访问HTTP
-     * @param url      地址
-     * @return 响应*/
-    public Response getSync(String url) throws IOException {
-        return get(url, null);
-    }
-
-    private Response get(String url, Callback callback) throws IOException {
-        Request request = new Request.Builder()
-                .url(url)
-                .get()
-                .build();
-
-        if (callback != null){
-            Call call = mOkHttpClient.newCall(request);
-            call.enqueue(callback);
-        } else {
-            Call call = mOkHttpClient.newCall(request);
-            return call.execute();
-        }
-        return null;
-    }
-
-    /**
-     * 异步POST方式访问HTTP
-     * @param url  地址
-     * @param params  参数支持String
-     * @param callback  回调接口
-     */
-    public void postAsync(String url, Map<String, String> params, Callback callback) {
-        try {
-            post(url, params, callback);
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-    }
-
-    /**
-     * 同步POST方式访问HTTP
-     * @param url  地址
-     * @param params  参数支持String
-     * @return  响应
-     */
-    public Response postSync(String url, Map<String, String> params) throws IOException {
-        return post(url, params, null);
-    }
-
-    private Response post(String url, Map<String, String> params, Callback callback) throws IOException {
+    public Response syncForm(String method, String url, Map<String, String> param) throws IOException {
         FormBody.Builder builder = new FormBody.Builder();
-        if (params != null) {
-            for (Map.Entry<String, String> entry : params.entrySet()) {
-                if (entry.getKey() == null || entry.getKey().equals("")) {
-                    Log.e(TAG, "post: Params key is null");
-                    continue;
+        if (param != null) {
+            for (Map.Entry<String, String> entry : param.entrySet()) {
+                String key = entry.getKey();
+                String value = entry.getValue();
+                if (key != null && value != null) {
+                    builder.addEncoded(key, value);
                 }
-                builder.add(entry.getKey(), entry.getValue() == null ? "" : entry.getValue());
             }
         }
-        RequestBody requestbody = builder.build();
-
-        Request request = new Request.Builder()
-                .url(url)
-                .post(requestbody)
-                .build();
-
-        if (callback != null){
-            Call call = mOkHttpClient.newCall(request);
-            call.enqueue(callback);
-        } else {
-            Call call = mOkHttpClient.newCall(request);
-            return call.execute();
-        }
-        return null;
+        return sync(method, url, builder.build());
     }
 
     /**
-     * 异步POST方式访问HTTP
-     * @param url      地址
-     * @param params   参数支持String/File
-     * @param callback 回调接口
+     * 同步 Multipart 表单请求
+     * @param method
+     * @param url
+     * @param param
+     * @return
+     * @throws IOException
      */
-    public void postMultipartAsync(String url, Map<String, Object> params, Callback callback) {
+    public Response syncMultipart(String method, String url, Map<String, Object> param) throws IOException {
+        MultipartBody.Builder builder = new MultipartBody.Builder().setType(MultipartBody.FORM);
+        if (param != null) {
+            for (Map.Entry<String, Object> entry : param.entrySet()) {
+                String key = entry.getKey();
+                Object value = entry.getValue();
+                if (key != null && value != null) {
+                    if (value instanceof File) {
+                        builder.addPart(HttpUtil.parsePart(key, (File) value));
+                    } else {
+                        builder.addFormDataPart(key, String.valueOf(value));
+                    }
+                }
+            }
+        }
+        return sync(method, url, builder.build());
+    }
+
+    /**
+     * 同步请求
+     * @param method
+     * @param url
+     * @param body
+     * @return
+     * @throws IOException
+     */
+    public Response sync(String method, String url, RequestBody body) throws IOException {
+        return call(method, url, body, null);
+    }
+
+    /**
+     * 异步 From 表单请求
+     * @param method
+     * @param url
+     * @param param
+     * @param callback
+     */
+    public void asyncForm(String method, String url, Map<String, String> param, Callback callback) {
+        FormBody.Builder builder = new FormBody.Builder();
+        if (param != null) {
+            for (Map.Entry<String, String> entry : param.entrySet()) {
+                String key = entry.getKey();
+                String value = entry.getValue();
+                if (key != null && value != null) {
+                    builder.addEncoded(key, value);
+                }
+            }
+        }
+        async(method, url, builder.build(), callback);
+    }
+
+    /**
+     * 异步 Multipart 表单请求
+     * @param method
+     * @param url
+     * @param param
+     * @param callback
+     */
+    public void asyncMultipart(String method, String url, Map<String, Object> param, Callback callback) {
+        MultipartBody.Builder builder = new MultipartBody.Builder().setType(MultipartBody.FORM);
+        if (param != null) {
+            for (Map.Entry<String, Object> entry : param.entrySet()) {
+                String key = entry.getKey();
+                Object value = entry.getValue();
+                if (key != null && value != null) {
+                    if (value instanceof File) {
+                        builder.addPart(HttpUtil.parsePart(key, (File) value));
+                    } else {
+                        builder.addFormDataPart(key, String.valueOf(value));
+                    }
+                }
+            }
+        }
+        async(method, url, builder.build(), callback);
+    }
+
+    /**
+     * 异步请求
+     * @param method
+     * @param url
+     * @param body
+     * @param callback
+     */
+    public void async(String method, String url, RequestBody body, Callback callback) {
         try {
-            postMultipart(url, params, callback);
+            call(method, url, body, callback);
         } catch (IOException e) {
             e.printStackTrace();
         }
     }
 
     /**
-     * 同步POST方式访问HTTP上传二进制流
-     * @param url  地址
-     * @param params  参数支持String/File
-     * @return  响应
+     * 通用请求
+     * @param method
+     * @param url
+     * @param body
+     * @param callback
+     * @return
      */
-    public Response postMultipartSync(String url, Map<String, Object> params) throws IOException {
-        return postMultipart(url, params, null);
-    }
-
-    private Response postMultipart(String url, Map<String, Object> params, Callback callback) throws IOException {
-        MultipartBody.Builder builder = new MultipartBody.Builder();
-        // 修复默认为 multipart/mixed 时,PHP 无法识别的问题
-        builder.setType(MultipartBody.FORM);
-        if (params != null) {
-            for (Map.Entry<String, Object> entry : params.entrySet()) {
-                if (entry.getValue() instanceof String) {
-                    if (entry.getKey() == null || entry.getKey().equals("")) {
-                        Log.e(TAG, "postMultipart: Params key is null");
-                        continue;
-                    }
-                    builder.addFormDataPart(entry.getKey(), entry.getValue() == null ? "" : (String)entry.getValue());
-                } else if (entry.getValue() instanceof File) {
-                    if (entry.getKey() == null || entry.getKey().equals("")) {
-                        Log.e(TAG, "postMultipart: Params key is null");
-                        continue;
-                    }
-                    File file = (File) entry.getValue();
-                    if (!file.exists()) {
-                        Log.e(TAG, "postMultipart: Value not exists");
-                        continue;
-                    }
-                    builder.addFormDataPart(entry.getKey(), file.getName(), RequestBody.create(HttpUtil.getMimeType(file), file));
-                } else {
-                    if (entry.getKey() == null || entry.getKey().equals("")) {
-                        Log.e(TAG, "postMultipart: Params key is null");
-                        continue;
-                    }
-                    builder.addFormDataPart(entry.getKey(), entry.getValue() == null ? "" : String.valueOf(entry.getValue()));
-                }
-            }
-        }
-
-        RequestBody requestbody = builder.build();
+    private Response call(String method, String url, RequestBody body, Callback callback) throws IOException {
+        if (!HttpUtil.isHttpMethod(method)) throw new IllegalArgumentException("method is not right");
 
         Request request = new Request.Builder()
+                .method(method, body)
                 .url(url)
-                .post(requestbody)
                 .build();
 
         if (callback != null){
             Call call = mOkHttpClient.newCall(request);
             call.enqueue(callback);
+            return null;
         } else {
             Call call = mOkHttpClient.newCall(request);
             return call.execute();
         }
-        return null;
     }
 
+    /**
+     * 取 Retrofit 实例
+     * @return
+     */
     public Retrofit getRetrofit() {
         return mRetrofit;
     }
 
-    public <T> T getRetrofitService(Class<T> service) {
+    /**
+     * 取 Retrofit 服务
+     * @param service
+     * @param <T>
+     * @return
+     */
+    public <T> T getService(Class<T> service) {
         return getRetrofit().create(service);
     }
 
+    /**
+     * 取 OkHttpClient 实例
+     * @return
+     */
     public OkHttpClient getOkHttpClient() {
         return mOkHttpClient;
     }
 
-    public void setOnCheckHeadersListener(OnCheckHeadersListener listener) {
-        mOnCheckHeadersListener = listener;
+    /**
+     * 取当前用户识别标志
+     * @return
+     */
+    public String getUserAgent() {
+        return UserAgentInterceptor.getUserAgent();
     }
 
-    public void setOnCheckParamsListener(OnCheckParamsListener listener) {
-        mOnCheckParamsListener = listener;
-    }
-
-    public interface OnCheckHeadersListener {
-
-        void onCheckHeaders(Request request, Map<String, String> headers);
-    }
-
-    public interface OnCheckParamsListener {
-
-        void onCheckParams(Request request, Map<String, String> params);
+    /**
+     * 设置请求监听
+     * @param listener
+     */
+    public void setOnRequestListener(OnRequestListener listener) {
+         mCheckInterceptor.setOnCheckHeadersListener(listener);
     }
 }

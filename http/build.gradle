@@ -43,7 +43,7 @@ dependencies {
 ext {
     params = [
             artifactId : 'http',
-            version : '0.1.7'
+            version : '0.1.8'
     ]
 }
 apply from: '../release.gradle'

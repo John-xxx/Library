@@ -65,6 +65,11 @@ public class AMapLBSModelImpl implements LBSModel {
             mInstance = new AMapLBSModelImpl(context);
         }
     }
+    public static void destroy() {
+        if (mInstance != null) {
+            ((AMapLBSModelImpl) mInstance).destroyInstance();
+        }
+    }
 
     private Context mContext;
 
@@ -126,6 +131,19 @@ public class AMapLBSModelImpl implements LBSModel {
 
         mAMapLocationClient.setLocationOption(mAMapLocationClientOption);
         mAMapLocationClient.setLocationListener(mAMapLocationListener);
+    }
+
+    /**
+     * 销毁实例
+     */
+    private void destroyInstance() {
+        mInstance = null;
+        mContext = null;
+        mOnLocationListeners.clear();
+        mAMapLocationClient.unRegisterLocationListener(mAMapLocationListener);
+        mAMapLocationClient.stopLocation();
+        mAMapLocationClient.onDestroy();
+        mAMapLocationClient = null;
     }
 
     /**
