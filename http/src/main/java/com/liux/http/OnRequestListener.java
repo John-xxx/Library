@@ -12,15 +12,6 @@ import okhttp3.Request;
 public interface OnRequestListener {
 
     /**
-     * Header 回调, 支持一个 key 对应多个 value <br>
-     * headers.put(key, value); 覆盖
-     * headers.put(new String(key), value); 增加
-     * @param request
-     * @param headers
-     */
-    void onHeaders(Request request, Map<String, String> headers);
-
-    /**
      * GET/HEAD 请求回调,支持一个 key 对应多个 value <br>
      * queryParams.put(key, value); 覆盖
      * queryParams.put(new String(key), value); 增加

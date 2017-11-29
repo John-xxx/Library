@@ -287,10 +287,18 @@ public class HttpClient {
     }
 
     /**
+     * 设置请求头监听
+     * @param listener
+     */
+    public void setOnHeaderListener(OnHeaderListener listener) {
+        mCheckInterceptor.setOnHeaderListener(listener);
+    }
+
+    /**
      * 设置请求监听
      * @param listener
      */
     public void setOnRequestListener(OnRequestListener listener) {
-         mCheckInterceptor.setOnCheckHeadersListener(listener);
+         mCheckInterceptor.setOnRequestListener(listener);
     }
 }

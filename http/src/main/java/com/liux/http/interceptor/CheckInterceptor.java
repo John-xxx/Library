@@ -1,6 +1,7 @@
 package com.liux.http.interceptor;
 
 import com.liux.http.HttpUtil;
+import com.liux.http.OnHeaderListener;
 import com.liux.http.OnRequestListener;
 
 import java.io.IOException;
@@ -22,7 +23,7 @@ import okhttp3.Response;
 import okio.Buffer;
 
 /**
- * 请求头/参数自定义拦截器
+ * 请求头/请求参数拦截器
  * Created by Liux on 2017/11/29.
  */
 
@@ -30,6 +31,7 @@ public class CheckInterceptor implements Interceptor {
     private static final MediaType MEDIA_TYPE_TEXT = MediaType.parse("text/plain; charset=UTF-8");
     private static final MediaType MEDIA_TYPE_JSON = MediaType.parse("application/json; charset=UTF-8");
 
+    private OnHeaderListener mOnHeaderListener;
     private OnRequestListener mOnRequestListener;
 
     @Override
@@ -37,19 +39,18 @@ public class CheckInterceptor implements Interceptor {
         Request request = chain.request();
         Request.Builder requestBuilder = request.newBuilder();
 
-        try {
-            /* 请求定制：自定义请求头 */
-            if (mOnRequestListener != null) {
+        /* 请求定制：自定义请求头 */
+        if (mOnHeaderListener != null) {
+            try {
                 checkHeader(request, requestBuilder);
+            } catch (Exception e) {
+                requestBuilder.headers(request.headers());
             }
-        } catch (Exception e) {
-            requestBuilder.headers(request.headers());
-            e.printStackTrace();
         }
 
-        try {
-            /* 请求体定制：自定义参数(针对文本型) */
-            if (mOnRequestListener != null) {
+        /* 请求体定制：自定义参数(针对文本型) */
+        if (mOnRequestListener != null) {
+            try {
                 String method = request.method();
                 if (HttpUtil.notRequiresRequestBody(method)) {
                     // 不允许有请求体的
@@ -58,14 +59,14 @@ public class CheckInterceptor implements Interceptor {
                     // 允许有请求体的
                     checkBodyRequest(request, requestBuilder);
                 }
+            } catch (Exception e) {
+                requestBuilder.url(request.url()).method(request.method(), request.body());
             }
-        } catch (Exception e) {
-            requestBuilder.url(request.url()).method(request.method(), request.body());
-            e.printStackTrace();
         }
 
         // 请求前
-        Request newRequest = requestBuilder.tag(request.tag()).build();
+        Request newRequest = requestBuilder.build();
+
         Response response = chain.proceed(newRequest);
 
         // 请求后
@@ -74,11 +75,11 @@ public class CheckInterceptor implements Interceptor {
         return response;
     }
 
-    /**
-     * 设置请求回调
-     * @param listener
-     */
-    public void setOnCheckHeadersListener(OnRequestListener listener) {
+    public void setOnHeaderListener(OnHeaderListener listener) {
+        mOnHeaderListener = listener;
+    }
+
+    public void setOnRequestListener(OnRequestListener listener) {
         mOnRequestListener = listener;
     }
 
@@ -98,7 +99,7 @@ public class CheckInterceptor implements Interceptor {
             }
         }
 
-        mOnRequestListener.onHeaders(request, headers);
+        mOnHeaderListener.onHeaders(request, headers);
 
         // 合成新的 Header
         Headers.Builder builder = new Headers.Builder();
