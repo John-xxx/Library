@@ -7,6 +7,18 @@ Library
 封装了一些和业务模式无强关联的库类<br>
 并引用了一些时下较流行的三方开源库
 
+[maven](http://maven.lx0758.cc)
+---
+```
+repositories {
+    ...
+    maven {
+        url 'http://maven.lx0758.cc/artifactory/public/'
+    }
+    ...
+}
+```
+
 [banner](/banner/README.md)
 ---
 实现一个适配器模式的伪无限滚动的Banner
@@ -58,4 +70,4 @@ Glide转换器,自定义Glide4配置和实现视屏缩略图的自定义加载�
 
 License
 ---
-[The MIT License Copyright (c) 2017 lx0758](/LICENSE.txt)
+[The MIT License Copyright (c) 2017 Liux](/LICENSE.txt)

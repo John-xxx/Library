@@ -45,6 +45,33 @@ uploadArchives {
                 groupId = 'com.liux'
                 artifactId = params.artifactId
                 version = params.version
+
+                url 'https://gitee.com/lx0758/Library'
+                name project.name
+                packaging 'aar'
+                description 'My rapid development library'
+
+                scm {
+                    url 'https://gitee.com/lx0758/Library'
+                    connection 'git@gitee.com:lx0758/Library.git'
+                    developerConnection 'git@gitee.com:lx0758/Library.git'
+                }
+
+                licenses {
+                    license {
+                        name 'MIT'
+                        url 'https://opensource.org/licenses/mit'
+                        distribution 'Liux'
+                    }
+                }
+
+                developers {
+                    developer {
+                        id 'lx0758'
+                        name 'Liux'
+                        email 'lx0758@qq.com'
+                    }
+                }
             }
         }
     }
