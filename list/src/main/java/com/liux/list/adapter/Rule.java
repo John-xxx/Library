@@ -1,14 +1,14 @@
 package com.liux.list.adapter;
 
 import android.support.annotation.LayoutRes;
-
-import com.liux.list.holder.SuperHolder;
+import android.support.v7.widget.RecyclerView;
+import android.view.ViewGroup;
 
 /**
  * Bean 和 View 绑定显示规则
  * @param <T>
  */
-public abstract class Rule<T> {
+public abstract class Rule<T, VH extends RecyclerView.ViewHolder> {
 
     public int layout;
 
@@ -28,11 +28,19 @@ public abstract class Rule<T> {
     public abstract boolean doBindData(Object object);
 
     /**
+     * 创建ViewHolder
+     * @param parent
+     * @param layout
+     * @return
+     */
+    public abstract VH createHolder(ViewGroup parent, int layout);
+
+    /**
      * 绑定数据到View
      * @param holder
      * @param t
      * @param state
      * @param position
      */
-    public abstract void onDataBind(SuperHolder holder, T t, State state, int position);
+    public abstract void onDataBind(VH holder, T t, State state, int position);
 }

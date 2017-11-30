@@ -11,8 +11,8 @@ import android.view.View;
 
 import com.liux.example.R;
 import com.liux.list.adapter.MultipleAdapter;
-import com.liux.list.adapter.Rule;
 import com.liux.list.adapter.State;
+import com.liux.list.adapter.SuperRule;
 import com.liux.list.decoration.AbsItemDecoration;
 import com.liux.list.holder.SuperHolder;
 import com.liux.list.listener.OnSelectListener;
@@ -62,7 +62,7 @@ public class ListActivity extends AppCompatActivity {
         mMultipleAdapter = new MultipleAdapter<Object>()
                 .setHeader(LayoutInflater.from(this).inflate(R.layout.layout_header, rvList, false))
                 .setFooter(LayoutInflater.from(this).inflate(R.layout.layout_footer, rvList, false))
-                .addRule(new Rule<String>(android.R.layout.simple_list_item_1) {
+                .addRule(new SuperRule<String>(android.R.layout.simple_list_item_1) {
                     @Override
                     public boolean doBindData(Object object) {
                         return object instanceof String;
@@ -79,7 +79,7 @@ public class ListActivity extends AppCompatActivity {
                         });
                     }
                 })
-                .addRule(new Rule<Integer>(android.R.layout.simple_list_item_2) {
+                .addRule(new SuperRule<Integer>(android.R.layout.simple_list_item_2) {
                     @Override
                     public boolean doBindData(Object object) {
                         return object instanceof Integer;

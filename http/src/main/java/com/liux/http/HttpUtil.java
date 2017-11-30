@@ -132,6 +132,19 @@ public class HttpUtil {
     }
 
     /**
+     * 是否是文本型媒体
+     * @param type
+     * @return
+     */
+    public static boolean isTextMediaType(MediaType type) {
+        String t2 = type.subtype();
+        String t1 = type.type();
+        String t = t1 + t2;
+        return "text".equals(t1)
+                || "application/json".equals(t);
+    }
+
+    /**
      * 生成一个XML请求体
      * @param content
      * @return

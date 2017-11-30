@@ -7,7 +7,6 @@ import android.view.View;
 import android.view.ViewGroup;
 
 import com.liux.list.holder.MarginHolder;
-import com.liux.list.holder.SuperHolder;
 import com.liux.list.listener.OnSelectListener;
 
 import java.util.ArrayList;
@@ -30,7 +29,7 @@ import java.util.List;
 public class MultipleAdapter<T> extends RecyclerView.Adapter {
 
     public MultipleAdapter() {
-        mDataSource = new StateList<T>();
+        mDataSource = new StateList<>();
     }
 
     /**
@@ -38,7 +37,7 @@ public class MultipleAdapter<T> extends RecyclerView.Adapter {
      * 然后调用{@link StateList#addAll(Collection)}方法复制数据 <br>
      * 所以对原始List操作不会同步到适配器数据源 <br>
      * 容易造成混淆,故而废弃此方法
-     * @param dataSource
+     * @param dataSource 数据源,拷贝模式
      */
     @Deprecated
     public MultipleAdapter(List<T> dataSource) {
@@ -67,7 +66,7 @@ public class MultipleAdapter<T> extends RecyclerView.Adapter {
         }
 
         Rule rule = mRuleManage.getRuleForType(viewType);
-        return SuperHolder.create(parent, rule.layout);
+        return rule.createHolder(parent, rule.layout);
     }
 
     @Override
@@ -82,12 +81,12 @@ public class MultipleAdapter<T> extends RecyclerView.Adapter {
         Rule rule = mRuleManage.getRuleForObject(t);
         State state = mDataSource.getState(position);
         if (!isOpenSelect()) state.state = State.STATE_NONE;
-        rule.onDataBind((SuperHolder) holder, t, state, position);
+        rule.onDataBind(holder, t, state, position);
     }
 
     /**
      * 取当前条目总数,包括页眉和页脚
-     * @return
+     * @return 总条数
      */
     @Override
     public int getItemCount() {
@@ -116,10 +115,10 @@ public class MultipleAdapter<T> extends RecyclerView.Adapter {
 
     /**
      * 添加数据和视图关联规则
-     * @param rule
-     * @return
+     * @param rule 适配规则
+     * @return 当前实例
      */
-    public MultipleAdapter<T> addRule(Rule<? extends T> rule) {
+    public MultipleAdapter<T> addRule(Rule<? extends T, ? extends RecyclerView.ViewHolder> rule) {
         mRuleManage.addRule(rule);
         return this;
     }
@@ -138,7 +137,7 @@ public class MultipleAdapter<T> extends RecyclerView.Adapter {
 
     /**
      * 设置页眉布局
-     * @param view
+     * @param view View
      */
     public MultipleAdapter<T> setHeader(View view) {
         if (mHeaders.isEmpty()) {
@@ -153,7 +152,7 @@ public class MultipleAdapter<T> extends RecyclerView.Adapter {
 
     /**
      * 设置页脚布局
-     * @param view
+     * @param view View
      */
     public MultipleAdapter<T> setFooter(View view) {
         if (mFooters.isEmpty()) {
@@ -168,8 +167,8 @@ public class MultipleAdapter<T> extends RecyclerView.Adapter {
 
     /**
      * 获取除去 Header/Footer 之后真实的位置
-     * @param position
-     * @return
+     * @param position 绘图定位
+     * @return 真实定位
      */
     public int getRealPosition(int position) {
         return position - mHeaders.size();
@@ -177,8 +176,8 @@ public class MultipleAdapter<T> extends RecyclerView.Adapter {
 
     /**
      * 获取包含 Header/Footer 之后真实的位置
-     * @param position
-     * @return
+     * @param position 绘图定位
+     * @return 真实定位
      */
     public int getShamPosition(int position) {
         return position + mHeaders.size();
@@ -186,8 +185,8 @@ public class MultipleAdapter<T> extends RecyclerView.Adapter {
 
     /**
      * 检查是否是页眉布局
-     * @param position
-     * @return
+     * @param position 绘图定位
+     * @return 是否是页眉布局
      */
     public boolean isHeaderPosition(int position) {
         return getItemViewType(position) == ITEM_VIEW_TYPE_HEADER;
@@ -195,8 +194,8 @@ public class MultipleAdapter<T> extends RecyclerView.Adapter {
 
     /**
      * 检查是否是页脚布局
-     * @param position
-     * @return
+     * @param position 绘图定位
+     * @return 是否是页脚布局
      */
     public boolean isFooterPosition(int position) {
         return getItemViewType(position) == ITEM_VIEW_TYPE_FOOTER;
@@ -204,8 +203,7 @@ public class MultipleAdapter<T> extends RecyclerView.Adapter {
 
     /**
      * 适配当 RecyclerView.LayoutManager() 为 GridLayoutManager()
-     *
-     * @param recyclerView
+     * @param recyclerView 目标
      */
     @Override
     public void onAttachedToRecyclerView(RecyclerView recyclerView) {
@@ -231,8 +229,7 @@ public class MultipleAdapter<T> extends RecyclerView.Adapter {
 
     /**
      * 适配当 RecyclerView.LayoutManager() 为 StaggeredGridLayoutManager()
-     *
-     * @param holder
+     * @param holder 目标
      */
     @Override
     public void onViewAttachedToWindow(RecyclerView.ViewHolder holder) {
@@ -264,7 +261,7 @@ public class MultipleAdapter<T> extends RecyclerView.Adapter {
 
     /**
      * 设置开启选择(单选)
-     * @param open
+     * @param open 开启
      */
     public void setOpenSelect(boolean open) {
         setOpenSelect(open, 1);
@@ -272,8 +269,8 @@ public class MultipleAdapter<T> extends RecyclerView.Adapter {
 
     /**
      * 设置开启选择
-     * @param open
-     * @param maxSelectCount
+     * @param open 开启
+     * @param maxSelectCount 最大数量
      */
     public void setOpenSelect(boolean open, int maxSelectCount) {
         if (mOpenSelect == open) return;
@@ -290,7 +287,7 @@ public class MultipleAdapter<T> extends RecyclerView.Adapter {
 
     /**
      * 是否开启选择
-     * @return
+     * @return 开启
      */
     public boolean isOpenSelect() {
         return mOpenSelect;
@@ -298,7 +295,7 @@ public class MultipleAdapter<T> extends RecyclerView.Adapter {
 
     /**
      * 获取最大可选择数
-     * @return
+     * @return 最大可选择数
      */
     public int getMaxSelectCount() {
         return mMaxSelectCount;
@@ -306,7 +303,7 @@ public class MultipleAdapter<T> extends RecyclerView.Adapter {
 
     /**
      * 设置最大可选择数
-     * @param count
+     * @param count 最大可选择数
      */
     public void setMaxSelectCount(int count) {
         if (isOpenSelect()) {
@@ -316,8 +313,8 @@ public class MultipleAdapter<T> extends RecyclerView.Adapter {
 
     /**
      * 切换某条数据选中状态
-     * @param t
-     * @return
+     * @param t 数据
+     * @return 是否选中
      */
     public boolean toggle(T t) {
         return toggle(mDataSource.indexOf(t));
@@ -325,8 +322,8 @@ public class MultipleAdapter<T> extends RecyclerView.Adapter {
 
     /**
      * 切换某条数据选中状态
-     * @param position
-     * @return
+     * @param position 数据位置
+     * @return 是否选中
      */
     public boolean toggle(int position) {
         if (!isOpenSelect()) return false;
@@ -335,9 +332,9 @@ public class MultipleAdapter<T> extends RecyclerView.Adapter {
 
     /**
      * 设置某条数据选中状态
-     * @param t
-     * @param selected
-     * @return
+     * @param t 数据
+     * @param selected 选中状态
+     * @return 是否选中
      */
     public boolean setSelect(T t, boolean selected) {
         return setSelect(mDataSource.indexOf(t), selected);
@@ -345,9 +342,9 @@ public class MultipleAdapter<T> extends RecyclerView.Adapter {
 
     /**
      * 设置某条数据选中状态
-     * @param position
-     * @param selected
-     * @return
+     * @param position 数据位置
+     * @param selected 选中状态
+     * @return 是否选中
      */
     public boolean setSelect(int position, boolean selected) {
         if (!isOpenSelect()) return false;
@@ -409,7 +406,7 @@ public class MultipleAdapter<T> extends RecyclerView.Adapter {
 
     /**
      * 全选
-     * @return
+     * @return 是否全部选中
      */
     public boolean selectAll() {
         if (!isOpenSelect()) return false;
@@ -428,7 +425,7 @@ public class MultipleAdapter<T> extends RecyclerView.Adapter {
 
     /**
      * 全不选
-     * @return
+     * @return 是否全部没选中
      */
     public boolean unSelectAll() {
         if (!isOpenSelect()) return false;
@@ -440,7 +437,7 @@ public class MultipleAdapter<T> extends RecyclerView.Adapter {
 
     /**
      * 反选
-     * @return
+     * @return 是否反选
      */
     public boolean reverseSelectAll() {
         if (!isOpenSelect()) return false;
@@ -460,8 +457,8 @@ public class MultipleAdapter<T> extends RecyclerView.Adapter {
 
     /**
      * 某条数据是否选中
-     * @param t
-     * @return
+     * @param t 数据
+     * @return 是否选中
      */
     public boolean isSelect(T t) {
         return isSelect(mDataSource.indexOf(t));
@@ -469,8 +466,8 @@ public class MultipleAdapter<T> extends RecyclerView.Adapter {
 
     /**
      * 某条数据是否选中
-     * @param position
-     * @return
+     * @param position 数据位置
+     * @return 是否选中
      */
     public boolean isSelect(int position) {
         return mDataSource.getState(position).state == State.STATE_SELECTED;
@@ -478,8 +475,8 @@ public class MultipleAdapter<T> extends RecyclerView.Adapter {
 
     /**
      * 获取某种状态的全部数据
-     * @param state
-     * @return
+     * @param state 状态值
+     * @return 数据列表
      */
     public List<T> getStateAll(int state) {
         return mDataSource.getStateAll(state);
@@ -487,7 +484,7 @@ public class MultipleAdapter<T> extends RecyclerView.Adapter {
 
     /**
      * 设置选择事件监听
-     * @param listener
+     * @param listener 监听器
      */
     public void setOnSelectListener(OnSelectListener<T> listener) {
         mOnSelectListener = listener;
@@ -495,7 +492,7 @@ public class MultipleAdapter<T> extends RecyclerView.Adapter {
 
     /**
      * 切换全部数据状态
-     * @param open
+     * @param open 是否开启选择
      */
     private void switchOpenSelect(boolean open) {
         mDataSource.setStateAll(open ? State.STATE_UNSELECTED : State.STATE_NONE);

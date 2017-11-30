@@ -1,6 +1,5 @@
 package com.liux.example.boxing;
 
-import android.content.Intent;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v7.app.AppCompatActivity;
@@ -14,7 +13,6 @@ import com.bilibili.boxing.BoxingMediaLoader;
 import com.bilibili.boxing.model.entity.BaseMedia;
 import com.bilibili.boxing.model.entity.impl.ImageMedia;
 import com.bilibili.boxing.model.entity.impl.VideoMedia;
-import com.bilibili.boxing_impl.ui.BoxingPreviewActivity;
 import com.liux.boxing.BoxingGlideLoader;
 import com.liux.boxing.BoxingTool;
 import com.liux.boxing.BoxingUcrop;
@@ -23,12 +21,11 @@ import com.liux.boxing.OnSingleSelectListener;
 import com.liux.boxing.OnVideoSelectListener;
 import com.liux.example.R;
 import com.liux.list.adapter.MultipleAdapter;
-import com.liux.list.adapter.Rule;
 import com.liux.list.adapter.State;
+import com.liux.list.adapter.SuperRule;
 import com.liux.list.decoration.GridItemDecoration;
 import com.liux.list.holder.SuperHolder;
 
-import java.util.ArrayList;
 import java.util.List;
 
 import butterknife.BindView;
@@ -57,7 +54,7 @@ public class BoxingActivity extends AppCompatActivity {
         rvList.addItemDecoration(new GridItemDecoration(10, 3));
         rvList.setLayoutManager(new GridLayoutManager(this, 3));
         mMultipleAdapter = new MultipleAdapter<String>()
-                .addRule(new Rule<String>(R.layout.layout_media_item) {
+                .addRule(new SuperRule<String>(R.layout.layout_media_item) {
                     @Override
                     public boolean doBindData(Object object) {
                         return true;

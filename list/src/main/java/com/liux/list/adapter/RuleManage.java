@@ -13,14 +13,14 @@ import java.util.List;
  */
 public class RuleManage<T> {
 
-    private List<Rule<? extends T>> mRules = new ArrayList<>();
+    private List<Rule> mRules = new ArrayList<>();
 
     /**
      * 添加规则
      * {@link MultipleAdapter#addRule(Rule)}
      * @param rule
      */
-    void addRule(Rule<? extends T> rule) {
+    void addRule(Rule rule) {
         mRules.add(rule);
     }
 
@@ -31,12 +31,12 @@ public class RuleManage<T> {
      * @return
      */
     int getRuleType(T t) {
-        for (int i = 0; i < mRules.size(); i++) {
-            if (mRules.get(i).doBindData(t)) {
-                return i;
+        for (int index = 0; index < mRules.size(); index++) {
+            if (mRules.get(index).doBindData(t)) {
+                return index;
             }
         }
-        return -1;
+        throw new IllegalArgumentException("No rule of object [" + t + "] was found");
     }
 
     /**
@@ -45,10 +45,7 @@ public class RuleManage<T> {
      * @param type
      * @return
      */
-    Rule<? extends T> getRuleForType(int type) {
-        if (type == -1) {
-            throw new IllegalArgumentException("No rule of type " + type + " was found");
-        }
+    Rule getRuleForType(int type) {
         return mRules.get(type);
     }
 
@@ -58,10 +55,10 @@ public class RuleManage<T> {
      * @param object
      * @return
      */
-    Rule<? extends T> getRuleForObject(Object object) {
-        for (Rule<? extends T> rule : mRules) {
+    Rule getRuleForObject(Object object) {
+        for (Rule rule : mRules) {
             if (rule.doBindData(object)) return rule;
         }
-        throw new IllegalArgumentException("No rule of object " + object + " was found");
+        throw new IllegalArgumentException("No rule of object [" + object + "] was found");
     }
 }

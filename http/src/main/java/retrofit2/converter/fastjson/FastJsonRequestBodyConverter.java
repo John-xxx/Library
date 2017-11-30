@@ -30,9 +30,10 @@ public class FastJsonRequestBodyConverter<T> implements Converter<T, RequestBody
         MediaType mediaType;
 
         if (this.type != JSON.class) {
-            content = String.valueOf(value).getBytes();
             mediaType = MEDIA_TYPE_TEXT;
+            content = String.valueOf(value).getBytes();
         } else {
+            mediaType = MEDIA_TYPE_JSON;
             if(this.serializeConfig != null) {
                 if(this.serializerFeatures != null) {
                     content = JSON.toJSONBytes(value, this.serializeConfig, this.serializerFeatures);
@@ -44,7 +45,6 @@ public class FastJsonRequestBodyConverter<T> implements Converter<T, RequestBody
             } else {
                 content = JSON.toJSONBytes(value, new SerializerFeature[0]);
             }
-            mediaType = MEDIA_TYPE_JSON;
         }
 
         return RequestBody.create(mediaType, content);

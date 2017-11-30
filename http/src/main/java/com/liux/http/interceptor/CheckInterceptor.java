@@ -28,8 +28,6 @@ import okio.Buffer;
  */
 
 public class CheckInterceptor implements Interceptor {
-    private static final MediaType MEDIA_TYPE_TEXT = MediaType.parse("text/plain; charset=UTF-8");
-    private static final MediaType MEDIA_TYPE_JSON = MediaType.parse("application/json; charset=UTF-8");
 
     private OnHeaderListener mOnHeaderListener;
     private OnRequestListener mOnRequestListener;
@@ -175,7 +173,7 @@ public class CheckInterceptor implements Interceptor {
             Headers head  = part.headers();
             RequestBody body  = part.body();
             MediaType type = body.contentType();
-            if (MEDIA_TYPE_TEXT.equals(type) || MEDIA_TYPE_JSON.equals(type)) {
+            if (HttpUtil.isTextMediaType(type)) {
                 Buffer buffer = new Buffer();
                 body.writeTo(buffer);
                 String key = head.value(0).substring(head.value(0).lastIndexOf("=") + 1).replace("\"", "");
@@ -219,9 +217,12 @@ public class CheckInterceptor implements Interceptor {
     }
 
     private RequestBody checkRequestBodyParams(Request request, RequestBody requestBody) throws IOException {
-        String param = null;
+        String param;
 
         // 读取原始参数
+        MediaType mediaType = requestBody.contentType();
+        if (mediaType == null) return requestBody;
+        if (!HttpUtil.isTextMediaType(mediaType)) return requestBody;
         Buffer buffer = new Buffer();
         requestBody.writeTo(buffer);
         param = buffer.readUtf8();

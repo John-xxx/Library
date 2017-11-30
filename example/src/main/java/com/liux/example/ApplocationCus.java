@@ -5,6 +5,7 @@ import android.content.Context;
 import android.support.multidex.MultiDex;
 
 import com.liux.http.HttpClient;
+import com.liux.http.OnHeaderListener;
 import com.liux.http.OnRequestListener;
 
 import java.util.Map;
@@ -29,12 +30,13 @@ public class ApplocationCus extends Application {
 
         /* 初始化 HttpClient */
         HttpClient.initialize(this, "http://lx0758.cc/");
-        HttpClient.getInstance().setOnRequestListener(new OnRequestListener() {
+        HttpClient.getInstance().setOnHeaderListener(new OnHeaderListener() {
             @Override
             public void onHeaders(Request request, Map<String, String> headers) {
 
             }
-
+        });
+        HttpClient.getInstance().setOnRequestListener(new OnRequestListener() {
             @Override
             public void onQueryRequest(Request request, Map<String, String> queryParams) {
 

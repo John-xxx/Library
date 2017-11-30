@@ -17,6 +17,7 @@ import com.liux.permission.OnPermissionListener;
 import com.liux.permission.PermissionTool;
 import com.liux.util.IntentUtil;
 import com.liux.util.UriUtil;
+import com.liux.view.SingleToast;
 
 import java.util.List;
 
@@ -72,6 +73,8 @@ public class PermissionActivity extends AppCompatActivity {
                                     Intent intent = new Intent(Intent.ACTION_CALL);
                                     intent.setData(Uri.parse("tel:10010"));
                                     startActivity(intent);
+                                } else {
+                                    SingleToast.makeText(PermissionActivity.this, "没有拨号权限", SingleToast.LENGTH_SHORT).show();
                                 }
                             }
                         })
@@ -86,6 +89,8 @@ public class PermissionActivity extends AppCompatActivity {
                                 if (allow.contains(Manifest.permission.CAMERA)) {
                                     mTempFile = UriUtil.getProviderCacheUri(PermissionActivity.this, System.currentTimeMillis() + ".jpg");
                                     IntentUtil.callCamera(PermissionActivity.this, mTempFile, REQUEST_CODE_CAMERA);
+                                } else {
+                                    SingleToast.makeText(PermissionActivity.this, "没有拍照权限", SingleToast.LENGTH_SHORT).show();
                                 }
                             }
                         })
@@ -101,11 +106,15 @@ public class PermissionActivity extends AppCompatActivity {
                                     Intent intent = new Intent(Intent.ACTION_CALL);
                                     intent.setData(Uri.parse("tel:10010"));
                                     startActivity(intent);
+                                } else {
+                                    SingleToast.makeText(PermissionActivity.this, "没有拨号权限", SingleToast.LENGTH_SHORT).show();
                                 }
 
                                 if (allow.contains(Manifest.permission.CAMERA)) {
                                     mTempFile = UriUtil.getProviderCacheUri(PermissionActivity.this, System.currentTimeMillis() + ".jpg");
                                     IntentUtil.callCamera(PermissionActivity.this, mTempFile, REQUEST_CODE_CAMERA);
+                                } else {
+                                    SingleToast.makeText(PermissionActivity.this, "没有拍照权限", SingleToast.LENGTH_SHORT).show();
                                 }
                             }
                         })

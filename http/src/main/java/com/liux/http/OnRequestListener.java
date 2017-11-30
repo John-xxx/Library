@@ -12,7 +12,8 @@ import okhttp3.Request;
 public interface OnRequestListener {
 
     /**
-     * GET/HEAD 请求回调,支持一个 key 对应多个 value <br>
+     * 不带请求体的请求回调,在此处修改键值 <br>
+     * 支持一个 key 对应多个 value <br>
      * queryParams.put(key, value); 覆盖
      * queryParams.put(new String(key), value); 增加
      * @param request
@@ -21,7 +22,8 @@ public interface OnRequestListener {
     void onQueryRequest(Request request, Map<String, String> queryParams);
 
     /**
-     * POST/DELETE/PUT/PATCH 请求回调,支持一个 key 对应多个 value <br>
+     * 带请求体的请求回调,在此处修改参数 <br>
+     * 支持一个 key 对应多个 value <br>
      * bodyParams.put(key, value); 覆盖
      * bodyParams.put(new String(key), value); 增加
      * @param request
@@ -30,7 +32,7 @@ public interface OnRequestListener {
     void onBodyRequest(Request request, Map<String, String> bodyParams);
 
     /**
-     * POST/DELETE/PUT/PATCH 请求回调,纯文本形式
+     * 纯文本/字节的请求回调,在此处修改数据
      * @param request
      * @param param
      */
