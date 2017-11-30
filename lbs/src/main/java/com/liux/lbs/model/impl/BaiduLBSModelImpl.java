@@ -3,8 +3,8 @@ package com.liux.lbs.model.impl;
 import android.content.Context;
 import android.text.TextUtils;
 
+import com.baidu.location.BDAbstractLocationListener;
 import com.baidu.location.BDLocation;
-import com.baidu.location.BDLocationListener;
 import com.baidu.location.LocationClient;
 import com.baidu.location.LocationClientOption;
 import com.baidu.mapapi.model.LatLng;
@@ -92,7 +92,7 @@ public class BaiduLBSModelImpl implements LBSModel {
     private LocationClientOption mLocationClientOption;
 
     private List<OnLocationListener> mOnLocationListeners = new ArrayList<>();
-    private BDLocationListener mBDLocationListener = new BDLocationListener() {
+    private BDAbstractLocationListener mBDAbstractLocationListener = new BDAbstractLocationListener() {
         @Override
         public void onReceiveLocation(BDLocation bdLocation) {
             if (mOnLocationListeners.isEmpty()) {
@@ -147,7 +147,7 @@ public class BaiduLBSModelImpl implements LBSModel {
         mLocationClientOption.setNeedDeviceDirect(true);
 
         mLocationClient.setLocOption(mLocationClientOption);
-        mLocationClient.registerNotifyLocationListener(mBDLocationListener);
+        mLocationClient.registerLocationListener(mBDAbstractLocationListener);
     }
 
     /**
@@ -157,7 +157,7 @@ public class BaiduLBSModelImpl implements LBSModel {
         mInstance = null;
         mContext = null;
         mOnLocationListeners.clear();
-        mLocationClient.unRegisterLocationListener(mBDLocationListener);
+        mLocationClient.unRegisterLocationListener(mBDAbstractLocationListener);
         mLocationClient.stop();
         mLocationClient = null;
     }
@@ -211,7 +211,7 @@ public class BaiduLBSModelImpl implements LBSModel {
                             public void subscribe(@NonNull final ObservableEmitter<BDLocation> observableEmitter) throws Exception {
                                 final LocationClient locationClient = new LocationClient(mContext);
                                 locationClient.setLocOption(locationClientOption);
-                                locationClient.registerNotifyLocationListener(new BDLocationListener() {
+                                locationClient.registerLocationListener(new BDAbstractLocationListener() {
                                     @Override
                                     public void onReceiveLocation(BDLocation bdLocation) {
                                         locationClient.unRegisterLocationListener(this);
