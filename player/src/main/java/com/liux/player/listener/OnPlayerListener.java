@@ -1,9 +1,5 @@
 package com.liux.player.listener;
 
-import android.widget.ImageView;
-
-import com.liux.player.Media;
-
 /**
  * 留给开发者的播放器状态回调
  * Created by Liux on 2017/9/17.

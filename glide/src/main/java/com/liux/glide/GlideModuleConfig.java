@@ -15,8 +15,8 @@ import com.bumptech.glide.load.engine.cache.MemorySizeCalculator;
 import com.bumptech.glide.load.model.GlideUrl;
 import com.bumptech.glide.module.AppGlideModule;
 import com.bumptech.glide.request.RequestOptions;
-import com.liux.glide.video.VideoUrl;
 import com.liux.glide.video.VideoModelLoader;
+import com.liux.glide.video.VideoUrl;
 
 import java.io.InputStream;
 

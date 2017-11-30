@@ -4,8 +4,8 @@ import android.app.Activity;
 import android.content.pm.ActivityInfo;
 import android.content.pm.PackageManager;
 
-import com.liux.pay.Request;
 import com.liux.pay.PayTool;
+import com.liux.pay.Request;
 import com.tencent.mm.opensdk.constants.Build;
 import com.tencent.mm.opensdk.modelpay.PayReq;
 import com.tencent.mm.opensdk.modelpay.PayResp;

@@ -2,8 +2,8 @@ package com.liux.pay.unionpay;
 
 import android.content.Intent;
 
-import com.liux.pay.Request;
 import com.liux.pay.PayTool;
+import com.liux.pay.Request;
 import com.unionpay.UPPayAssistEx;
 
 import java.util.HashMap;

@@ -6,7 +6,6 @@ import android.view.LayoutInflater;
 import android.view.View;
 
 import com.liux.player.R;
-import com.liux.player.util.GestureHelper;
 
 /**
  * Created by Liux on 2017/11/26.

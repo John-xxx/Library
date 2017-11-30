@@ -17,8 +17,6 @@ import android.view.Window;
 import android.view.WindowManager;
 import android.widget.FrameLayout;
 
-import com.liux.player.view.FullScreenPlayerView;
-
 /**
  * Created by Liux on 2017/10/26.
  */

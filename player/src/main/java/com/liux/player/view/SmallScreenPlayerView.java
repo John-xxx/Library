@@ -4,7 +4,6 @@ import android.graphics.SurfaceTexture;
 import android.view.Gravity;
 import android.view.Surface;
 import android.view.TextureView;
-import android.view.View;
 
 import com.liux.player.util.ViewUtil;
 

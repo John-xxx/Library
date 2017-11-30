@@ -4,8 +4,6 @@ import android.annotation.SuppressLint;
 import android.view.ViewGroup;
 import android.widget.ImageView;
 
-import com.liux.player.PlayerView;
-
 /**
  * Created by Liux on 2017/10/25.
  */

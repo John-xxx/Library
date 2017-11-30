@@ -1,9 +1,7 @@
 package com.liux.player.view;
 
-import android.content.Context;
 import android.view.SurfaceHolder;
 import android.view.SurfaceView;
-import android.view.View;
 
 import com.liux.player.util.ViewUtil;
 

@@ -1,30 +1,19 @@
 package com.liux.player.view;
 
 import android.annotation.SuppressLint;
-import android.app.Activity;
-import android.content.Context;
-import android.content.pm.ActivityInfo;
-import android.media.AudioManager;
 import android.os.Handler;
 import android.os.Message;
 import android.text.TextUtils;
 import android.view.LayoutInflater;
 import android.view.MotionEvent;
-import android.view.Surface;
 import android.view.View;
-import android.view.Window;
-import android.view.WindowManager;
 import android.widget.ImageView;
 import android.widget.SeekBar;
 import android.widget.TextView;
 
 import com.liux.player.Media;
 import com.liux.player.R;
-import com.liux.player.PlayerView;
-import com.liux.player.util.GestureHelper;
 import com.liux.player.util.ViewUtil;
-
-import java.util.Locale;
 
 /**
  * 默认的播放控制器

@@ -2,8 +2,8 @@ package com.liux.pay.alipay;
 
 import com.alipay.sdk.app.EnvUtils;
 import com.alipay.sdk.app.PayTask;
-import com.liux.pay.Request;
 import com.liux.pay.PayTool;
+import com.liux.pay.Request;
 
 public abstract class AliRequest extends Request<String, AliResult> {
     // 订单支付成功
