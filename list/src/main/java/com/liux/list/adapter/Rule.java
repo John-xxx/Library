@@ -6,7 +6,7 @@ import android.view.ViewGroup;
 
 /**
  * Bean 和 View 绑定显示规则
- * @param <T>
+ * @param <T> 要处理的类型
  */
 public abstract class Rule<T, VH extends RecyclerView.ViewHolder> {
 
@@ -25,7 +25,21 @@ public abstract class Rule<T, VH extends RecyclerView.ViewHolder> {
      * @param object
      * @return
      */
-    public abstract boolean doBindData(Object object);
+    public boolean doBindObject(Object object) {
+        try {
+            T t = (T) object;
+            return doBindData(t);
+        } catch (ClassCastException e) {
+            return false;
+        }
+    }
+
+    /**
+     * 数据类型相同,是否匹配规则
+     * @param t
+     * @return
+     */
+    public abstract boolean doBindData(T t);
 
     /**
      * 创建ViewHolder

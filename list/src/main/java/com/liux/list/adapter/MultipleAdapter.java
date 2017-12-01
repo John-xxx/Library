@@ -111,7 +111,7 @@ public class MultipleAdapter<T> extends RecyclerView.Adapter {
 
     /* ============== 绑定规则_Begin ============== */
 
-    private RuleManage<T> mRuleManage = new RuleManage<>();
+    private RuleManage mRuleManage = new RuleManage();
 
     /**
      * 添加数据和视图关联规则

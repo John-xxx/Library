@@ -99,8 +99,10 @@ public class TransparentTitleBar extends TitleBar {
         private ViewGroup.LayoutParams mLayoutParams;
 
         public static void install(AppCompatActivity activity) {
-            if (activity.getWindow().getAttributes().softInputMode != WindowManager.LayoutParams.SOFT_INPUT_ADJUST_RESIZE) return;
-            if ((activity.getWindow().getDecorView().getSystemUiVisibility() & View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN) != View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN) return;
+            if ((activity.getWindow().getAttributes().softInputMode & WindowManager.LayoutParams.SOFT_INPUT_ADJUST_RESIZE)
+                    != WindowManager.LayoutParams.SOFT_INPUT_ADJUST_RESIZE) return;
+            if ((activity.getWindow().getDecorView().getSystemUiVisibility() & View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN)
+                    != View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN) return;
             new TransparentAndResizeFix(activity);
         }
 

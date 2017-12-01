@@ -6,6 +6,7 @@ import com.liux.list.holder.SuperHolder;
 
 /**
  * Created by Liux on 2017/11/30.
+ * @param <T> 要处理的类型
  */
 
 public abstract class SuperRule<T> extends Rule<T, SuperHolder> {

@@ -56,7 +56,7 @@ public class BoxingActivity extends AppCompatActivity {
         mMultipleAdapter = new MultipleAdapter<String>()
                 .addRule(new SuperRule<String>(R.layout.layout_media_item) {
                     @Override
-                    public boolean doBindData(Object object) {
+                    public boolean doBindData(String string) {
                         return true;
                     }
 

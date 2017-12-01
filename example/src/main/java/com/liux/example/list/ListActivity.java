@@ -64,8 +64,8 @@ public class ListActivity extends AppCompatActivity {
                 .setFooter(LayoutInflater.from(this).inflate(R.layout.layout_footer, rvList, false))
                 .addRule(new SuperRule<String>(android.R.layout.simple_list_item_1) {
                     @Override
-                    public boolean doBindData(Object object) {
-                        return object instanceof String;
+                    public boolean doBindData(String string) {
+                        return true;
                     }
 
                     @Override
@@ -81,8 +81,8 @@ public class ListActivity extends AppCompatActivity {
                 })
                 .addRule(new SuperRule<Integer>(android.R.layout.simple_list_item_2) {
                     @Override
-                    public boolean doBindData(Object object) {
-                        return object instanceof Integer;
+                    public boolean doBindData(Integer integer) {
+                        return true;
                     }
 
                     @Override

@@ -9,9 +9,8 @@ import java.util.List;
 
 /**
  * 规则管理器
- * @param <T>
  */
-public class RuleManage<T> {
+public class RuleManage {
 
     private List<Rule> mRules = new ArrayList<>();
 
@@ -27,16 +26,16 @@ public class RuleManage<T> {
     /**
      * 根据数据类型返回规则序号(类型)
      * {@link MultipleAdapter#getItemViewType(int)}
-     * @param t
+     * @param object
      * @return
      */
-    int getRuleType(T t) {
+    int getRuleType(Object object) {
         for (int index = 0; index < mRules.size(); index++) {
-            if (mRules.get(index).doBindData(t)) {
+            if (mRules.get(index).doBindObject(object)) {
                 return index;
             }
         }
-        throw new IllegalArgumentException("No rule of object [" + t + "] was found");
+        throw new IllegalArgumentException("No rule of object [" + object + "] was found");
     }
 
     /**
@@ -57,7 +56,7 @@ public class RuleManage<T> {
      */
     Rule getRuleForObject(Object object) {
         for (Rule rule : mRules) {
-            if (rule.doBindData(object)) return rule;
+            if (rule.doBindObject(object)) return rule;
         }
         throw new IllegalArgumentException("No rule of object [" + object + "] was found");
     }
