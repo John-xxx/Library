@@ -157,7 +157,7 @@ public abstract class AbstractsActivity extends AppCompatActivity {
     protected void onTitleChanged(CharSequence title, int color) {
         super.onTitleChanged(title, color);
         if (mTitleBar != null) {
-            mTitleBar.setTitle(title.toString());
+            mTitleBar.setTitle(title);
             //mTitleBar.setTitleColor(color);
         }
     }

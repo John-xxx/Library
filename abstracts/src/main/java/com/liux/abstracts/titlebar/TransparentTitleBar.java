@@ -69,7 +69,7 @@ public class TransparentTitleBar extends TitleBar<TransparentTitleBar> {
     }
 
     @Override
-    public TransparentTitleBar setTitle(String title) {
+    public TransparentTitleBar setTitle(CharSequence title) {
         return this;
     }
 

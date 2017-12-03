@@ -81,7 +81,7 @@ public class DefaultTitleBar extends TitleBar<DefaultTitleBar> {
     }
 
     @Override
-    public DefaultTitleBar setTitle(String title) {
+    public DefaultTitleBar setTitle(CharSequence title) {
         mTitle.setText(title);
         return this;
     }

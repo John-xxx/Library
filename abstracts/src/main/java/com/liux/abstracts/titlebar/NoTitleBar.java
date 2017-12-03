@@ -22,7 +22,7 @@ public class NoTitleBar extends TitleBar<NoTitleBar> {
     }
 
     @Override
-    public NoTitleBar setTitle(String title) {
+    public NoTitleBar setTitle(CharSequence title) {
         return this;
     }
 

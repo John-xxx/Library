@@ -21,7 +21,7 @@ import java.lang.reflect.Method;
  * 3.{@link AbstractsActivity#onCreate(Bundle, Intent)} <br>
  * 4.{@link #initView} <br>
  * 5.{@link AbstractsActivity#onTitleChanged(CharSequence, int)} <br>
- * 6.{@link #setTitle(String)}
+ * 6.{@link #setTitle(CharSequence)}
  */
 public abstract class TitleBar<T extends TitleBar> {
     private AppCompatActivity mActivity;
@@ -32,7 +32,7 @@ public abstract class TitleBar<T extends TitleBar> {
 
     public abstract void initView();
 
-    public abstract T setTitle(String title);
+    public abstract T setTitle(CharSequence title);
 
     public abstract T setTitleColor(int color);
 
