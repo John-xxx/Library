@@ -2,11 +2,13 @@ package com.liux.abstracts;
 
 import android.content.Context;
 import android.graphics.Color;
+import android.graphics.drawable.ColorDrawable;
 import android.os.Build;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v7.app.AppCompatDialog;
 import android.view.View;
+import android.view.ViewGroup;
 import android.view.Window;
 import android.view.WindowManager;
 
@@ -16,6 +18,9 @@ import android.view.WindowManager;
  */
 
 public abstract class AbstractsDialog extends AppCompatDialog {
+
+    private boolean mFullScreen = false;
+    private ColorDrawable mBackground = new ColorDrawable(Color.TRANSPARENT);
 
     public AbstractsDialog(@NonNull Context context) {
         this(context, 0);
@@ -31,6 +36,52 @@ public abstract class AbstractsDialog extends AppCompatDialog {
         this(context);
         setCancelable(cancelable);
         setOnCancelListener(cancelListener);
+    }
+
+    @Override
+    public void onContentChanged() {
+        super.onContentChanged();
+
+        if (mFullScreen) {
+            getWindow().setBackgroundDrawable(mBackground);
+            getWindow().setLayout(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT);
+        }
+    }
+
+    /**
+     * 是否全屏模式
+     * @return
+     */
+    public boolean isFullScreen() {
+        return mFullScreen;
+    }
+
+    /**
+     * 设置是否全屏模式
+     * @param fullScreen
+     * @return
+     */
+    public AbstractsDialog setFullScreen(boolean fullScreen) {
+        mFullScreen = fullScreen;
+        return this;
+    }
+
+    /**
+     * 获取全屏背景色
+     * @return
+     */
+    public int getBackgroundColor() {
+        return mBackground.getColor();
+    }
+
+    /**
+     * 设置全屏背景色
+     * @param color
+     * @return
+     */
+    public AbstractsDialog setBackgroundColor(int color) {
+        mBackground = new ColorDrawable(color);
+        return this;
     }
 
     /**

@@ -1,6 +1,7 @@
 package com.liux.example.base;
 
 import android.app.Dialog;
+import android.graphics.Color;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v7.app.AppCompatActivity;
@@ -38,7 +39,7 @@ public class DialogActivity extends AppCompatActivity {
                 dialog.show();
                 break;
             case R.id.btn_base_dialog:
-                dialog = new AbstractsDialog(this) {};
+                dialog = new AbstractsDialog(this) {}.setFullScreen(true).setBackgroundColor(Color.YELLOW);
                 dialog.setTitle("标题");
                 dialog.setContentView(R.layout.activity_base);
                 dialog.show();
@@ -46,4 +47,3 @@ public class DialogActivity extends AppCompatActivity {
         }
     }
 }
-
