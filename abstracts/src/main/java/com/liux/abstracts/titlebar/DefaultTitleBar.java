@@ -1,4 +1,4 @@
-package com.liux.base.titlebar;
+package com.liux.abstracts.titlebar;
 
 import android.graphics.Color;
 import android.os.Build;
@@ -13,7 +13,7 @@ import android.widget.FrameLayout;
 import android.widget.ImageView;
 import android.widget.TextView;
 
-import com.liux.base.R;
+import com.liux.abstracts.R;
 
 import java.lang.reflect.Field;
 
@@ -23,7 +23,7 @@ import java.lang.reflect.Field;
  *
  * http://blog.csdn.net/yewei02538/article/details/60979075
  */
-public class DefaultTitleBar extends TitleBar {
+public class DefaultTitleBar extends TitleBar<DefaultTitleBar> {
     private View mRoot, mBack, mMore;
     private TextView mTitle, mBackText, mMoreText;
     private ImageView mBackImage, mMoreImage;
@@ -81,13 +81,15 @@ public class DefaultTitleBar extends TitleBar {
     }
 
     @Override
-    public void setTitle(String title) {
+    public DefaultTitleBar setTitle(String title) {
         mTitle.setText(title);
+        return this;
     }
 
     @Override
-    public void setTitleColor(int color) {
+    public DefaultTitleBar setTitleColor(int color) {
         mTitle.setTextColor(color);
+        return this;
     }
 
     public DefaultTitleBar hasBack(boolean has) {

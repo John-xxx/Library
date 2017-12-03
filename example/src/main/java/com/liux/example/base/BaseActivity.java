@@ -1,8 +1,10 @@
 package com.liux.example.base;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v7.app.AppCompatActivity;
+import android.view.View;
 
 import com.liux.example.R;
 
@@ -16,5 +18,30 @@ public class BaseActivity extends AppCompatActivity {
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_base);
+    }
+
+    public void onClick(View view) {
+        Intent intent = null;
+        switch (view.getId()) {
+            case R.id.btn_activity_transparent:
+                intent = new Intent(this, TransparentTitleBarActivity.class);
+                break;
+            case R.id.btn_activity_default:
+                intent = new Intent(this, DefaultTitleBarActivity.class);
+                break;
+            case R.id.btn_activity_white:
+                intent = new Intent(this, WhiteTitleBarActivity.class);
+                break;
+            case R.id.btn_activity_no:
+                intent = new Intent(this, NoTitleBarActivity.class);
+                break;
+            case R.id.btn_fragment:
+                intent = new Intent(this, FragmentActivity.class);
+                break;
+            case R.id.btn_dialog:
+                intent = new Intent(this, DialogActivity.class);
+                break;
+        }
+        startActivity(intent);
     }
 }

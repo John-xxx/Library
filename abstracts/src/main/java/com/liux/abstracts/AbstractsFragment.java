@@ -1,4 +1,4 @@
-package com.liux.base;
+package com.liux.abstracts;
 
 import android.content.Context;
 import android.content.Intent;
@@ -18,8 +18,8 @@ import java.lang.reflect.Field;
  * Created by Liux on 2017/8/7.
  */
 
-public abstract class BaseFragment extends Fragment {
-    private String TAG = "BaseFragment";
+public abstract class AbstractsFragment extends Fragment {
+    private String TAG = "AbstractsFragment";
 
     private static final String STATE_SAVE_IS_HIDDEN = "STATE_SAVE_IS_HIDDEN";
 
@@ -81,6 +81,8 @@ public abstract class BaseFragment extends Fragment {
     @Override
     public void onStart() {
         super.onStart();
+
+        checkVisibleChanged();
     }
 
     @Override
@@ -96,6 +98,8 @@ public abstract class BaseFragment extends Fragment {
     @Override
     public void onStop() {
         super.onStop();
+
+        mStopCalled = true;
     }
 
     @Override
@@ -144,14 +148,22 @@ public abstract class BaseFragment extends Fragment {
     @Override
     public void onHiddenChanged(boolean hidden) {
         super.onHiddenChanged(hidden);
+
+        if (hidden)
+            checkVisibleChanged();
     }
 
     @Override
     public void setUserVisibleHint(boolean isVisibleToUser) {
         super.setUserVisibleHint(isVisibleToUser);
 
+        boolean callLazyLoad = mCallLazyLoad;
+
         mUserVisible = isVisibleToUser;
         checkLazyLoad();
+
+        if (callLazyLoad)
+            checkVisibleChanged();
     }
 
     @Override
@@ -205,6 +217,13 @@ public abstract class BaseFragment extends Fragment {
      */
     protected abstract void onSaveData(Bundle data);
 
+    /**
+     * 每次重新在前台展示时调用,与 {@link #onLazyLoad} 互斥
+     * {@link #onStart()} 后调用
+     * {@link #onHiddenChanged(boolean)} 后调用
+     */
+    protected abstract void onVisibleChanged();
+
     /* ============== 数据和View_End ============== */
 
 
@@ -226,6 +245,28 @@ public abstract class BaseFragment extends Fragment {
 
         mCallLazyLoad = true;
         onLazyLoad();
+    }
+
+    /**
+     * 当Fragment为第一个展示的页面时,会调用 {@link #onStart()} 方法
+     */
+    private boolean mStopCalled = false;
+
+    /**
+     * 检查视图状态是否已经改变为可视状态
+     * 保证是在懒加载和视图创建完毕之后的生命周期中调用
+     */
+    private void checkVisibleChanged() {
+        if (!mStopCalled) {
+            mStopCalled = true;
+            return;
+        }
+
+        if (!mCallLazyLoad) return;
+        if (!mViewCreated) return;
+        if (!mUserVisible) return;
+
+        onVisibleChanged();
     }
 
     /* ============== 懒加载_End ============== */

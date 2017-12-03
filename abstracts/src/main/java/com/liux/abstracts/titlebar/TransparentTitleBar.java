@@ -1,4 +1,4 @@
-package com.liux.base.titlebar;
+package com.liux.abstracts.titlebar;
 
 import android.graphics.Color;
 import android.graphics.Rect;
@@ -20,7 +20,7 @@ import java.util.IllegalFormatFlagsException;
  * http://www.jianshu.com/p/140be70b84cd <br>
  * https://juejin.im/post/5989ded56fb9a03c3b6c8bde
  */
-public class TransparentTitleBar extends TitleBar {
+public class TransparentTitleBar extends TitleBar<TransparentTitleBar> {
 
     public TransparentTitleBar(AppCompatActivity activity) {
         super(activity);
@@ -34,6 +34,13 @@ public class TransparentTitleBar extends TitleBar {
             activity.getWindow().clearFlags(WindowManager.LayoutParams.FLAG_TRANSLUCENT_STATUS);
             activity.getWindow().clearFlags(WindowManager.LayoutParams.FLAG_TRANSLUCENT_NAVIGATION);
 
+            // 开启系统状态栏颜色设置
+            activity.getWindow().addFlags(WindowManager.LayoutParams.FLAG_DRAWS_SYSTEM_BAR_BACKGROUNDS);
+
+            // 设定系统状态栏颜色
+            activity.getWindow().setStatusBarColor(Color.TRANSPARENT);
+            // activity.getWindow().setNavigationBarColor(Color.TRANSPARENT);
+
             // 全屏状态，视觉上的作用和WindowManager.LayoutParams.FLAG_FULLSCREEN一样
             // View.SYSTEM_UI_FLAG_FULLSCREEN
             // 这两个属性并不会真正隐藏状态栏或者导航栏，只是把整个content的可布局区域延伸到了其中
@@ -42,13 +49,6 @@ public class TransparentTitleBar extends TitleBar {
             // 此View一般和上面几个提到的属性一起使用，它可以保证在系统控件隐藏显示时，不会让本view重新layout
             // View.SYSTEM_UI_FLAG_LAYOUT_STABLE
             activity.getWindow().getDecorView().setSystemUiVisibility(View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN | View.SYSTEM_UI_FLAG_LAYOUT_STABLE);
-
-            // 开启系统状态栏颜色设置
-            activity.getWindow().addFlags(WindowManager.LayoutParams.FLAG_DRAWS_SYSTEM_BAR_BACKGROUNDS);
-
-            // 设定系统状态栏颜色
-            activity.getWindow().setStatusBarColor(Color.TRANSPARENT);
-            // activity.getWindow().setNavigationBarColor(Color.TRANSPARENT);
         } else if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT) {
             activity.getWindow().addFlags(WindowManager.LayoutParams.FLAG_TRANSLUCENT_STATUS);
             // activity.getWindow().addFlags(WindowManager.LayoutParams.FLAG_TRANSLUCENT_NAVIGATION);
@@ -69,13 +69,13 @@ public class TransparentTitleBar extends TitleBar {
     }
 
     @Override
-    public void setTitle(String title) {
-
+    public TransparentTitleBar setTitle(String title) {
+        return this;
     }
 
     @Override
-    public void setTitleColor(int color) {
-
+    public TransparentTitleBar setTitleColor(int color) {
+        return this;
     }
 
     /**

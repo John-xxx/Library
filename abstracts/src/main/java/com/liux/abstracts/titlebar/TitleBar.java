@@ -1,4 +1,4 @@
-package com.liux.base.titlebar;
+package com.liux.abstracts.titlebar;
 
 import android.content.Intent;
 import android.os.Build;
@@ -8,20 +8,22 @@ import android.view.View;
 import android.view.Window;
 import android.view.WindowManager;
 
+import com.liux.abstracts.AbstractsActivity;
+
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 
 /**
  * 自定义TitleBar需要实现此接口 <br>
  * 调用时机: <br>
- * 1.{@link com.liux.base.BaseActivity#onCreate(Bundle)} <br>
- * 2.{@link com.liux.base.BaseActivity#onInitTitleBar} to {@link TitleBar} <br>
- * 3.{@link com.liux.base.BaseActivity#onCreate(Bundle, Intent)} <br>
+ * 1.{@link AbstractsActivity#onCreate(Bundle)} <br>
+ * 2.{@link AbstractsActivity#onInitTitleBar} to {@link TitleBar} <br>
+ * 3.{@link AbstractsActivity#onCreate(Bundle, Intent)} <br>
  * 4.{@link #initView} <br>
- * 5.{@link com.liux.base.BaseActivity#onTitleChanged(CharSequence, int)} <br>
+ * 5.{@link AbstractsActivity#onTitleChanged(CharSequence, int)} <br>
  * 6.{@link #setTitle(String)}
  */
-public abstract class TitleBar {
+public abstract class TitleBar<T extends TitleBar> {
     private AppCompatActivity mActivity;
 
     public TitleBar(AppCompatActivity activity) {
@@ -30,9 +32,9 @@ public abstract class TitleBar {
 
     public abstract void initView();
 
-    public abstract void setTitle(String title);
+    public abstract T setTitle(String title);
 
-    public abstract void setTitleColor(int color);
+    public abstract T setTitleColor(int color);
 
     public AppCompatActivity getActivity() {
         return mActivity;

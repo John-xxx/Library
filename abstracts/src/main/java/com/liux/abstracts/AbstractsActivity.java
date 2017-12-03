@@ -1,4 +1,4 @@
-package com.liux.base;
+package com.liux.abstracts;
 
 import android.content.Context;
 import android.content.Intent;
@@ -9,14 +9,15 @@ import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
 import android.support.v7.app.AppCompatActivity;
+import android.view.GestureDetector;
 import android.view.KeyEvent;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.EditText;
 
-import com.liux.base.titlebar.DefaultTitleBar;
-import com.liux.base.titlebar.TitleBar;
+import com.liux.abstracts.titlebar.DefaultTitleBar;
+import com.liux.abstracts.titlebar.TitleBar;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -26,14 +27,14 @@ import java.util.Map;
  * 1.自动隐藏输入法 {@link #setHandlerTouch(boolean)} <br>
  * 2.重定义创建细节生命周期 {@link #onCreate(Bundle, Intent)} {@link #onInitData(Bundle, Intent)} {@link #onInitView(Bundle)} {@link #onLazyLoad()} <br>
  * 3.实现任意数据的"意外"恢复和存储 {@link #onRestoreData(Map)} {@link #onSaveData(Map)} <br>
- * 4.实现沉浸式状态栏和一套自定义{@link TitleBar} {@link #onInitTitleBar()} {@link com.liux.base.titlebar.TransparentTitleBar} {@link com.liux.base.titlebar.DefaultTitleBar} <br>
+ * 4.实现沉浸式状态栏和一套自定义{@link TitleBar} {@link #onInitTitleBar()} {@link com.liux.abstracts.titlebar.TransparentTitleBar} {@link com.liux.abstracts.titlebar.DefaultTitleBar} <br>
  * 2017-8-21 <br>
  * 调整恢复数据的调用时机<br>
  * Created by Liux on 2017/8/7
  */
 
-public abstract class BaseActivity extends AppCompatActivity {
-    private String TAG = "BaseActivity";
+public abstract class AbstractsActivity extends AppCompatActivity {
+    private String TAG = "AbstractsActivity";
 
     /* ============== 生命周期_Begin ============== */
 
@@ -193,7 +194,22 @@ public abstract class BaseActivity extends AppCompatActivity {
     /* ============== 拦截点击相关_Begin ============== */
 
     private boolean mHandlerTouch = true;
+    private GestureDetector mGestureDetector;
     private InputMethodManager mInputMethodManager;
+
+    private GestureDetector.SimpleOnGestureListener mSimpleOnGestureListener = new GestureDetector.SimpleOnGestureListener() {
+        @Override
+        public boolean onSingleTapUp(MotionEvent event) {
+            hideKeyboard(event);
+            return true;
+        }
+
+//        @Override
+//        public boolean onSingleTapConfirmed(MotionEvent event) {
+//            hideKeyboard(event);
+//            return true;
+//        }
+    };
 
     /**
      * 控制是否拦截点击事件,默认拦截 <br>
@@ -209,13 +225,7 @@ public abstract class BaseActivity extends AppCompatActivity {
     @Override
     public boolean dispatchTouchEvent(MotionEvent event) {
         if (!mHandlerTouch) return super.dispatchTouchEvent(event);
-        // MotionEvent.ACTION_UP 代替 MotionEvent.ACTION_DOWN 解决点击另一个 EditText 闪屏问题
-        if (event.getAction() == MotionEvent.ACTION_UP) {
-            View view = getCurrentFocus();
-            if (view != null && isShouldHideKeyboard(view, event)) {
-                hideKeyboard(view.getWindowToken());
-            }
-        }
+        getGestureDetector().onTouchEvent(event);
         return super.dispatchTouchEvent(event);
     }
 
@@ -225,13 +235,15 @@ public abstract class BaseActivity extends AppCompatActivity {
     @Override
     public boolean onTouchEvent(MotionEvent event) {
         if (!mHandlerTouch) return super.onTouchEvent(event);
-        if (event.getAction() == MotionEvent.ACTION_UP) {
-            View view = getCurrentFocus();
-            if (view != null) {
-                hideKeyboard(view.getWindowToken());
-            }
-        }
+        getGestureDetector().onTouchEvent(event);
         return super.onTouchEvent(event);
+    }
+
+    private GestureDetector getGestureDetector() {
+        if (mGestureDetector == null) {
+            mGestureDetector = new GestureDetector(this, mSimpleOnGestureListener);
+        }
+        return mGestureDetector;
     }
 
     /**
@@ -260,14 +272,19 @@ public abstract class BaseActivity extends AppCompatActivity {
 
     /**
      * 获取InputMethodManager，隐藏软键盘
-     * @param token
+     * @param event
      */
-    private void hideKeyboard(IBinder token) {
-        if (token != null) {
-            if (mInputMethodManager == null) {
-                mInputMethodManager = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
+    private void hideKeyboard(MotionEvent event) {
+        View view = getCurrentFocus();
+        if (view != null) {
+            if (event != null && !isShouldHideKeyboard(view, event)) return;
+            IBinder token = view.getWindowToken();
+            if (token != null) {
+                if (mInputMethodManager == null) {
+                    mInputMethodManager = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
+                }
+                mInputMethodManager.hideSoftInputFromWindow(token, InputMethodManager.HIDE_NOT_ALWAYS);
             }
-            mInputMethodManager.hideSoftInputFromWindow(token, InputMethodManager.HIDE_NOT_ALWAYS);
         }
     }
 

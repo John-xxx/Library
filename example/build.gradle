@@ -60,8 +60,8 @@ dependencies {
     })
     testCompile 'junit:junit:4.12'
 
+    implementation project(':abstracts')
     implementation project(':banner')
-    implementation project(':base')
     implementation project(':boxing')
     implementation project(':glide')
     implementation project(':http')

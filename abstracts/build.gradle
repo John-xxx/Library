@@ -31,8 +31,8 @@ dependencies {
 // Release Library Param
 ext {
     params = [
-            artifactId : 'base',
-            version : '0.1.3'
+            artifactId : 'abstracts',
+            version : '0.1.4'
     ]
 }
 apply from: '../release.gradle'

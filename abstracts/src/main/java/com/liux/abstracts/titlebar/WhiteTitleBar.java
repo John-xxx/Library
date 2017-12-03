@@ -1,11 +1,11 @@
-package com.liux.base.titlebar;
+package com.liux.abstracts.titlebar;
 
 import android.graphics.Color;
 import android.support.v7.app.AppCompatActivity;
 import android.view.View;
 import android.view.ViewGroup;
 
-import com.liux.base.R;
+import com.liux.abstracts.R;
 
 /**
  * 白色背景的 TitleBar 实现

@@ -1,56 +1,79 @@
 <?xml version="1.0" encoding="utf-8"?>
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
-    android:layout_height="match_parent">
-
-    <View
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:background="#50F0F000"/>
-
-    <View
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:layout_margin="10dp"
-        android:background="#5000F000"/>
+    android:layout_height="match_parent"
+    android:gravity="center">
 
     <LinearLayout
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_centerInParent="true"
         android:orientation="vertical"
         android:gravity="center">
 
         <TextView
-            android:id="@+id/tv_text"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:textColor="#000000"
-            android:textSize="20dp"
-            android:text="我是标签"/>
-
-        <EditText
-            android:id="@+id/et_text1"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="10dp"
-            android:textSize="20dp"
-            android:hint="我是编辑框1"/>
-
-        <EditText
-            android:id="@+id/et_text2"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginBottom="10dp"
-            android:textSize="20dp"
-            android:hint="我是编辑框2"/>
+            android:text="Activity"/>
 
         <Button
-            android:id="@+id/btn_button"
+            android:id="@+id/btn_activity_transparent"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:textSize="20dp"
-            android:text="进入子页面"/>
+            android:textAllCaps="false"
+            android:text="TransparentTitleBar"
+            android:onClick="onClick"/>
+
+        <Button
+            android:id="@+id/btn_activity_default"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textAllCaps="false"
+            android:text="DefaultTitleBar"
+            android:onClick="onClick"/>
+
+        <Button
+            android:id="@+id/btn_activity_white"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textAllCaps="false"
+            android:text="WhiteTitleBar"
+            android:onClick="onClick"/>
+
+        <Button
+            android:id="@+id/btn_activity_no"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textAllCaps="false"
+            android:text="NoTitleBar"
+            android:onClick="onClick"/>
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="15dp"
+            android:text="Fragment"/>
+
+        <Button
+            android:id="@+id/btn_fragment"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textAllCaps="false"
+            android:text="Fragment"
+            android:onClick="onClick"/>
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="15dp"
+            android:text="Dialog"/>
+
+        <Button
+            android:id="@+id/btn_dialog"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textAllCaps="false"
+            android:text="Dialog"
+            android:onClick="onClick"/>
 
     </LinearLayout>
 

@@ -39,6 +39,13 @@
         <activity android:name=".base.BaseActivity"
             android:label="Base"/>
 
+        <activity android:name=".base.TransparentTitleBarActivity" />
+        <activity android:name=".base.DefaultTitleBarActivity" />
+        <activity android:name=".base.WhiteTitleBarActivity" />
+        <activity android:name=".base.NoTitleBarActivity" />
+        <activity android:name=".base.FragmentActivity" />
+        <activity android:name=".base.DialogActivity" />
+
         <activity android:name=".boxing.BoxingActivity"
             android:label="Boxing"/>
 

@@ -1,4 +1,4 @@
-package com.liux.base.titlebar;
+package com.liux.abstracts.titlebar;
 
 import android.graphics.Color;
 import android.os.Build;
@@ -9,7 +9,7 @@ import android.support.v7.app.AppCompatActivity;
  * Created by Liux on 2017/11/7.
  */
 
-public class NoTitleBar extends TitleBar {
+public class NoTitleBar extends TitleBar<NoTitleBar> {
 
     public NoTitleBar(AppCompatActivity activity) {
         super(activity);
@@ -22,13 +22,13 @@ public class NoTitleBar extends TitleBar {
     }
 
     @Override
-    public void setTitle(String title) {
-
+    public NoTitleBar setTitle(String title) {
+        return this;
     }
 
     @Override
-    public void setTitleColor(int color) {
-
+    public NoTitleBar setTitleColor(int color) {
+        return this;
     }
 
     public NoTitleBar setStatusBarColor(int color) {
