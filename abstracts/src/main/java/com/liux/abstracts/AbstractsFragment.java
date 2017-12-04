@@ -1,5 +1,6 @@
 package com.liux.abstracts;
 
+import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
 import android.content.res.Configuration;
@@ -15,10 +16,15 @@ import android.view.ViewGroup;
 import java.lang.reflect.Field;
 
 /**
+ * 抽象Fragment,提供以下能力 <br>
+ * 1.自动隐藏输入法 {@link HandlerTouch} <br>
+ * 2.重定义生命周期细节 {@link #onInitData(Bundle)} {@link #onRestoreData(Bundle)} {@link #onInitView(LayoutInflater, ViewGroup, Bundle)} <br>
+ *     {@link #onLazyLoad()} {@link #onSaveData(Bundle)} {@link #onVisibleChanged()}
+ * 3.修复某些版本某些情况下 Fragent 显示状态不保存的问题
  * Created by Liux on 2017/8/7.
  */
 
-public abstract class AbstractsFragment extends Fragment {
+public abstract class AbstractsFragment extends Fragment implements HandlerTouch {
     private String TAG = "AbstractsFragment";
 
     private static final String STATE_SAVE_IS_HIDDEN = "STATE_SAVE_IS_HIDDEN";
@@ -270,4 +276,57 @@ public abstract class AbstractsFragment extends Fragment {
     }
 
     /* ============== 懒加载_End ============== */
+
+    /* ========== 拦截点击相关_Begin ========== */
+
+    @Override
+    public boolean isHandlerTouch() {
+        if (getHandlerTouch() == null) return false;
+        if (!getHandlerTouch().isHandlerTouch()) return false;
+        if (getHandlerTouch().hasIgnoreView(getView())) return false;
+        return true;
+    }
+
+    /**
+     * 设置Fragment不处理触控事件的原理是添加Fragment的View进过滤规则内
+     * @param handlerTouch
+     */
+    @Override
+    public void setHandlerTouch(boolean handlerTouch) {
+        if (getHandlerTouch() == null) return;
+        if (!getHandlerTouch().isHandlerTouch()) return;
+        if (handlerTouch) {
+            getHandlerTouch().removeIgnoreView(getView());
+        } else {
+            getHandlerTouch().addIgnoreView(getView());
+        }
+    }
+
+    @Override
+    public boolean hasIgnoreView(View view) {
+        if (getHandlerTouch() == null) return false;
+        return getHandlerTouch().hasIgnoreView(view);
+    }
+
+    @Override
+    public void addIgnoreView(View view) {
+        if (getHandlerTouch() == null) return;
+        getHandlerTouch().addIgnoreView(view);
+    }
+
+    @Override
+    public void removeIgnoreView(View view) {
+        if (getHandlerTouch() == null) return;
+        getHandlerTouch().removeIgnoreView(view);
+    }
+
+    private HandlerTouch getHandlerTouch() {
+        Activity activity = getActivity();
+        if (activity instanceof HandlerTouch) {
+            return (HandlerTouch) activity;
+        }
+        return null;
+    }
+
+    /* ========== 拦截点击相关_End ========== */
 }

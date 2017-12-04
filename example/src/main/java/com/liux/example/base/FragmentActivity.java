@@ -1,5 +1,6 @@
 package com.liux.example.base;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
@@ -8,7 +9,10 @@ import android.support.v4.view.ViewPager;
 import android.support.v7.app.AppCompatActivity;
 import android.widget.RadioGroup;
 
+import com.liux.abstracts.AbstractsActivity;
 import com.liux.example.R;
+
+import java.util.Map;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
@@ -17,7 +21,7 @@ import butterknife.ButterKnife;
  * Created by Liux on 2017/12/3.
  */
 
-public class FragmentActivity extends AppCompatActivity {
+public class FragmentActivity extends AbstractsActivity {
 
     @BindView(R.id.vp_content)
     ViewPager vpContent;
@@ -25,11 +29,23 @@ public class FragmentActivity extends AppCompatActivity {
     RadioGroup rgSelect;
 
     @Override
-    protected void onCreate(@Nullable Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
+    protected void onCreate(@Nullable Bundle savedInstanceState, Intent intent) {
         setContentView(R.layout.activity_base_fragment);
         ButterKnife.bind(this);
+    }
 
+    @Override
+    protected void onInitData(@Nullable Bundle savedInstanceState, Intent intent) {
+
+    }
+
+    @Override
+    protected void onRestoreData(Map<String, Object> data) {
+
+    }
+
+    @Override
+    protected void onInitView(@Nullable Bundle savedInstanceState) {
         vpContent.setAdapter(new FragmentStatePagerAdapter(getSupportFragmentManager()) {
             @Override
             public Fragment getItem(int position) {
@@ -107,5 +123,15 @@ public class FragmentActivity extends AppCompatActivity {
         });
 
         rgSelect.check(R.id.rb_one);
+    }
+
+    @Override
+    protected void onLazyLoad() {
+
+    }
+
+    @Override
+    protected void onSaveData(Map<String, Object> data) {
+
     }
 }

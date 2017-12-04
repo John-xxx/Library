@@ -48,6 +48,8 @@ public class DefaultTitleBarActivity extends AbstractsActivity {
 //                .getMore()
 //                .getMoreIcon()
 //                .getMoreText();
+        // 忽略某控件
+        addIgnoreView(findViewById(R.id.btn_button_1));
     }
 
     @Override

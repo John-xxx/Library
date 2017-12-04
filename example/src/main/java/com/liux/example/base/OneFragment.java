@@ -34,6 +34,10 @@ public class OneFragment extends AbstractsFragment {
     protected View onInitView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         View rootView = inflater.inflate(R.layout.fragment_base_one, container, false);
         unbinder = ButterKnife.bind(this, rootView);
+
+        // 忽略某控件
+        addIgnoreView(rootView.findViewById(R.id.btn_button_1));
+
         return rootView;
     }
 
@@ -58,8 +62,14 @@ public class OneFragment extends AbstractsFragment {
         unbinder.unbind();
     }
 
-    @OnClick(R.id.btn_button)
-    public void onViewClicked() {
-        startActivity(new Intent(getContext(), DialogActivity.class));
+    @OnClick({R.id.btn_button_1, R.id.btn_button_2})
+    public void onViewClicked(View view) {
+        switch (view.getId()) {
+            case R.id.btn_button_1:
+                break;
+            case R.id.btn_button_2:
+                startActivity(new Intent(getContext(), DialogActivity.class));
+                break;
+        }
     }
 }

@@ -19,21 +19,25 @@ import android.widget.EditText;
 import com.liux.abstracts.titlebar.DefaultTitleBar;
 import com.liux.abstracts.titlebar.TitleBar;
 
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 /**
- * 基础Activity,提供以下能力 <br>
- * 1.自动隐藏输入法 {@link #setHandlerTouch(boolean)} <br>
+ * 抽象Activity,提供以下能力 <br>
+ * 1.自动隐藏输入法 {@link HandlerTouch} <br>
  * 2.重定义创建细节生命周期 {@link #onCreate(Bundle, Intent)} {@link #onInitData(Bundle, Intent)} {@link #onInitView(Bundle)} {@link #onLazyLoad()} <br>
  * 3.实现任意数据的"意外"恢复和存储 {@link #onRestoreData(Map)} {@link #onSaveData(Map)} <br>
- * 4.实现沉浸式状态栏和一套自定义{@link TitleBar} {@link #onInitTitleBar()} {@link com.liux.abstracts.titlebar.TransparentTitleBar} {@link com.liux.abstracts.titlebar.DefaultTitleBar} <br>
+ * 4.实现各种特殊场景的 {@link TitleBar} 详见 {@link #onInitTitleBar()} <br>
  * 2017-8-21 <br>
  * 调整恢复数据的调用时机<br>
+ * 2017-12-4 <br>
+ * 实现 {@link HandlerTouch} 事件的过滤
  * Created by Liux on 2017/8/7
  */
 
-public abstract class AbstractsActivity extends AppCompatActivity {
+public abstract class AbstractsActivity extends AppCompatActivity implements HandlerTouch {
     private String TAG = "AbstractsActivity";
 
     /* ============== 生命周期_Begin ============== */
@@ -194,6 +198,7 @@ public abstract class AbstractsActivity extends AppCompatActivity {
     /* ============== 拦截点击相关_Begin ============== */
 
     private boolean mHandlerTouch = true;
+    private List<View> mIgnoreViews;
     private GestureDetector mGestureDetector;
     private InputMethodManager mInputMethodManager;
 
@@ -210,14 +215,6 @@ public abstract class AbstractsActivity extends AppCompatActivity {
 //            return true;
 //        }
     };
-
-    /**
-     * 控制是否拦截点击事件,默认拦截 <br>
-     * 若不需要拦截请复写该方法
-     */
-    protected void setHandlerTouch(boolean handlerTouch) {
-        mHandlerTouch = handlerTouch;
-    }
 
     /**
      * 监听事件分发,如果点击的是不是当前EditText则隐藏软键盘
@@ -239,6 +236,54 @@ public abstract class AbstractsActivity extends AppCompatActivity {
         return super.onTouchEvent(event);
     }
 
+    @Override
+    public boolean isHandlerTouch() {
+        return mHandlerTouch;
+    }
+
+    @Override
+    public void setHandlerTouch(boolean handlerTouch) {
+        mHandlerTouch = handlerTouch;
+    }
+
+    @Override
+    public boolean hasIgnoreView(View view) {
+        List<View> views = getIgnoreViews();
+        for (View v : views) {
+            if (v == view) return true;
+        }
+        return false;
+    }
+
+    @Override
+    public void addIgnoreView(View view) {
+        view.addOnAttachStateChangeListener(new View.OnAttachStateChangeListener() {
+            @Override
+            public void onViewAttachedToWindow(View v) {
+
+            }
+
+            @Override
+            public void onViewDetachedFromWindow(View v) {
+                v.removeOnAttachStateChangeListener(this);
+                removeIgnoreView(v);
+            }
+        });
+        getIgnoreViews().add(view);
+    }
+
+    @Override
+    public void removeIgnoreView(View view) {
+        getIgnoreViews().remove(view);
+    }
+
+    private List<View> getIgnoreViews() {
+        if (mIgnoreViews == null) {
+            mIgnoreViews = new ArrayList<>();
+        }
+        return mIgnoreViews;
+    }
+
     private GestureDetector getGestureDetector() {
         if (mGestureDetector == null) {
             mGestureDetector = new GestureDetector(this, mSimpleOnGestureListener);
@@ -247,44 +292,67 @@ public abstract class AbstractsActivity extends AppCompatActivity {
     }
 
     /**
-     * 根据EditText所在坐标和用户点击的坐标相对比，来判断是否隐藏键盘，因为当用户点击EditText时则不能隐藏
-     *
-     * @param v
+     * 获取InputMethodManager，隐藏软键盘
+     * @param event
+     */
+    private void hideKeyboard(MotionEvent event) {
+        if (event == null) return;
+
+        if (hasEditTextEvent(event) || hasIgnoreViewEvent(event)) return;
+
+        View view = getCurrentFocus();
+        if (view == null) return;
+        IBinder token = view.getWindowToken();
+        if (token == null) return;
+
+        if (mInputMethodManager == null) {
+            mInputMethodManager = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
+        }
+        mInputMethodManager.hideSoftInputFromWindow(token, InputMethodManager.HIDE_NOT_ALWAYS);
+    }
+
+    /**
+     * 判断事件是否在编辑框范围内
      * @param event
      * @return
      */
-    private boolean isShouldHideKeyboard(View v, MotionEvent event) {
+    private boolean hasEditTextEvent(MotionEvent event) {
+        View view = getCurrentFocus();
         // 如果焦点不是EditText则忽略，这个发生在视图刚绘制完
         // 第一个焦点不在EditText上，和用户用轨迹球选择其他的焦点
-        if (v != null && (v instanceof EditText)) {
-            int[] location = {0, 0};
-            v.getLocationInWindow(location);
-            int left = location[0], top = location[1], right = left + v.getWidth(), bottom = top + v.getHeight();
-            // 如果是点击EditText的事件，忽略它。
-            if (event.getX() > left && event.getX() < right && event.getY() > top && event.getY() < bottom) {
-                return false;
-            } else {
-                return true;
-            }
+        if (view == null || !(view instanceof EditText)) return false;
+        if (inTheViewRange(view, event)) return true;
+        return false;
+    }
+
+    /**
+     * 判断事件是否在过滤目标范围内
+     * @param event
+     * @return
+     */
+    private boolean hasIgnoreViewEvent(MotionEvent event) {
+        List<View> views = getIgnoreViews();
+        for (View v : views) {
+            if (inTheViewRange(v, event)) return true;
         }
         return false;
     }
 
     /**
-     * 获取InputMethodManager，隐藏软键盘
+     * 判断事件是否在某个View范围内
+     * @param view
      * @param event
+     * @return
      */
-    private void hideKeyboard(MotionEvent event) {
-        View view = getCurrentFocus();
-        if (view != null) {
-            if (event != null && !isShouldHideKeyboard(view, event)) return;
-            IBinder token = view.getWindowToken();
-            if (token != null) {
-                if (mInputMethodManager == null) {
-                    mInputMethodManager = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
-                }
-                mInputMethodManager.hideSoftInputFromWindow(token, InputMethodManager.HIDE_NOT_ALWAYS);
-            }
+    private boolean inTheViewRange(View view, MotionEvent event) {
+        if (view == null) return false;
+        int[] location = {0, 0};
+        view.getLocationInWindow(location);
+        int left = location[0], top = location[1], right = left + view.getWidth(), bottom = top + view.getHeight();
+        if (event.getRawX() > left && event.getRawX() < right && event.getRawY() > top && event.getRawY() < bottom) {
+            return true;
+        } else {
+            return false;
         }
     }
 
