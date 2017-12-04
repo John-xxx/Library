@@ -20,9 +20,8 @@ public class BoxingGlideLoader implements IBoxingMediaLoader {
 
     @Override
     public void displayThumbnail(@NonNull ImageView img, @NonNull String absPath, int width, int height) {
-        String path = "file://" + absPath;
         GlideApp.with(img.getContext())
-                .load(path)
+                .load(absPath)
                 .placeholder(R.drawable.ic_boxing_default_image)
                 .transition(new DrawableTransitionOptions().crossFade())
                 .centerCrop()

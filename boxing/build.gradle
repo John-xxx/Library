@@ -34,7 +34,7 @@ dependencies {
 ext {
     params = [
             artifactId : 'boxing',
-            version : '0.1.6'
+            version : '0.1.7'
     ]
 }
 apply from: '../release.gradle'

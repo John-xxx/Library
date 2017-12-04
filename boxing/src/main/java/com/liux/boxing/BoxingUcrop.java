@@ -48,6 +48,11 @@ public class BoxingUcrop implements IBoxingCrop {
         options.withMaxResultSize(cropConfig.getMaxWidth(), cropConfig.getMaxHeight());
         options.withAspectRatio(cropConfig.getAspectRatioX(), cropConfig.getAspectRatioY());
 
+        options.setStatusBarColor(context.getResources().getColor(R.color.boxing_colorPrimaryDark));
+        options.setToolbarColor(context.getResources().getColor(R.color.boxing_colorPrimaryDark));
+        options.setToolbarWidgetColor(context.getResources().getColor(R.color.boxing_white));
+        options.setActiveWidgetColor(context.getResources().getColor(R.color.boxing_colorPrimaryDark));
+
         UCrop.of(uri, cropConfig.getDestination())
                 .withOptions(options)
                 .start(context, fragment, requestCode);
