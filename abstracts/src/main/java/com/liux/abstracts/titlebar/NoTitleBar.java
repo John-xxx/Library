@@ -17,7 +17,6 @@ public class NoTitleBar extends TitleBar<NoTitleBar> {
 
     @Override
     public void initView() {
-        setStatusBarColor(Color.BLACK);
         getActivity().getSupportActionBar().hide();
     }
 
