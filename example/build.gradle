@@ -63,6 +63,7 @@ dependencies {
     implementation project(':abstracts')
     implementation project(':banner')
     implementation project(':boxing')
+    implementation project(':downloader')
     implementation project(':glide')
     implementation project(':http')
     implementation project(':lbs')
