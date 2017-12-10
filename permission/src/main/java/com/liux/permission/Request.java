@@ -56,7 +56,7 @@ public class Request {
             throw new NullPointerException("listener(OnPermissionListener) cannot be empty");
         if (permissions == null || permissions.isEmpty())
             throw new NullPointerException("permissions(String[]) cannot be empty");
-        if (Looper.getMainLooper().getThread() == Thread.currentThread())
+        if (Looper.getMainLooper().getThread() != Thread.currentThread())
             throw new IllegalStateException("Must be called from main thread of process");
 
         use = true;
