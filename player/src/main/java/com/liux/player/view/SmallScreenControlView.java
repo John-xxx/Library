@@ -21,7 +21,7 @@ public class SmallScreenControlView extends AbstractControlView {
         super(view.getContext());
 
         mAbstractPlayerView = view;
-        mRoot = LayoutInflater.from(getContext()).inflate(R.layout.view_player_control_small, this, false);
+        mRoot = LayoutInflater.from(getContext()).inflate(R.layout.view_player_control_small, this, true);
 
         mRoot.setOnTouchListener(new OnTouchListener() {
             int screenWidth;

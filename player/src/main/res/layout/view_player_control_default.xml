@@ -17,7 +17,7 @@
         android:background="@drawable/ic_player_up"
         android:textColor="#FFFFFF"
         android:textSize="14dp"
-        android:visibility="visible"/>
+        android:visibility="gone"/>
 
     <!-- 控制栏 -->
     <LinearLayout
@@ -28,7 +28,7 @@
         android:gravity="center_vertical"
         android:orientation="horizontal"
         android:background="@drawable/ic_player_down"
-        android:visibility="visible">
+        android:visibility="gone">
 
         <!-- 播放控制 -->
         <ImageView
@@ -98,7 +98,7 @@
         android:layout_centerInParent="true"
         android:src="@drawable/ic_player_play_normal"
         android:background="@drawable/ic_player_hint_bg"
-        android:visibility="visible"/>
+        android:visibility="gone"/>
 
     <!-- 等待UI -->
     <ProgressBar

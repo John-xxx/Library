@@ -70,7 +70,7 @@ ext {
             minSdkVersion : 15,
             targetSdkVersion  : 25,
             compileSdkVersion : 25,
-            buildToolsVersion : '27.0.1'
+            buildToolsVersion : '27.0.2'
     ]
     librarys = [
             glide : '4.3.1',

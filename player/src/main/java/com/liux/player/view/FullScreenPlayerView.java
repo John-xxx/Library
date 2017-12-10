@@ -16,13 +16,13 @@ public class FullScreenPlayerView extends AbstractRenderView<SurfaceView> {
     public FullScreenPlayerView(AbstractPlayerView playerView) {
         super(playerView.getContext());
 
+        setControlView(new FullScreenControlView(this));
+
         ViewUtil.installToContentView(playerView, this);
     }
 
     @Override
     protected SurfaceView initView() {
-        setControlView(new FullScreenControlView(this));
-
         SurfaceView surfaceView = new SurfaceView(getContext()) {
             @Override
             protected void onMeasure(int widthMeasureSpec, int heightMeasureSpec) {
@@ -56,6 +56,11 @@ public class FullScreenPlayerView extends AbstractRenderView<SurfaceView> {
     @Override
     protected void bindRenderView(IMediaPlayer player) {
         player.setDisplay(getRenderView().getHolder());
+    }
+
+    @Override
+    public void closeFullScreen() {
+        ViewUtil.uninstallToContentView(this);
     }
 
     @Override

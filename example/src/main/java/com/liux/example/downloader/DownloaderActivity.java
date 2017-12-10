@@ -1,9 +1,9 @@
 package com.liux.example.downloader;
 
-import android.app.Activity;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
+import android.support.v7.app.AppCompatActivity;
 import android.view.View;
 
 import com.liux.downloader.Config;
@@ -14,7 +14,7 @@ import com.liux.example.R;
  * Created by Liux on 2017/12/8.
  */
 
-public class DownloaderActivity extends Activity {
+public class DownloaderActivity extends AppCompatActivity {
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -23,8 +23,8 @@ public class DownloaderActivity extends Activity {
         Config.Builder builder = new Config.Builder()
                 .director(getExternalCacheDir())
                 .maxDownloadCount(5);
-        Downloader.setConfig(builder.build());
-        Downloader.initialize(this);
+        //Downloader.initialize(this);
+        Downloader.initialize(this, builder.build());
     }
 
     @Override

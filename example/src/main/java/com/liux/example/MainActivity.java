@@ -13,6 +13,7 @@ import android.widget.SimpleAdapter;
 import com.liux.example.banner.BannerActivity;
 import com.liux.example.base.BaseActivity;
 import com.liux.example.boxing.BoxingActivity;
+import com.liux.example.downloader.DownloaderActivity;
 import com.liux.example.glide.GlideActivity;
 import com.liux.example.http.HTTPActivity;
 import com.liux.example.lbs.LBSActivity;
@@ -62,6 +63,7 @@ public class MainActivity extends AppCompatActivity {
         add("Banner", "一个支持Adapter的Banner封装", BannerActivity.class);
         add("Base", "对于Activity和Fragment的封装", BaseActivity.class);
         add("Boxing", "基于Boxing封装的图片选择/预览库", BoxingActivity.class);
+        add("Downloader", "全局/多线程/断点续传下载器实现", DownloaderActivity.class);
         add("Glide", "基于Glide4实现自定义加载过程", GlideActivity.class);
         add("HTTP", "基于Retorfit/OkHttp的封装", HTTPActivity.class);
         add("LBS", "封装百度/高德的LBS数据层", LBSActivity.class);
@@ -70,7 +72,7 @@ public class MainActivity extends AppCompatActivity {
         add("Pay", "封装支付宝/微信/银联支付过程", PayActivity.class);
         add("Permission", "运行时权限申请过程封装", PermissionActivity.class);
         add("Player", "基于ijkplayer封装的播放器", PlayerActivity.class);
-        add("Util", "一些工具方法集合", UtilActivity.class);
+        add("TaskUtil", "一些工具方法集合", UtilActivity.class);
         add("View", "一些自定义View集合", ViewActivity.class);
 
         mSimpleAdapter.notifyDataSetChanged();

@@ -8,6 +8,25 @@ import java.io.File;
 
 public class Config {
 
+    private int maxCount;
+    private File director;
+
+    public int getMaxCount() {
+        return maxCount;
+    }
+
+    public void setMaxCount(int maxCount) {
+        this.maxCount = maxCount;
+    }
+
+    public File getDirector() {
+        return director;
+    }
+
+    public void setDirector(File director) {
+        this.director = director;
+    }
+
     public static class Builder {
 
         public Builder director(File dir) {

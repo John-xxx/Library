@@ -455,7 +455,7 @@ public abstract class AbstractPlayerView extends FrameLayout implements PlayerVi
         bindRenderView();
         bindInternalListener();
 
-        if (!Media.isEmpty(mMedia)) {
+        if (!Media.isEmpty(mMedia) && mCurrentState != STATE_PAUSED) {
             seekTo(mMedia.getPos());
         }
 

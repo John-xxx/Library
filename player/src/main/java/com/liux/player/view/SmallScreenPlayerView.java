@@ -20,6 +20,8 @@ public class SmallScreenPlayerView extends AbstractRenderView<TextureView> {
     public SmallScreenPlayerView(AbstractPlayerView playerView) {
         super(playerView.getContext());
 
+        setControlView(new SmallScreenControlView(this));
+
         int width = getResources().getDisplayMetrics().widthPixels / 2;
         int height = (int) (width * 0.67F);
         LayoutParams layoutParams = new LayoutParams(width, height);
@@ -31,8 +33,6 @@ public class SmallScreenPlayerView extends AbstractRenderView<TextureView> {
 
     @Override
     protected TextureView initView() {
-        setControlView(new SmallScreenControlView(this));
-
         TextureView textureView = new TextureView(getContext()) {
             @Override
             protected void onMeasure(int widthMeasureSpec, int heightMeasureSpec) {

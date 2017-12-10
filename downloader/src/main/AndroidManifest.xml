@@ -7,7 +7,7 @@
 
     <application>
 
-        <service android:name=".DownloaderService"
+        <service android:name=".remote.DownloaderService"
             android:process=":downloader"/>
 
     </application>
