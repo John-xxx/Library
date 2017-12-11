@@ -25,6 +25,7 @@ android {
 
 dependencies {
     api fileTree(dir: 'libs', include: ['*.jar'])
+    compileOnly "com.android.support:support-core-ui:${librarys.support}"
     compileOnly "com.android.support:support-annotations:${librarys.support}"
 }
 
