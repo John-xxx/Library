@@ -1,5 +1,6 @@
 package com.liux.abstracts.titlebar;
 
+import android.app.Activity;
 import android.graphics.Color;
 import android.graphics.Rect;
 import android.os.Build;
@@ -62,7 +63,7 @@ public class TransparentTitleBar extends TitleBar<TransparentTitleBar> {
             throw new IllegalFormatFlagsException("The window style do not contain Window.FEATURE_NO_TITLE");
         }
 
-        TransparentAndResizeFix.install(getActivity());
+        FullScreenAndResizeFix.install(getActivity());
 
         int topPadding = getTransparentStatusBarHeight();
         initView(topPadding);
@@ -93,53 +94,55 @@ public class TransparentTitleBar extends TitleBar<TransparentTitleBar> {
      * 全屏/沉浸式状态栏下，各种键盘挡住输入框解决办法 <br>
      * http://blog.csdn.net/qq_24531461/article/details/71412623
      */
-    public static class TransparentAndResizeFix implements ViewTreeObserver.OnGlobalLayoutListener {
-        private int mLastHeight;
-        private ViewGroup mViewGroup;
+    public static class FullScreenAndResizeFix implements ViewTreeObserver.OnGlobalLayoutListener {
+        private int mLastBottom;
+        private View mContent;
+        private Activity mActivity;
         private ViewGroup.LayoutParams mLayoutParams;
 
         public static void install(AppCompatActivity activity) {
-            if ((activity.getWindow().getAttributes().softInputMode & WindowManager.LayoutParams.SOFT_INPUT_ADJUST_RESIZE)
-                    != WindowManager.LayoutParams.SOFT_INPUT_ADJUST_RESIZE) return;
-            if ((activity.getWindow().getDecorView().getSystemUiVisibility() & View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN)
-                    != View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN) return;
-            new TransparentAndResizeFix(activity);
+//            // 只有当沉浸式才会需要该类处理,注释的原因是为了支持动态设置 softInputMode 的情况
+//            if ((activity.getWindow().getAttributes().softInputMode & WindowManager.LayoutParams.SOFT_INPUT_ADJUST_RESIZE)
+//                    != WindowManager.LayoutParams.SOFT_INPUT_ADJUST_RESIZE) return;
+//            if ((activity.getWindow().getDecorView().getSystemUiVisibility() & View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN)
+//                    != View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN) return;
+            new FullScreenAndResizeFix(activity);
         }
 
-        private TransparentAndResizeFix(AppCompatActivity activity) {
-            View content = activity.findViewById(Window.ID_ANDROID_CONTENT);
+        private FullScreenAndResizeFix(Activity activity) {
+            mActivity = activity;
 
-            mViewGroup = (ViewGroup) content.getParent();
-            mLayoutParams = content.getLayoutParams();
+            mContent = mActivity.findViewById(Window.ID_ANDROID_CONTENT);
+            mLayoutParams = mContent.getLayoutParams();
 
-            content.getViewTreeObserver().addOnGlobalLayoutListener(this);
+            mContent.getViewTreeObserver().addOnGlobalLayoutListener(this);
         }
 
         @Override
         public void onGlobalLayout() {
-            // 获取Window可视高度
-            Rect rect = new Rect();
-            mViewGroup.getWindowVisibleDisplayFrame(rect);
-            int window_height = rect.bottom;
+            if ((mActivity.getWindow().getAttributes().softInputMode & WindowManager.LayoutParams.SOFT_INPUT_ADJUST_RESIZE)
+                    != WindowManager.LayoutParams.SOFT_INPUT_ADJUST_RESIZE) return;
 
-            if (window_height != mLastHeight) {
-                mLastHeight = window_height;
+            // 获取Window区域尺寸
+            Rect rect_window = new Rect();
+            mContent.getWindowVisibleDisplayFrame(rect_window);
+            int bottom_window = rect_window.bottom;
 
-                // 获取内容区域可视高度
-                mViewGroup.getDrawingRect(rect);
-                int content_height = rect.bottom;
+            // 和上次刷新数据比较,避免无用处理
+            if (mLastBottom == 0) mLastBottom = bottom_window;
+            if (mLastBottom == bottom_window) return;
+            mLastBottom = bottom_window;
 
-                // 取Window和内容区域差异高度
-                int diff_height = content_height - window_height;
+            // 获取内容区域尺寸
+            Rect rect_drawing = new Rect();
+            mContent.getDrawingRect(rect_drawing);
+            int bottom_drawing = rect_drawing.bottom;
 
-                if (diff_height > (content_height / 6)) {
-                    mLayoutParams.height = content_height - diff_height;
-                } else {
-                    mLayoutParams.height = content_height;
-                }
-
-                // 请求更新布局
-                mViewGroup.requestLayout();
+            // 如果有差异则设置新尺寸并更新布局
+            int bottom_diff = bottom_window - bottom_drawing;
+            if (bottom_diff != 0) {
+                mLayoutParams.height = bottom_drawing + bottom_diff;
+                mContent.requestLayout();
             }
         }
     }
