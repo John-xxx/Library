@@ -11,6 +11,11 @@ public class Config {
     private int maxCount;
     private File director;
 
+    public Config() {
+        this.maxCount = 3;
+        this.director = null;
+    }
+
     public int getMaxCount() {
         return maxCount;
     }
@@ -29,16 +34,27 @@ public class Config {
 
     public static class Builder {
 
-        public Builder director(File dir) {
+        private int maxCount;
+        private File director;
+
+        public Builder director(File director) {
+            this.director = director;
             return this;
         }
 
-        public Builder maxDownloadCount(int count) {
+        public Builder maxDownloadCount(int maxCount) {
+            if (maxCount < 1) maxCount = 1;
+            this.maxCount = maxCount;
             return this;
         }
 
         public Config build() {
-            return null;
+            Config config = new Config();
+
+            config.setMaxCount(maxCount);
+            config.setDirector(director);
+
+            return config;
         }
     }
 }

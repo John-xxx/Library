@@ -28,8 +28,7 @@ public class Downloader {
      * @param context
      */
     public static void initialize(Context context) {
-        initialize(context, new Config.Builder().
-                build());
+        initialize(context, new Config.Builder().build());
     }
 
     /**
@@ -83,7 +82,7 @@ public class Downloader {
      * @return
      */
     public Task get(String url) {
-        return get(url, null,null);
+        return get(url, null,null, null);
     }
 
     /**
@@ -93,7 +92,7 @@ public class Downloader {
      * @return
      */
     public Task get(String url, File dir) {
-        return get(url, dir, null);
+        return get(url, null, dir, null);
     }
 
     /**
@@ -103,7 +102,7 @@ public class Downloader {
      * @return
      */
     public Task get(String url, Map<String, String> header) {
-        return get(url, null, header);
+        return get(url, header, null, null);
     }
 
     /**
@@ -111,10 +110,11 @@ public class Downloader {
      * @param url URL
      * @param dir 存储目录
      * @param header 自定义请求头
+     * @param name 存储文件名
      * @return
      */
-    public Task get(String url, File dir, Map<String, String> header) {
-        return mDownloaderLocal.getTask(url, dir, header);
+    public Task get(String url, Map<String, String> header, File dir, String name) {
+        return mDownloaderLocal.getTask(url, dir, header, name);
     }
 
     /**

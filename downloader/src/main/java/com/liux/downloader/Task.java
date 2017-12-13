@@ -30,10 +30,11 @@ public class Task implements Parcelable {
 
     }
 
-    public Task(String url, String dir, String headerString) {
+    public Task(String url, String dir, String headerString, String name) {
         this.url = url;
-        this.dir = dir;
         this.header = headerString;
+        this.dir = dir;
+        this.name = name;
     }
 
     public int getId() {

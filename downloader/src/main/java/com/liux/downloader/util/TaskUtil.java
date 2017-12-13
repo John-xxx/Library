@@ -18,8 +18,10 @@ import java.util.Map;
 
 public class TaskUtil {
 
-    public static Task creatorTask(String url, File dir, Map<String, String> header) {
+    public static Task creatorTask(String url, File dir, Map<String, String> header, String name) {
         if (TextUtils.isEmpty(url)) throw new NullPointerException("The url cannot be empty");
+
+        String headerString = encodeHeader(header);
 
         if (dir == null) throw new NullPointerException("The url cannot be empty");
         if (!dir.exists()) dir.mkdirs();
@@ -27,9 +29,7 @@ public class TaskUtil {
         String dirString = dir.getAbsolutePath();
         if (dirString.lastIndexOf(File.separator) != dirString.length()) dirString = dirString + File.separator;
 
-        String headerString = encodeHeader(header);
-
-        return new Task(url, dirString, headerString);
+        return new Task(url, headerString, dirString, name);
     }
 
     /**

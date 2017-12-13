@@ -12,6 +12,7 @@ import com.liux.downloader.Task;
 import com.liux.downloader.listener.TaskCallBack;
 import com.liux.downloader.remote.DownloaderService;
 import com.liux.downloader.remote.IRemote;
+import com.liux.downloader.util.DiskUtil;
 import com.liux.downloader.util.TaskUtil;
 
 import java.io.File;
@@ -73,9 +74,10 @@ public class DownloaderLocal extends ILocal.Stub {
         mTaskCallBacks.remove(callBack);
     }
 
-    public Task getTask(String url, File dir, Map<String, String> header) {
+    public Task getTask(String url, File dir, Map<String, String> header, String name) {
         if (dir == null) dir = mConfig.getDirector();
-        Task task = TaskUtil.creatorTask(url, dir, header);
+        if (dir == null) dir = DiskUtil.getStorageDir(mContext);
+        Task task = TaskUtil.creatorTask(url, dir, header, name);
         try {
             if (isConnected()) {
                 mIRemote.getTask(task);
