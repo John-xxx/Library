@@ -5,6 +5,7 @@ import android.content.Context;
 import com.franmontiel.persistentcookiejar.PersistentCookieJar;
 import com.franmontiel.persistentcookiejar.cache.SetCookieCache;
 import com.franmontiel.persistentcookiejar.persistence.SharedPrefsCookiePersistor;
+import com.liux.http.converter.FastJsonConverterFactory;
 import com.liux.http.interceptor.CheckInterceptor;
 import com.liux.http.interceptor.UserAgentInterceptor;
 
@@ -25,7 +26,6 @@ import okhttp3.Response;
 import okhttp3.logging.HttpLoggingInterceptor;
 import retrofit2.Retrofit;
 import retrofit2.adapter.rxjava2.RxJava2CallAdapterFactory;
-import retrofit2.converter.fastjson.FastJsonConverterFactory;
 
 /**
  * 基于 Retrofit2 和 OkHttp3 实现的HttpClient <br>

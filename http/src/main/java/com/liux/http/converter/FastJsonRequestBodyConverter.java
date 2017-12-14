@@ -1,4 +1,4 @@
-package retrofit2.converter.fastjson;
+package com.liux.http.converter;
 
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.serializer.SerializeConfig;
