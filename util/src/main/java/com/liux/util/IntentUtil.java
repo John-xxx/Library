@@ -4,8 +4,10 @@ import android.app.Activity;
 import android.app.Fragment;
 import android.content.ActivityNotFoundException;
 import android.content.ComponentCallbacks;
+import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
+import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
 import android.net.Uri;
 import android.provider.MediaStore;
@@ -171,6 +173,24 @@ public class IntentUtil {
     }
 
     /**
+     * 打开网络设置界面
+     * @param context
+     */
+    public static void startNetworkSetting(Context context) {
+        try {
+            Intent intent = new Intent("/");
+            ComponentName cm = new ComponentName("com.android.settings",
+                    "com.android.settings.WirelessSettings");
+            intent.setComponent(cm);
+            intent.setAction("android.intent.action.VIEW");
+            context.startActivity(intent);
+        } catch (Exception e) {
+            Toast.makeText(context, "找不到关联的程序!", Toast.LENGTH_SHORT).show();
+            e.printStackTrace();
+        }
+    }
+
+    /**
      * 设置MIUI的神隐模式
      *
      * @param context
@@ -179,11 +199,11 @@ public class IntentUtil {
      * @return 返回结果
      */
     public static boolean setMIUIPowerKeeper(Context context, String pkgname, String appname) {
-        if (!DeviceUtil.isMIUI()) return false;
+        if (!AppUtil.isMIUI()) return false;
         try {
             Intent intent = new Intent("miui.intent.action.HIDDEN_APPS_CONFIG_ACTIVITY");
-            intent.putExtra("package_name", pkgname != null ? pkgname : DeviceUtil.getPackageName(context));
-            intent.putExtra("package_label", appname != null ? appname : DeviceUtil.getApplicationName(context));
+            intent.putExtra("package_name", pkgname != null ? pkgname : AppUtil.getPackageName(context));
+            intent.putExtra("package_label", appname != null ? appname : AppUtil.getApplicationName(context));
             context.startActivity(intent);
             return true;
         } catch (Exception e) {
@@ -212,6 +232,37 @@ public class IntentUtil {
             Toast.makeText(context, "参数错误.", Toast.LENGTH_SHORT).show();
             e.printStackTrace();
         }
+    }
+
+    /**
+     * 卸载某个App
+     * @param context
+     * @param packageName app包名
+     **/
+    public static void unInstallApp(Context context, String packageName) {
+        try {
+            Uri packageUri = Uri.parse("package:" + packageName);
+            Intent intent = new Intent(Intent.ACTION_DELETE, packageUri);
+            intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+            context.startActivity(intent);
+        } catch (Exception e) {
+            Toast.makeText(context, "没有找到程序安装器,软件安装\\卸载失败!", Toast.LENGTH_SHORT).show();
+        }
+    }
+
+    /**
+     * 启动某个App
+     * @param context
+     * @param pkgName app包名
+     **/
+    public static void startApp(Context context, String pkgName) {
+        PackageManager packageManager = context.getPackageManager();
+        Intent intent = packageManager.getLaunchIntentForPackage(pkgName);
+        if (intent == null) {
+            Toast.makeText(context, "没有找到App", Toast.LENGTH_SHORT).show();
+            return;
+        }
+        context.startActivity(intent);
     }
 
     public static void callAlbum(Activity activity, int requestCode) {

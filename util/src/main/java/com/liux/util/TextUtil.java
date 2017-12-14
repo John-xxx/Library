@@ -7,6 +7,7 @@ import java.security.InvalidKeyException;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.security.SecureRandom;
+import java.text.DecimalFormat;
 
 import javax.crypto.BadPaddingException;
 import javax.crypto.Cipher;
@@ -296,7 +297,7 @@ public class TextUtil {
     public static String getCHString(int intInput) {
         String si = String.valueOf(intInput);
         String sd = "";
-        if (si.length() == 1) { // 個
+        if (si.length() == 1) { // 个
             sd += getCH(intInput);
             return sd;
         } else if (si.length() == 2) { // 十
@@ -326,6 +327,26 @@ public class TextUtil {
             sd += getCHString(intInput % 10000);
         }
         return sd;
+    }
+
+    /**
+     * 格式化文件大小
+     * @param size
+     * @return
+     */
+    public static String getFormetSize(long size) {
+        DecimalFormat df = new DecimalFormat("#.00");
+        String fileSizeString = "";
+        if (size < 1024) {
+            fileSizeString = df.format((double) size) + "B";
+        } else if (size < 1048576) {
+            fileSizeString = df.format((double) size / 1024) + "K";
+        } else if (size < 1073741824) {
+            fileSizeString = df.format((double) size / 1048576) + "M";
+        } else {
+            fileSizeString = df.format((double) size / 1073741824) + "G";
+        }
+        return fileSizeString;
     }
 
     private static String getCH(int input) {
