@@ -15,7 +15,7 @@ buildscript {
         classpath 'com.android.tools.build:gradle:3.0.1'
 
         // release to JCenter
-        classpath 'com.novoda:bintray-release:0.7.0'
+        classpath 'com.novoda:bintray-release:0.8.0'
 
         // NOTE: Do not place your application dependencies here; they belong
         // in the individual module build.gradle files
@@ -67,19 +67,19 @@ task clean(type: Delete) {
  */
 ext {
     versions = [
-            minSdkVersion : 15,
+            minSdkVersion : 14,
             targetSdkVersion  : 25,
-            compileSdkVersion : 25,
+            compileSdkVersion : 27,
             buildToolsVersion : '27.0.2'
     ]
     librarys = [
-            glide : '4.3.1',
+            glide : '4.4.0',
             okhttp3 : '3.9.1',
             retrofit2 : '2.3.0',
             fastjson : '1.1.67.android',
-            rxjava2 : '2.1.6',
+            rxjava2 : '2.1.7',
             rxandroid : '2.0.1',
-            support : '25.4.0',
+            support : '27.0.2',
             ijkplayer : '0.8.4'
     ]
 }

@@ -102,7 +102,7 @@ public class PermissionTool {
 
             @Override
             public void onCancel() {
-                request.prohibit.addAll(request.permissions);
+                request.reject.addAll(request.permissions);
                 request.listener.onPermission(request.allow, request.reject, request.prohibit);
             }
         });

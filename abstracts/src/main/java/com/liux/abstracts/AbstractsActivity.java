@@ -308,7 +308,9 @@ public abstract class AbstractsActivity extends AppCompatActivity implements Han
         if (mInputMethodManager == null) {
             mInputMethodManager = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
         }
-        mInputMethodManager.hideSoftInputFromWindow(token, InputMethodManager.HIDE_NOT_ALWAYS);
+        if (mInputMethodManager != null) {
+            mInputMethodManager.hideSoftInputFromWindow(token, InputMethodManager.HIDE_NOT_ALWAYS);
+        }
     }
 
     /**

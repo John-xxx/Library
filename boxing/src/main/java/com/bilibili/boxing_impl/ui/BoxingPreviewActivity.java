@@ -114,9 +114,9 @@ public class BoxingPreviewActivity extends AbsBoxingViewActivity {
 
     private void initView() {
         mAdapter = new ImagesAdapter(getSupportFragmentManager(), mImages);
-        mHint = (TextView) findViewById(R.id.title);
-        mGallery = (HackyViewPager) findViewById(R.id.pager);
-        mProgressBar = (ProgressBar) findViewById(R.id.loading);
+        mHint = findViewById(R.id.title);
+        mGallery = findViewById(R.id.pager);
+        mProgressBar = findViewById(R.id.loading);
         mGallery.setAdapter(mAdapter);
         mGallery.addOnPageChangeListener(new OnPagerChangeListener());
 

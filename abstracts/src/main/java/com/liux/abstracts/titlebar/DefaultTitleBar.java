@@ -70,11 +70,11 @@ public class DefaultTitleBar extends TitleBar<DefaultTitleBar> {
 
         mBack = mRoot.findViewById(R.id.view_titlebar_default_back);
         mMore = mRoot.findViewById(R.id.view_titlebar_default_more);
-        mTitle = (TextView) mRoot.findViewById(R.id.view_titlebar_default_title);
-        mBackText = (TextView) mRoot.findViewById(R.id.view_titlebar_default_back_text);
-        mMoreText = (TextView) mRoot.findViewById(R.id.view_titlebar_default_more_text);
-        mBackImage = (ImageView) mRoot.findViewById(R.id.view_titlebar_default_back_image);
-        mMoreImage = (ImageView) mRoot.findViewById(R.id.view_titlebar_default_more_image);
+        mTitle = mRoot.findViewById(R.id.view_titlebar_default_title);
+        mBackText = mRoot.findViewById(R.id.view_titlebar_default_back_text);
+        mMoreText = mRoot.findViewById(R.id.view_titlebar_default_more_text);
+        mBackImage = mRoot.findViewById(R.id.view_titlebar_default_back_image);
+        mMoreImage = mRoot.findViewById(R.id.view_titlebar_default_more_image);
 
         mBack.setOnClickListener(mOnClickListener);
         mMore.setOnClickListener(mOnClickListener);

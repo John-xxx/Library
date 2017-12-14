@@ -25,15 +25,15 @@ android {
 
 dependencies {
     api fileTree(dir: 'libs', include: ['*.jar'])
+    api "com.android.support:support-core-utils:${librarys.support}"
     compileOnly "com.android.support:support-fragment:${librarys.support}"
-    compileOnly "com.android.support:support-core-utils:${librarys.support}"
 }
 
 // Release Library Param
 ext {
     params = [
             artifactId : 'permission',
-            version : '0.1.3'
+            version : '0.2.0'
     ]
 }
 apply from: '../release.gradle'

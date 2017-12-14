@@ -1,6 +1,7 @@
 package com.liux.banner;
 
 import android.support.annotation.LayoutRes;
+import android.support.annotation.NonNull;
 import android.support.v4.view.PagerAdapter;
 import android.view.View;
 import android.view.ViewGroup;
@@ -49,7 +50,7 @@ public abstract class BannerAdapter<T> extends PagerAdapter {
      * @return
      */
     @Override
-    public Object instantiateItem(ViewGroup container, int position) {
+    public Object instantiateItem(@NonNull ViewGroup container, int position) {
         if (getRealCount() == 0) return null;
 
         BannerHolder holder = BannerHolder.create(container, mLayout);
@@ -68,7 +69,7 @@ public abstract class BannerAdapter<T> extends PagerAdapter {
      * @return
      */
     @Override
-    public boolean isViewFromObject(View view, Object object) {
+    public boolean isViewFromObject(@NonNull View view, @NonNull Object object) {
         if (object == null) return true;
 
         BannerHolder holder = (BannerHolder) object;

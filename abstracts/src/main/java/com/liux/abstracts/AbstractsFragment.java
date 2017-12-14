@@ -61,13 +61,12 @@ public abstract class AbstractsFragment extends Fragment implements HandlerTouch
     }
 
     @Override
-    public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
-        View view = onInitView(inflater, container, savedInstanceState);
-        return view;
+    public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
+        return onInitView(inflater, container, savedInstanceState);
     }
 
     @Override
-    public void onViewCreated(View view, @Nullable Bundle savedInstanceState) {
+    public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
 
         mViewCreated = true;
@@ -109,7 +108,7 @@ public abstract class AbstractsFragment extends Fragment implements HandlerTouch
     }
 
     @Override
-    public void onSaveInstanceState(Bundle outState) {
+    public void onSaveInstanceState(@NonNull Bundle outState) {
         super.onSaveInstanceState(outState);
 
         outState.putBoolean(STATE_SAVE_IS_HIDDEN, isHidden());

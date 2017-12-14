@@ -25,8 +25,15 @@ android {
 
 dependencies {
     api fileTree(dir: 'libs', include: ['*.jar'])
-    api "com.bilibili:boxing-impl:1.0.0"
-    api "com.yalantis:ucrop:2.2.0"
+    api ("com.bilibili:boxing-impl:1.0.0", {
+        exclude group: 'com.android.support',module: 'appcompat-v7'
+        exclude group: 'com.android.support',module: 'design'
+    })
+    api ("com.yalantis:ucrop:2.2.0", {
+        exclude group: 'com.android.support',module: 'appcompat-v7'
+    })
+    api "com.android.support:appcompat-v7:${librarys.support}"
+    api "com.android.support:design:${librarys.support}"
     compileOnly project(':glide')
 }
 
@@ -34,7 +41,7 @@ dependencies {
 ext {
     params = [
             artifactId : 'boxing',
-            version : '0.1.8'
+            version : '0.2.0'
     ]
 }
 apply from: '../release.gradle'

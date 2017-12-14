@@ -15,7 +15,6 @@ import android.widget.TextView;
 public class BannerHolder {
 
     public static BannerHolder create(ViewGroup parent, @LayoutRes int layout) {
-        // View view =  View.inflate(parent.getContext(), layout, null);
         View view = LayoutInflater.from(parent.getContext()).inflate(layout, parent, false);
         return new BannerHolder(view);
     }

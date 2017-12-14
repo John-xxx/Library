@@ -9,7 +9,7 @@ import com.bumptech.glide.annotation.GlideModule;
 import com.bumptech.glide.integration.okhttp3.OkHttpUrlLoader;
 import com.bumptech.glide.load.DecodeFormat;
 import com.bumptech.glide.load.engine.bitmap_recycle.LruBitmapPool;
-import com.bumptech.glide.load.engine.cache.ExternalCacheDiskCacheFactory;
+import com.bumptech.glide.load.engine.cache.ExternalPreferredCacheDiskCacheFactory;
 import com.bumptech.glide.load.engine.cache.LruResourceCache;
 import com.bumptech.glide.load.engine.cache.MemorySizeCalculator;
 import com.bumptech.glide.load.model.GlideUrl;
@@ -41,10 +41,9 @@ public class GlideModuleConfig extends AppGlideModule {
         glideBuilder.setBitmapPool(new LruBitmapPool(memorySize));
 
         /* 定义SD卡缓存大小和位置 */
-        int diskSize = 1024 * 1024 * 100;
-        // ExternalCacheDiskCacheFactory
-        // /sdcard/Android/data/<application package>/cache
-        glideBuilder.setDiskCache(new ExternalCacheDiskCacheFactory(context, "glide", diskSize));
+        int diskSize = 1024 * 1024 * 200;
+        // /sdcard/Android/data/<application package>/cache/glide/
+        glideBuilder.setDiskCache(new ExternalPreferredCacheDiskCacheFactory(context, "glide", diskSize));
 
         /* 默认内存和图片池大小 */
         MemorySizeCalculator calculator = new MemorySizeCalculator.Builder(context).build();
@@ -70,7 +69,7 @@ public class GlideModuleConfig extends AppGlideModule {
      */
     @Override
     public void registerComponents(Context context, Glide glide, Registry registry) {
-        // 注册全局唯一OkHttp客户端(HttpClient初始化的情况)
+        // 注册全局唯一OkHttp客户端(HttpClient先于Glide初始化完成的情况下)
         try {
             Call.Factory factory = getHttpClient();
             OkHttpUrlLoader.Factory factory_glideurl = new OkHttpUrlLoader.Factory(factory);
