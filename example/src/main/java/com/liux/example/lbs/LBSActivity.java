@@ -15,8 +15,8 @@ import com.liux.lbs.listener.OnLocationListener;
 import com.liux.lbs.model.LBSModel;
 import com.liux.lbs.model.impl.AMapLBSModelImpl;
 import com.liux.lbs.model.impl.BaiduLBSModelImpl;
-import com.liux.permission.OnPermissionListener;
 import com.liux.permission.PermissionTool;
+import com.liux.permission.SimplePermissionListener;
 import com.liux.view.SingleToast;
 
 import java.util.List;
@@ -91,11 +91,11 @@ public class LBSActivity extends AppCompatActivity {
         BaiduLBSModelImpl.destroy();
     }
 
-    @OnClick({R.id.btn_quick_location_amap, R.id.btn_accuracy_location_amap, R.id.btn_start_location_amap, R.id.btn_stop_location_amap, R.id.btn_geocode_amap, R.id.btn_regeocode_amap, R.id.btn_city_poi_amap, R.id.btn_nearby_poi_amap, R.id.btn_region_poi_amap, R.id.btn_driver_route_amap, R.id.btn_boundary_amap, R.id.btn_quick_location_baidu, R.id.btn_accuracy_location_baidu, R.id.btn_start_location_baidu, R.id.btn_stop_location_baidu, R.id.btn_geocode_baidu, R.id.btn_regeocode_baidu, R.id.btn_city_poi_baidu, R.id.btn_nearby_poi_baidu, R.id.btn_region_poi_baidu, R.id.btn_driver_route_baidu, R.id.btn_boundary_baidu})
-    public void onViewClicked(final View view) {
+    @OnClick({R.id.btn_quick_location_amap, R.id.btn_accuracy_location_amap, R.id.btn_start_location_amap, R.id.btn_stop_location_amap, R.id.btn_quick_location_baidu, R.id.btn_accuracy_location_baidu, R.id.btn_start_location_baidu, R.id.btn_stop_location_baidu})
+    public void onViewClickedNeedAuthority(final View view) {
         PermissionTool.with(this)
                 .permissions(permissions)
-                .listener(new OnPermissionListener() {
+                .listener(new SimplePermissionListener() {
                     @Override
                     public void onPermission(List<String> allow, List<String> reject, List<String> prohibit) {
                         if (!reject.isEmpty() || !prohibit.isEmpty()) {
@@ -106,6 +106,11 @@ public class LBSActivity extends AppCompatActivity {
                     }
                 })
                 .request();
+    }
+
+    @OnClick({R.id.btn_geocode_amap, R.id.btn_regeocode_amap, R.id.btn_city_poi_amap, R.id.btn_nearby_poi_amap, R.id.btn_region_poi_amap, R.id.btn_driver_route_amap, R.id.btn_boundary_amap, R.id.btn_geocode_baidu, R.id.btn_regeocode_baidu, R.id.btn_city_poi_baidu, R.id.btn_nearby_poi_baidu, R.id.btn_region_poi_baidu, R.id.btn_driver_route_baidu, R.id.btn_boundary_baidu})
+    public void onViewClickedNoneAuthority(View view) {
+        onCallLBS(view);
     }
 
     private void onCallLBS(View view) {

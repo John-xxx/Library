@@ -3,18 +3,22 @@ package com.liux.example.permission;
 import android.Manifest;
 import android.annotation.SuppressLint;
 import android.app.Activity;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
+import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.view.View;
 import android.widget.ImageView;
 
 import com.liux.example.R;
 import com.liux.glide.GlideApp;
+import com.liux.permission.Apply;
 import com.liux.permission.OnPermissionListener;
 import com.liux.permission.PermissionTool;
+import com.liux.permission.SimplePermissionListener;
 import com.liux.util.IntentUtil;
 import com.liux.util.UriUtil;
 import com.liux.view.SingleToast;
@@ -68,6 +72,25 @@ public class PermissionActivity extends AppCompatActivity {
                         .permissions(Manifest.permission.CALL_PHONE)
                         .listener(new OnPermissionListener() {
                             @Override
+                            public void onApply(final Apply apply) {
+                                new AlertDialog.Builder(PermissionActivity.this)
+                                        .setMessage("我需要拨号权限?")
+                                        .setNegativeButton("好的", new DialogInterface.OnClickListener() {
+                                            @Override
+                                            public void onClick(DialogInterface dialog, int which) {
+                                                apply.onContinue();
+                                            }
+                                        })
+                                        .setPositiveButton("不给", new DialogInterface.OnClickListener() {
+                                            @Override
+                                            public void onClick(DialogInterface dialog, int which) {
+                                                apply.onCancel();
+                                            }
+                                        })
+                                        .show();
+                            }
+
+                            @Override
                             public void onPermission(List<String> allow, List<String> reject, List<String> prohibit) {
                                 if (allow.contains(Manifest.permission.CALL_PHONE)) {
                                     Intent intent = new Intent(Intent.ACTION_CALL);
@@ -85,6 +108,25 @@ public class PermissionActivity extends AppCompatActivity {
                         .permissions(Manifest.permission.CAMERA)
                         .listener(new OnPermissionListener() {
                             @Override
+                            public void onApply(final Apply apply) {
+                                new AlertDialog.Builder(PermissionActivity.this)
+                                        .setMessage("我需要拍照权限?")
+                                        .setNegativeButton("好的", new DialogInterface.OnClickListener() {
+                                            @Override
+                                            public void onClick(DialogInterface dialog, int which) {
+                                                apply.onContinue();
+                                            }
+                                        })
+                                        .setPositiveButton("不给", new DialogInterface.OnClickListener() {
+                                            @Override
+                                            public void onClick(DialogInterface dialog, int which) {
+                                                apply.onCancel();
+                                            }
+                                        })
+                                        .show();
+                            }
+
+                            @Override
                             public void onPermission(List<String> allow, List<String> reject, List<String> prohibit) {
                                 if (allow.contains(Manifest.permission.CAMERA)) {
                                     mTempFile = UriUtil.getProviderCacheUri(PermissionActivity.this, System.currentTimeMillis() + ".jpg");
@@ -99,7 +141,7 @@ public class PermissionActivity extends AppCompatActivity {
             case R.id.btn_call_camera:
                 PermissionTool.with(this)
                         .permissions(Manifest.permission.CALL_PHONE, Manifest.permission.CAMERA)
-                        .listener(new OnPermissionListener() {
+                        .listener(new SimplePermissionListener() {
                             @Override
                             public void onPermission(List<String> allow, List<String> reject, List<String> prohibit) {
                                 if (allow.contains(Manifest.permission.CALL_PHONE)) {

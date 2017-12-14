@@ -4,9 +4,14 @@ import android.annotation.TargetApi;
 import android.app.Activity;
 import android.app.Fragment;
 import android.app.FragmentManager;
+import android.content.Context;
+import android.content.Intent;
+import android.net.Uri;
 import android.os.Build;
+import android.provider.Settings;
 import android.support.v4.content.PermissionChecker;
 import android.util.SparseArray;
+import android.widget.Toast;
 
 import java.util.Iterator;
 
@@ -32,12 +37,48 @@ public class PermissionTool {
     }
 
     /**
+     * 检查是否拥有某些权限
+     * @param context
+     * @param permissions
+     * @return
+     */
+    public static boolean checkPermissions(Context context, String... permissions) {
+        if (context == null) return false;
+        if (permissions == null) return true;
+
+        for (String permission: permissions) {
+            if (PermissionChecker.checkCallingOrSelfPermission(context, permission)
+                    != PermissionChecker.PERMISSION_GRANTED) {
+                return false;
+            }
+        }
+
+        return true;
+    }
+
+    /**
+     * 前往应用权限设置界面
+     * @param context
+     */
+    public static boolean gotoPermissionSetting(Context context) {
+        try {
+            Intent intent = new Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS);
+            intent.setData(Uri.fromParts("package", context.getPackageName(), null));
+            intent.addFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP);
+            intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+            context.startActivity(intent);
+        } catch (Exception e) {
+            return false;
+        }
+        return true;
+    }
+
+    /**
      * 权限申请调用
-     * 小于 M 的不能直接通过, Android4.4 还有 AppOps 关联限制
+     * 小于 M 的不能直接通过, 因为 Android4.4 还有 AppOps 限制
      * @param request
      */
-    @TargetApi(Build.VERSION_CODES.M)
-    static void onRequestCall(Request request) {
+    protected static void onRequestCall(Request request) {
         // 检查并提出已经具有的权限
         checkAllowPermissions(request);
         if (request.permissions.isEmpty()) {
@@ -45,7 +86,6 @@ public class PermissionTool {
             return;
         }
 
-        // 如果当前设备版本小于 M,直接回调拒绝
         // 还没找到请求 AppOpsManager 权限的方法
         if (Build.VERSION.SDK_INT < Build.VERSION_CODES.M) {
             request.prohibit.addAll(request.permissions);
@@ -53,13 +93,19 @@ public class PermissionTool {
             return;
         }
 
-        // 获取请求码并请求权限
-        int requestCode = (int) (System.currentTimeMillis() & 0xFFFF);
-        getPermissionFragment(request).requestPermissions(
-                request.permissions.toArray(new String[request.permissions.size()]),
-                requestCode
-        );
-        REQUESTS.append(requestCode, request);
+        // 发起权限申请请求之前通知
+        request.listener.onApply(new Apply(request) {
+            @Override
+            public void onContinue() {
+                onContinueRequestCall(request);
+            }
+
+            @Override
+            public void onCancel() {
+                request.prohibit.addAll(request.permissions);
+                request.listener.onPermission(request.allow, request.reject, request.prohibit);
+            }
+        });
     }
 
     /**
@@ -70,12 +116,26 @@ public class PermissionTool {
         Iterator<String> iterator = request.permissions.iterator();
         while (iterator.hasNext()) {
             String permission = iterator.next();
-            if (PermissionChecker.checkCallingOrSelfPermission(request.target, permission)
-                    == PermissionChecker.PERMISSION_GRANTED) {
+            if (checkPermissions(request.target, permission)) {
                 request.allow.add(permission);
                 iterator.remove();
             }
         }
+    }
+
+    /**
+     * 通知用户后继续申请
+     * @param request
+     */
+    @TargetApi(Build.VERSION_CODES.M)
+    private static void onContinueRequestCall(Request request) {
+        // 获取请求码并请求权限
+        int requestCode = (int) (System.currentTimeMillis() & 0xFFFF);
+        getPermissionFragment(request).requestPermissions(
+                request.permissions.toArray(new String[request.permissions.size()]),
+                requestCode
+        );
+        REQUESTS.append(requestCode, request);
     }
 
     /**
@@ -105,7 +165,7 @@ public class PermissionTool {
      * @param permissions
      * @param grantResults
      */
-    static void onRequestResult(PermissionFragment fragment, int requestCode, String[] permissions, int[] grantResults) {
+    protected static void onRequestResult(PermissionFragment fragment, int requestCode, String[] permissions, int[] grantResults) {
         // 移除注入的 PermissionFragment
         removePermissionFragment(fragment);
 
