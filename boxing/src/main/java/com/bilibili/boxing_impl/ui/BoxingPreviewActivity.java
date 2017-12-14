@@ -9,6 +9,8 @@ import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentStatePagerAdapter;
 import android.support.v4.view.ViewPager;
+import android.view.GestureDetector;
+import android.view.MotionEvent;
 import android.view.View;
 import android.view.Window;
 import android.view.WindowManager;
@@ -35,10 +37,11 @@ public class BoxingPreviewActivity extends AbsBoxingViewActivity {
     private ArrayList<BaseMedia> mImages;
 
     private TextView mHint;
-    private ImageView mBack;
     private ImagesAdapter mAdapter;
     private HackyViewPager mGallery;
     private ProgressBar mProgressBar;
+
+    private GestureDetector mGestureDetector;
 
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
@@ -79,6 +82,12 @@ public class BoxingPreviewActivity extends AbsBoxingViewActivity {
         super.onSaveInstanceState(outState);
     }
 
+    @Override
+    public boolean dispatchTouchEvent(MotionEvent ev) {
+        mGestureDetector.onTouchEvent(ev);
+        return super.dispatchTouchEvent(ev);
+    }
+
     private void openFullScreen() {
         getDelegate().requestWindowFeature(Window.FEATURE_NO_TITLE);
 
@@ -106,17 +115,16 @@ public class BoxingPreviewActivity extends AbsBoxingViewActivity {
     private void initView() {
         mAdapter = new ImagesAdapter(getSupportFragmentManager(), mImages);
         mHint = (TextView) findViewById(R.id.title);
-        mBack = (ImageView) findViewById(R.id.back);
         mGallery = (HackyViewPager) findViewById(R.id.pager);
         mProgressBar = (ProgressBar) findViewById(R.id.loading);
         mGallery.setAdapter(mAdapter);
         mGallery.addOnPageChangeListener(new OnPagerChangeListener());
 
-        ((RelativeLayout.LayoutParams) mBack.getLayoutParams()).topMargin = getStatusBarHeight();
-        mBack.setOnClickListener(new View.OnClickListener() {
+        mGestureDetector = new GestureDetector(this, new GestureDetector.SimpleOnGestureListener() {
             @Override
-            public void onClick(View v) {
+            public boolean onSingleTapConfirmed(MotionEvent e) {
                 finish();
+                return true;
             }
         });
     }

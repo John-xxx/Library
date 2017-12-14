@@ -30,12 +30,4 @@
         android:textSize="16dp"
         android:textAppearance="@style/Boxing.TextAppearance.App.Medium" />
 
-    <ImageView
-        android:id="@+id/back"
-        android:layout_width="45dp"
-        android:layout_height="?android:attr/actionBarSize"
-        android:paddingLeft="15dp"
-        android:paddingRight="20dp"
-        android:src="@drawable/ic_boxing_back"/>
-
 </RelativeLayout>
