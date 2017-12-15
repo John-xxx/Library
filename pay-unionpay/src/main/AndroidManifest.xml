@@ -21,7 +21,6 @@
             android:configChanges="orientation|keyboardHidden|keyboard"
             android:screenOrientation="portrait"/>
 
-
         <activity
             android:name="com.unionpay.uppay.PayActivity"
             android:configChanges="orientation|keyboardHidden|keyboard"
