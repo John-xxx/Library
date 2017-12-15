@@ -1,14 +1,11 @@
 apply plugin: 'com.android.library'
 
-def versions = rootProject.ext.versions
-def librarys = rootProject.ext.librarys
-
 android {
-    compileSdkVersion versions.compileSdkVersion
-    buildToolsVersion versions.buildToolsVersion
+    compileSdkVersion COMPILE_SDK_VERSION as int
+    buildToolsVersion BUILD_TOOLS_VERSION as String
     defaultConfig {
-        minSdkVersion versions.minSdkVersion
-        targetSdkVersion versions.targetSdkVersion
+        minSdkVersion MIN_SDK_VERSION as int
+        targetSdkVersion TARGET_SDK_VERSION as int
         versionCode 10000
         versionName "1.0.0"
     }
@@ -25,17 +22,17 @@ android {
 
 dependencies {
     api fileTree(dir: 'libs', include: ['*.jar'])
-    api "tv.danmaku.ijk.media:ijkplayer-java:${librarys.ijkplayer}"
-    api "tv.danmaku.ijk.media:ijkplayer-exo:${librarys.ijkplayer}"
-    api "tv.danmaku.ijk.media:ijkplayer-armv5:${librarys.ijkplayer}"
-    api "tv.danmaku.ijk.media:ijkplayer-armv7a:${librarys.ijkplayer}"
-    api "tv.danmaku.ijk.media:ijkplayer-arm64:${librarys.ijkplayer}"
-    api "tv.danmaku.ijk.media:ijkplayer-x86:${librarys.ijkplayer}"
-    api "tv.danmaku.ijk.media:ijkplayer-x86_64:${librarys.ijkplayer}"
+    api "tv.danmaku.ijk.media:ijkplayer-java:${LIBRARY_IJKPLAYER}"
+    api "tv.danmaku.ijk.media:ijkplayer-exo:${LIBRARY_IJKPLAYER}"
+    api "tv.danmaku.ijk.media:ijkplayer-armv5:${LIBRARY_IJKPLAYER}"
+    api "tv.danmaku.ijk.media:ijkplayer-armv7a:${LIBRARY_IJKPLAYER}"
+    api "tv.danmaku.ijk.media:ijkplayer-arm64:${LIBRARY_IJKPLAYER}"
+    api "tv.danmaku.ijk.media:ijkplayer-x86:${LIBRARY_IJKPLAYER}"
+    api "tv.danmaku.ijk.media:ijkplayer-x86_64:${LIBRARY_IJKPLAYER}"
     api "com.danikula:videocache:2.7.0"
 
-    compileOnly "com.android.support:appcompat-v7:${librarys.support}"
-    compileOnly "com.android.support:support-annotations:${librarys.support}"
+    compileOnly "com.android.support:appcompat-v7:${LIBRARY_SUPPORT}"
+    compileOnly "com.android.support:support-annotations:${LIBRARY_SUPPORT}"
 }
 
 // Release Library Param

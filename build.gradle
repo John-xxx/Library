@@ -52,34 +52,3 @@ allprojects{
 task clean(type: Delete) {
     delete rootProject.buildDir
 }
-
-/**
- * def versions = rootProject.ext.versions
- * def librarys = rootProject.ext.librarys
- *
- * compileSdkVersion versions.compileSdkVersion
- * buildToolsVersion versions.buildToolsVersion
- *
- * minSdkVersion versions.minSdkVersion
- * targetSdkVersion versions.targetSdkVersion
- *
- * implementation "com.android.support:appcompat-v7:${librarys.support}"
- */
-ext {
-    versions = [
-            minSdkVersion : 14,
-            targetSdkVersion  : 25,
-            compileSdkVersion : 27,
-            buildToolsVersion : '27.0.2'
-    ]
-    librarys = [
-            glide : '4.4.0',
-            okhttp3 : '3.9.1',
-            retrofit2 : '2.3.0',
-            fastjson : '1.1.67.android',
-            rxjava2 : '2.1.7',
-            rxandroid : '2.0.1',
-            support : '27.0.2',
-            ijkplayer : '0.8.4'
-    ]
-}

@@ -1,14 +1,11 @@
 apply plugin: 'com.android.library'
 
-def versions = rootProject.ext.versions
-def librarys = rootProject.ext.librarys
-
 android {
-    compileSdkVersion versions.compileSdkVersion
-    buildToolsVersion versions.buildToolsVersion
+    compileSdkVersion COMPILE_SDK_VERSION as int
+    buildToolsVersion BUILD_TOOLS_VERSION as String
     defaultConfig {
-        minSdkVersion versions.minSdkVersion
-        targetSdkVersion versions.targetSdkVersion
+        minSdkVersion MIN_SDK_VERSION as int
+        targetSdkVersion TARGET_SDK_VERSION as int
         versionCode 10000
         versionName "1.0.0"
     }
@@ -25,8 +22,8 @@ android {
 
 dependencies {
     api fileTree(dir: 'libs', include: ['*.jar'])
-    api "com.android.support:recyclerview-v7:${librarys.support}"
-    compileOnly "com.android.support:support-annotations:${librarys.support}"
+    api "com.android.support:recyclerview-v7:${LIBRARY_SUPPORT}"
+    compileOnly "com.android.support:support-annotations:${LIBRARY_SUPPORT}"
 }
 
 // Release Library Param

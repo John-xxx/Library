@@ -1,14 +1,11 @@
 apply plugin: 'com.android.library'
 
-def versions = rootProject.ext.versions
-def librarys = rootProject.ext.librarys
-
 android {
-    compileSdkVersion versions.compileSdkVersion
-    buildToolsVersion versions.buildToolsVersion
+    compileSdkVersion COMPILE_SDK_VERSION as int
+    buildToolsVersion BUILD_TOOLS_VERSION as String
     defaultConfig {
-        minSdkVersion versions.minSdkVersion
-        targetSdkVersion versions.targetSdkVersion
+        minSdkVersion MIN_SDK_VERSION as int
+        targetSdkVersion TARGET_SDK_VERSION as int
         versionCode 10000
         versionName "1.0.0"
     }
@@ -25,14 +22,14 @@ android {
 
 dependencies {
     api fileTree(dir: 'libs', include: ['*.jar'])
-    api "com.squareup.okhttp3:okhttp:${librarys.okhttp3}"
-    api "com.squareup.okhttp3:logging-interceptor:${librarys.okhttp3}"
-    api "com.squareup.retrofit2:retrofit:${librarys.retrofit2}"
-    api "com.squareup.retrofit2:adapter-rxjava2:${librarys.retrofit2}"
-    api "com.squareup.retrofit2:adapter-rxjava2:${librarys.retrofit2}"
-    api "io.reactivex.rxjava2:rxjava:${librarys.rxjava2}"
-    api "io.reactivex.rxjava2:rxandroid:${librarys.rxandroid}"
-    api "com.alibaba:fastjson:${librarys.fastjson}"
+    api "com.squareup.okhttp3:okhttp:${LIBRARY_OKHTTP3}"
+    api "com.squareup.okhttp3:logging-interceptor:${LIBRARY_OKHTTP3}"
+    api "com.squareup.retrofit2:retrofit:${LIBRARY_RETROFIT2}"
+    api "com.squareup.retrofit2:adapter-rxjava2:${LIBRARY_RETROFIT2}"
+    api "com.squareup.retrofit2:adapter-rxjava2:${LIBRARY_RETROFIT2}"
+    api "io.reactivex.rxjava2:rxjava:${LIBRARY_RXJAVA2}"
+    api "io.reactivex.rxjava2:rxandroid:${LIBRARY_RXANDROID}"
+    api "com.alibaba:fastjson:${LIBRARY_FASTJSON}"
     api "com.github.franmontiel:PersistentCookieJar:v1.0.1"
 }
 

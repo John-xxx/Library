@@ -1,14 +1,11 @@
 apply plugin: 'com.android.library'
 
-def versions = rootProject.ext.versions
-def librarys = rootProject.ext.librarys
-
 android {
-    compileSdkVersion versions.compileSdkVersion
-    buildToolsVersion versions.buildToolsVersion
+    compileSdkVersion COMPILE_SDK_VERSION as int
+    buildToolsVersion BUILD_TOOLS_VERSION as String
     defaultConfig {
-        minSdkVersion versions.minSdkVersion
-        targetSdkVersion versions.targetSdkVersion
+        minSdkVersion MIN_SDK_VERSION as int
+        targetSdkVersion TARGET_SDK_VERSION as int
         versionCode 10000
         versionName "1.0.0"
     }
@@ -32,8 +29,8 @@ dependencies {
     api ("com.yalantis:ucrop:2.2.0", {
         exclude group: 'com.android.support',module: 'appcompat-v7'
     })
-    api "com.android.support:appcompat-v7:${librarys.support}"
-    api "com.android.support:design:${librarys.support}"
+    api "com.android.support:appcompat-v7:${LIBRARY_SUPPORT}"
+    api "com.android.support:design:${LIBRARY_SUPPORT}"
     compileOnly project(':glide')
 }
 

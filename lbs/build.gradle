@@ -1,14 +1,11 @@
 apply plugin: 'com.android.library'
 
-def versions = rootProject.ext.versions
-def librarys = rootProject.ext.librarys
-
 android {
-    compileSdkVersion versions.compileSdkVersion
-    buildToolsVersion versions.buildToolsVersion
+    compileSdkVersion COMPILE_SDK_VERSION as int
+    buildToolsVersion BUILD_TOOLS_VERSION as String
     defaultConfig {
-        minSdkVersion versions.minSdkVersion
-        targetSdkVersion versions.targetSdkVersion
+        minSdkVersion MIN_SDK_VERSION as int
+        targetSdkVersion TARGET_SDK_VERSION as int
         versionCode 10000
         versionName "1.0.0"
     }
@@ -25,8 +22,8 @@ android {
 
 dependencies {
     api fileTree(dir: 'libs', include: ['*.jar'])
-    compileOnly "io.reactivex.rxjava2:rxjava:${librarys.rxjava2}"
-    compileOnly "io.reactivex.rxjava2:rxandroid:${librarys.rxandroid}"
+    compileOnly "io.reactivex.rxjava2:rxjava:${LIBRARY_RXJAVA2}"
+    compileOnly "io.reactivex.rxjava2:rxandroid:${LIBRARY_RXANDROID}"
     compileOnly files('../jarlibs/BaiduLBs_android_4.5.2.jar')
     compileOnly files('../jarlibs/AMap3DMap_5.5.0_AMapSearch_5.5.0_AMapLocation_3.6.1_20171107.jar')
 }
