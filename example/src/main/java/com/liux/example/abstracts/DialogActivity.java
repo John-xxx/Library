@@ -1,4 +1,4 @@
-package com.liux.example.base;
+package com.liux.example.abstracts;
 
 import android.app.Dialog;
 import android.graphics.Color;
@@ -29,19 +29,19 @@ public class DialogActivity extends AppCompatActivity {
             case R.id.btn_dialog:
                 dialog = new Dialog(this);
                 dialog.setTitle("标题");
-                dialog.setContentView(R.layout.activity_base);
+                dialog.setContentView(R.layout.activity_abstracts);
                 dialog.show();
                 break;
             case R.id.btn_app_dialog:
                 dialog = new AppCompatDialog(this);
                 dialog.setTitle("标题");
-                dialog.setContentView(R.layout.activity_base);
+                dialog.setContentView(R.layout.activity_abstracts);
                 dialog.show();
                 break;
             case R.id.btn_base_dialog:
                 dialog = new AbstractsDialog(this) {}.setFullScreen(true).setBackgroundColor(Color.YELLOW);
                 dialog.setTitle("标题");
-                dialog.setContentView(R.layout.activity_base);
+                dialog.setContentView(R.layout.activity_abstracts);
                 dialog.show();
                 break;
         }

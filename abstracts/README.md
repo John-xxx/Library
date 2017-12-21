@@ -4,7 +4,7 @@ Abstracts
 使用说明
 ---
 ```
-compile 'com.liux:base:x.y.z'
+compile 'com.liux:abstracts:x.y.z'
 ```
 
 混淆参考

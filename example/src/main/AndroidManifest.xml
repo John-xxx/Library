@@ -36,20 +36,20 @@
         <activity android:name=".banner.BannerActivity"
             android:label="Banner"/>
 
-        <activity android:name=".base.BaseActivity"
+        <activity android:name=".abstracts.AbstractsActivity"
             android:label="Base"/>
 
-        <activity android:name=".base.TransparentTitleBarActivity"
+        <activity android:name=".abstracts.TransparentTitleBarActivity"
             android:label="TransparentTitleBar"/>
-        <activity android:name=".base.DefaultTitleBarActivity"
+        <activity android:name=".abstracts.DefaultTitleBarActivity"
             android:label="DefaultTitleBar"/>
-        <activity android:name=".base.WhiteTitleBarActivity"
+        <activity android:name=".abstracts.WhiteTitleBarActivity"
             android:label="WhiteTitleBar"/>
-        <activity android:name=".base.NoTitleBarActivity"
+        <activity android:name=".abstracts.NoTitleBarActivity"
             android:label="NoTitleBar"/>
-        <activity android:name=".base.FragmentActivity"
+        <activity android:name=".abstracts.FragmentActivity"
             android:label="Fragment"/>
-        <activity android:name=".base.DialogActivity"
+        <activity android:name=".abstracts.DialogActivity"
             android:label="Dialog"/>
 
         <activity android:name=".boxing.BoxingActivity"
@@ -74,9 +74,6 @@
         <activity android:name=".list.ListActivity"
             android:label="List"/>
 
-        <activity android:name=".other.OtherActivity"
-            android:label="Other"/>
-
         <activity android:name=".pay.PayActivity"
             android:label="Pay"/>
 
@@ -95,6 +92,9 @@
             android:name=".player.MoreMediaActiviy"
             android:label="MoreMedia"
             android:configChanges="orientation|keyboardHidden|screenSize"/>
+
+        <activity android:name=".other.ToolActivity"
+            android:label="Other"/>
 
         <activity android:name=".util.UtilActivity"
             android:label="Util"/>

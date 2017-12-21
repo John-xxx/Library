@@ -1,10 +1,12 @@
-package com.liux.example.base;
+package com.liux.example.abstracts;
 
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 
 import com.liux.abstracts.AbstractsActivity;
+import com.liux.abstracts.titlebar.TitleBar;
+import com.liux.abstracts.titlebar.WhiteTitleBar;
 import com.liux.example.R;
 
 import java.util.Map;
@@ -13,7 +15,11 @@ import java.util.Map;
  * Created by Liux on 2017/12/3.
  */
 
-public class DefaultTitleBarActivity extends AbstractsActivity {
+public class WhiteTitleBarActivity extends AbstractsActivity {
+    @Override
+    protected TitleBar onInitTitleBar() {
+        return new WhiteTitleBar(this);
+    }
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState, Intent intent) {
@@ -48,8 +54,6 @@ public class DefaultTitleBarActivity extends AbstractsActivity {
 //                .getMore()
 //                .getMoreIcon()
 //                .getMoreText();
-        // 忽略某控件
-        addIgnoreView(findViewById(R.id.btn_button_1));
     }
 
     @Override

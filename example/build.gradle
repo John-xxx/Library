@@ -61,7 +61,7 @@ dependencies {
     implementation project(':http')
     implementation project(':lbs')
     implementation project(':list')
-    implementation project(':other')
+    implementation project(':tool')
     implementation project(':pay')
     implementation project(':pay-unionpay')
     implementation project(':permission')

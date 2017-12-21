@@ -1,4 +1,4 @@
-package com.liux.other;
+package com.liux.tool;
 
 import android.text.InputFilter;
 import android.text.Spanned;

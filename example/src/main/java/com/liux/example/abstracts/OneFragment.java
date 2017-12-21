@@ -1,4 +1,4 @@
-package com.liux.example.base;
+package com.liux.example.abstracts;
 
 import android.content.Intent;
 import android.os.Bundle;

@@ -1,4 +1,4 @@
-package com.liux.example.base;
+package com.liux.example.abstracts;
 
 import android.os.Bundle;
 import android.view.LayoutInflater;
@@ -12,7 +12,7 @@ import com.liux.example.R;
  * Created by Liux on 2017/12/3.
  */
 
-public class ThreeFragment extends AbstractsFragment {
+public class FourFragment extends AbstractsFragment {
     @Override
     protected void onInitData(Bundle savedInstanceState) {
 
@@ -25,7 +25,7 @@ public class ThreeFragment extends AbstractsFragment {
 
     @Override
     protected View onInitView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
-        View rootView = inflater.inflate(R.layout.fragment_base_three, container, false);
+        View rootView = inflater.inflate(R.layout.fragment_base_four, container, false);
         return rootView;
     }
 

@@ -1,12 +1,10 @@
-package com.liux.example.base;
+package com.liux.example.abstracts;
 
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 
 import com.liux.abstracts.AbstractsActivity;
-import com.liux.abstracts.titlebar.NoTitleBar;
-import com.liux.abstracts.titlebar.TitleBar;
 import com.liux.example.R;
 
 import java.util.Map;
@@ -15,11 +13,7 @@ import java.util.Map;
  * Created by Liux on 2017/12/3.
  */
 
-public class NoTitleBarActivity extends AbstractsActivity {
-    @Override
-    protected TitleBar onInitTitleBar() {
-        return new NoTitleBar(this);
-    }
+public class DefaultTitleBarActivity extends AbstractsActivity {
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState, Intent intent) {
@@ -38,7 +32,24 @@ public class NoTitleBarActivity extends AbstractsActivity {
 
     @Override
     protected void onInitView(@Nullable Bundle savedInstanceState) {
-
+//        DefaultTitleBar titleBar = getTitleBar();
+//        titleBar
+//                .setTitleBarColor()
+//                .setStatusBarColor()
+//                .setOnTitleBarListener()
+//                .setStatusBarMode(false)
+//                .setTitle()
+//                .setTitleColor()
+//                .hasBack()
+//                .getBack()
+//                .getBackIcon()
+//                .getBackText()
+//                .hasMore()
+//                .getMore()
+//                .getMoreIcon()
+//                .getMoreText();
+        // 忽略某控件
+        addIgnoreView(findViewById(R.id.btn_button_1));
     }
 
     @Override

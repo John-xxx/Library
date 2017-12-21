@@ -1,4 +1,4 @@
-package com.liux.other;
+package com.liux.tool;
 
 import android.app.Activity;
 import android.graphics.Rect;

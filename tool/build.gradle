@@ -27,7 +27,7 @@ dependencies {
 // Release Library Param
 ext {
     params = [
-            artifactId : 'other',
+            artifactId : 'tool',
             version : '0.2.0'
     ]
 }

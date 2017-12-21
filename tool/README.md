@@ -1,10 +1,10 @@
-Other
+Tool
 ===
 
 使用说明
 ---
 ```
-compile 'com.liux:other:x.y.z'
+compile 'com.liux:tool:x.y.z'
 ```
 
 混淆参考

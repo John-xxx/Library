@@ -1,12 +1,13 @@
-package com.liux.example.base;
+package com.liux.example.abstracts;
 
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
+import android.view.WindowManager;
 
 import com.liux.abstracts.AbstractsActivity;
 import com.liux.abstracts.titlebar.TitleBar;
-import com.liux.abstracts.titlebar.WhiteTitleBar;
+import com.liux.abstracts.titlebar.TransparentTitleBar;
 import com.liux.example.R;
 
 import java.util.Map;
@@ -15,15 +16,22 @@ import java.util.Map;
  * Created by Liux on 2017/12/3.
  */
 
-public class WhiteTitleBarActivity extends AbstractsActivity {
+public class TransparentTitleBarActivity extends AbstractsActivity {
+
     @Override
     protected TitleBar onInitTitleBar() {
-        return new WhiteTitleBar(this);
+        return new TransparentTitleBar(this);
     }
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState, Intent intent) {
         setContentView(R.layout.activity_base_demo);
+
+        //WindowManager.LayoutParams.SOFT_INPUT_ADJUST_NOTHING
+        //WindowManager.LayoutParams.SOFT_INPUT_ADJUST_PAN
+        //WindowManager.LayoutParams.SOFT_INPUT_ADJUST_RESIZE
+        //WindowManager.LayoutParams.SOFT_INPUT_ADJUST_UNSPECIFIED
+        getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_ADJUST_RESIZE);
     }
 
     @Override
@@ -38,22 +46,7 @@ public class WhiteTitleBarActivity extends AbstractsActivity {
 
     @Override
     protected void onInitView(@Nullable Bundle savedInstanceState) {
-//        DefaultTitleBar titleBar = getTitleBar();
-//        titleBar
-//                .setTitleBarColor()
-//                .setStatusBarColor()
-//                .setOnTitleBarListener()
-//                .setStatusBarMode(false)
-//                .setTitle()
-//                .setTitleColor()
-//                .hasBack()
-//                .getBack()
-//                .getBackIcon()
-//                .getBackText()
-//                .hasMore()
-//                .getMore()
-//                .getMoreIcon()
-//                .getMoreText();
+
     }
 
     @Override
