@@ -23,9 +23,7 @@ android {
 dependencies {
     api fileTree(dir: 'libs', include: ['*.jar'])
     api "com.squareup.okhttp3:okhttp:${LIBRARY_OKHTTP3}"
-    api "com.squareup.okhttp3:logging-interceptor:${LIBRARY_OKHTTP3}"
     api "com.squareup.retrofit2:retrofit:${LIBRARY_RETROFIT2}"
-    api "com.squareup.retrofit2:adapter-rxjava2:${LIBRARY_RETROFIT2}"
     api "com.squareup.retrofit2:adapter-rxjava2:${LIBRARY_RETROFIT2}"
     api "io.reactivex.rxjava2:rxjava:${LIBRARY_RXJAVA2}"
     api "io.reactivex.rxjava2:rxandroid:${LIBRARY_RXANDROID}"
@@ -37,7 +35,7 @@ dependencies {
 ext {
     params = [
             artifactId : 'http',
-            version : '0.2.0'
+            version : '0.2.1'
     ]
 }
 apply from: '../release.gradle'

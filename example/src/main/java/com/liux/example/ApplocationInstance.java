@@ -7,6 +7,7 @@ import android.support.multidex.MultiDex;
 import com.liux.http.HttpClient;
 import com.liux.http.OnHeaderListener;
 import com.liux.http.OnRequestListener;
+import com.liux.http.interceptor.HttpLoggingInterceptor;
 
 import java.util.Map;
 
@@ -16,7 +17,7 @@ import okhttp3.Request;
  * Created by Liux on 2017/8/16.
  */
 
-public class ApplocationCus extends Application {
+public class ApplocationInstance extends Application {
 
     @Override
     protected void attachBaseContext(Context base) {
@@ -30,6 +31,7 @@ public class ApplocationCus extends Application {
 
         /* 初始化 HttpClient */
         HttpClient.initialize(this, "http://lx0758.cc/");
+        HttpClient.getInstance().setLoggingLevel(HttpLoggingInterceptor.Level.BODY);
         HttpClient.getInstance().setOnHeaderListener(new OnHeaderListener() {
             @Override
             public void onHeaders(Request request, Map<String, String> headers) {

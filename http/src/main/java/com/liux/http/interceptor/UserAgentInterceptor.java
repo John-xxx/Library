@@ -15,10 +15,10 @@ import okhttp3.Response;
  */
 
 public class UserAgentInterceptor implements Interceptor {
-    private static String mUserAgent = System.getProperty("http.agent");
+    private static String USER_AGENT = System.getProperty("http.agent");
 
     public UserAgentInterceptor(Context context) {
-        mUserAgent = HttpUtil.getDefaultUserAgent(context);
+        USER_AGENT = HttpUtil.getDefaultUserAgent(context);
     }
 
     @Override
@@ -26,11 +26,15 @@ public class UserAgentInterceptor implements Interceptor {
         Request.Builder builder = chain.request().newBuilder();
         // 手动添加该请求头时OkHttp不会自动解压响应数据
         // builder.header("Accept-Encoding", "gzip,deflate");
-        builder.header("User-Agent", HttpUtil.checkChar(mUserAgent));
+        builder.header("User-Agent", HttpUtil.checkChar(USER_AGENT));
         return chain.proceed(builder.build());
     }
 
-    public static String getUserAgent() {
-        return mUserAgent;
+    public String getUserAgent() {
+        return USER_AGENT;
+    }
+
+    public void setUserAgent(String userAgent) {
+        USER_AGENT = userAgent;
     }
 }

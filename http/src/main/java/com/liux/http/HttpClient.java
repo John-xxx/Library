@@ -7,6 +7,7 @@ import com.franmontiel.persistentcookiejar.cache.SetCookieCache;
 import com.franmontiel.persistentcookiejar.persistence.SharedPrefsCookiePersistor;
 import com.liux.http.converter.FastJsonConverterFactory;
 import com.liux.http.interceptor.CheckInterceptor;
+import com.liux.http.interceptor.HttpLoggingInterceptor;
 import com.liux.http.interceptor.UserAgentInterceptor;
 
 import java.io.File;
@@ -23,7 +24,6 @@ import okhttp3.OkHttpClient;
 import okhttp3.Request;
 import okhttp3.RequestBody;
 import okhttp3.Response;
-import okhttp3.logging.HttpLoggingInterceptor;
 import retrofit2.Retrofit;
 import retrofit2.adapter.rxjava2.RxJava2CallAdapterFactory;
 
@@ -57,12 +57,14 @@ public class HttpClient {
         }
     }
 
-    private static final String TAG = "[HttpClient]";
+    public static final String TAG = "[HttpClient]";
 
     private Context mContext;
     private Retrofit mRetrofit;
     private OkHttpClient mOkHttpClient;
+    private UserAgentInterceptor mUserAgentInterceptor;
     private CheckInterceptor mCheckInterceptor = new CheckInterceptor();
+    private HttpLoggingInterceptor mHttpLoggingInterceptor = new HttpLoggingInterceptor();
 
     private HttpClient(Context context, String baseUrl, OkHttpClient.Builder builder) {
         if (context == null) throw new NullPointerException("Context required.");
@@ -70,10 +72,13 @@ public class HttpClient {
 
         mContext = context.getApplicationContext();
 
+        mUserAgentInterceptor = new UserAgentInterceptor(mContext);
+
         if (builder != null) {
             mOkHttpClient = builder
-                    .addInterceptor(new UserAgentInterceptor(mContext))
+                    .addInterceptor(mUserAgentInterceptor)
                     .addInterceptor(mCheckInterceptor)
+                    .addInterceptor(mHttpLoggingInterceptor)
                     .build();
         } else {
             File cacheDir = mContext.getExternalCacheDir();
@@ -89,9 +94,9 @@ public class HttpClient {
                     .readTimeout(30, TimeUnit.SECONDS)
                     .cache(new Cache(cacheDir.getAbsoluteFile(), 200 * 1024 * 1024))
                     .retryOnConnectionFailure(true)
-                    .addInterceptor(new UserAgentInterceptor(mContext))
+                    .addInterceptor(mHttpLoggingInterceptor)
                     .addInterceptor(mCheckInterceptor)
-                    .addInterceptor(new HttpLoggingInterceptor().setLevel(HttpLoggingInterceptor.Level.BASIC))
+                    .addInterceptor(mHttpLoggingInterceptor)
                     // 不能通过网络拦截器修改参数
                     // .addNetworkInterceptor()
                     .build();
@@ -253,6 +258,14 @@ public class HttpClient {
     }
 
     /**
+     * 取 OkHttpClient 实例
+     * @return
+     */
+    public OkHttpClient getOkHttpClient() {
+        return mOkHttpClient;
+    }
+
+    /**
      * 取 Retrofit 实例
      * @return
      */
@@ -271,34 +284,50 @@ public class HttpClient {
     }
 
     /**
-     * 取 OkHttpClient 实例
-     * @return
-     */
-    public OkHttpClient getOkHttpClient() {
-        return mOkHttpClient;
-    }
-
-    /**
      * 取当前用户识别标志
      * @return
      */
     public String getUserAgent() {
-        return UserAgentInterceptor.getUserAgent();
+        return mUserAgentInterceptor.getUserAgent();
+    }
+
+    /**
+     * 设置当前用户识别标志
+     * @param userAgent
+     * @return
+     */
+    public HttpClient setUserAgent(String userAgent) {
+        mUserAgentInterceptor.setUserAgent(userAgent);
+        return this;
+    }
+
+    /**
+     * 设置打印日志级别
+     * @param level
+     * @return
+     */
+    public HttpClient setLoggingLevel(HttpLoggingInterceptor.Level level) {
+        mHttpLoggingInterceptor.setLevel(level);
+        return this;
     }
 
     /**
      * 设置请求头监听
      * @param listener
+     * @return
      */
-    public void setOnHeaderListener(OnHeaderListener listener) {
+    public HttpClient setOnHeaderListener(OnHeaderListener listener) {
         mCheckInterceptor.setOnHeaderListener(listener);
+        return this;
     }
 
     /**
      * 设置请求监听
      * @param listener
+     * @return
      */
-    public void setOnRequestListener(OnRequestListener listener) {
-         mCheckInterceptor.setOnRequestListener(listener);
+    public HttpClient setOnRequestListener(OnRequestListener listener) {
+        mCheckInterceptor.setOnRequestListener(listener);
+        return this;
     }
 }
