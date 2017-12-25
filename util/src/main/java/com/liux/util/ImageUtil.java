@@ -8,6 +8,7 @@ import android.graphics.Canvas;
 import android.graphics.ColorMatrix;
 import android.graphics.ColorMatrixColorFilter;
 import android.graphics.Paint;
+import android.media.ExifInterface;
 import android.net.Uri;
 import android.os.Build;
 import android.provider.MediaStore;
@@ -16,11 +17,13 @@ import android.renderscript.Element;
 import android.renderscript.RenderScript;
 import android.renderscript.ScriptIntrinsicBlur;
 import android.support.annotation.RequiresApi;
+import android.text.TextUtils;
 
 import java.io.BufferedOutputStream;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -98,6 +101,35 @@ public class ImageUtil {
             return false;
         }
         return true;
+    }
+
+    /**
+     * 拷贝图片扩展信息
+     * @param oldFilePath
+     * @param newFilePath
+     * @return
+     */
+    public static boolean copyExifInterface(String oldFilePath, String newFilePath) {
+        try {
+            ExifInterface oldExif = new ExifInterface(oldFilePath);
+            ExifInterface newExif = new ExifInterface(newFilePath);
+            Class<ExifInterface> cls = ExifInterface.class;
+            Field[] fields = cls.getFields();
+            for (int i = 0; i < fields.length; i++) {
+                String fieldName = fields[i].getName();
+                if (!TextUtils.isEmpty(fieldName) && fieldName.startsWith("TAG")) {
+                    String fieldValue = fields[i].get(cls).toString();
+                    String attribute = oldExif.getAttribute(fieldValue);
+                    if (attribute != null) {
+                        newExif.setAttribute(fieldValue, attribute);
+                    }
+                }
+            }
+            newExif.saveAttributes();
+            return true;
+        } catch (Exception e) {
+            return false;
+        }
     }
 
     /**
