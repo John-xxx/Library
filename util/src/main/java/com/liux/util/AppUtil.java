@@ -1,5 +1,6 @@
 package com.liux.util;
 
+import android.app.Activity;
 import android.app.ActivityManager;
 import android.app.Service;
 import android.content.Context;
@@ -9,13 +10,51 @@ import android.content.pm.PackageManager;
 import android.os.Build;
 
 import java.io.File;
+import java.lang.reflect.Field;
+import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 /**
  * Created by Liux on 2017/12/14.
  */
 
 public class AppUtil {
+
+    /**
+     * 通过反射获取Activity列表
+     * @return
+     */
+    public static List<Activity> getActivity() {
+        ArrayList<Activity> activitiys = new ArrayList<>();
+        try {
+            Class activityThreadClass = Class.forName("android.app.ActivityThread");
+            Object activityThread = activityThreadClass.getMethod("currentActivityThread").invoke(null);
+            Field activitiesField = activityThreadClass.getDeclaredField("mActivities");
+            activitiesField.setAccessible(true);
+            Map activities = (Map) activitiesField.get(activityThread);
+            for (Object activityRecord : activities.values()) {
+                Class activityRecordClass = activityRecord.getClass();
+                Field activityField = activityRecordClass.getDeclaredField("activity");
+                activityField.setAccessible(true);
+                Activity activity = (Activity) activityField.get(activityRecord);
+                activitiys.add(activity);
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return activitiys;
+    }
+
+    /**
+     * 通过反射获取顶层Activity
+     * @return
+     */
+    public static Activity getTopActivity() {
+        List<Activity> activitiys = getActivity();
+        if (activitiys.isEmpty()) return null;
+        return activitiys.get(activitiys.size() - 1);
+    }
 
     /**
      * 判断是否是主进程

@@ -9,7 +9,6 @@ def params = project.ext.params
 
 // release to JCenter
 apply plugin: 'com.novoda.bintray-release'
-
 publish {
     userOrg = 'lx0758'
     repoName = 'maven'
@@ -27,7 +26,6 @@ publish {
 
 // release to Nexus
 apply plugin: 'maven'
-
 uploadArchives {
     repositories {
         mavenDeployer {
@@ -76,12 +74,28 @@ uploadArchives {
         }
     }
 }
-
 task androidSourcesJar(type: Jar) {
     classifier = 'sources'
     from android.sourceSets.main.java.sourceFiles
 }
-
+task androidJavaDoc(type: Javadoc) {
+    source = android.sourceSets.main.java.srcDirs
+    classpath += project.files(android.getBootClasspath().join(File.pathSeparator))
+    options.encoding "UTF-8"
+    options.charSet 'UTF-8'
+    options.author true
+    options.version true
+    failOnError false
+}
+task androidJavaDocJar(type: Jar, dependsOn: androidJavaDoc) {
+    classifier = 'javadoc'
+    from androidJavaDoc.destinationDir
+}
+task copyDoc(type: Copy) {
+    from "${buildDir}/docs/"
+    into "docs"
+}
 artifacts {
     archives androidSourcesJar
+    archives androidJavaDocJar
 }
