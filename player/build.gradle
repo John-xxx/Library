@@ -22,13 +22,13 @@ android {
 
 dependencies {
     api fileTree(dir: 'libs', include: ['*.jar'])
-    api "tv.danmaku.ijk.media:ijkplayer-java:${LIBRARY_IJKPLAYER}"
-    api "tv.danmaku.ijk.media:ijkplayer-exo:${LIBRARY_IJKPLAYER}"
-    api "tv.danmaku.ijk.media:ijkplayer-armv5:${LIBRARY_IJKPLAYER}"
-    api "tv.danmaku.ijk.media:ijkplayer-armv7a:${LIBRARY_IJKPLAYER}"
-    api "tv.danmaku.ijk.media:ijkplayer-arm64:${LIBRARY_IJKPLAYER}"
-    api "tv.danmaku.ijk.media:ijkplayer-x86:${LIBRARY_IJKPLAYER}"
-    api "tv.danmaku.ijk.media:ijkplayer-x86_64:${LIBRARY_IJKPLAYER}"
+    api "tv.danmaku.ijk.media:ijkplayer-java:0.8.5.1"
+    api "tv.danmaku.ijk.media:ijkplayer-exo:0.8.4"
+    api "tv.danmaku.ijk.media:ijkplayer-armv5:0.8.4"
+    api "tv.danmaku.ijk.media:ijkplayer-armv7a:0.8.4"
+    api "tv.danmaku.ijk.media:ijkplayer-arm64:0.8.4"
+    api "tv.danmaku.ijk.media:ijkplayer-x86:0.8.4"
+    api "tv.danmaku.ijk.media:ijkplayer-x86_64:0.8.4"
     api "com.danikula:videocache:2.7.0"
 
     compileOnly "com.android.support:appcompat-v7:${LIBRARY_SUPPORT}"
