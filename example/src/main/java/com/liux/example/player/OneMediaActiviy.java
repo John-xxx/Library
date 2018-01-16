@@ -4,11 +4,9 @@ import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 
 import com.liux.example.R;
-import com.liux.player.Media;
-import com.liux.player.TexturePlayerView;
 
 public class OneMediaActiviy extends AppCompatActivity {
-    private TexturePlayerView mTexturePlayerView;
+//    private TexturePlayerView mTexturePlayerView;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -20,15 +18,15 @@ public class OneMediaActiviy extends AppCompatActivity {
                 .add(R.id.fl_root, new PlayerFragment())
                 .commit();
 
-        mTexturePlayerView = (TexturePlayerView) findViewById(R.id.pv_tpv);
-        mTexturePlayerView.setMedia(Media.create(PlayerActivity.SOURCE[1]));
+//        mTexturePlayerView = (TexturePlayerView) findViewById(R.id.pv_tpv);
+//        mTexturePlayerView.setMedia(Media.create(PlayerActivity.SOURCE[1]));
     }
 
     @Override
     public void onBackPressed() {
-        if (mTexturePlayerView.onBackPressed()) {
-            return;
-        }
+//        if (mTexturePlayerView.onBackPressed()) {
+//            return;
+//        }
         super.onBackPressed();
     }
 }

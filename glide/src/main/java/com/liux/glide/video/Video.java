@@ -11,26 +11,26 @@ import java.security.MessageDigest;
  * Created by Liux on 2017/9/13.
  */
 
-public class VideoUrl implements Key {
+public class Video implements Key {
 
-    public static VideoUrl from(URL url) {
-        return new VideoUrl(url);
+    public static Video from(URL url) {
+        return new Video(url);
     }
 
-    public static VideoUrl from(String url) {
-        return new VideoUrl(url);
+    public static Video from(String url) {
+        return new Video(url);
     }
 
     private final URL url;
     private final String stringUrl;
     private volatile byte[] cacheBytes;
 
-    public VideoUrl(URL url) {
+    public Video(URL url) {
         this.url = url;
         this.stringUrl = null;
     }
 
-    public VideoUrl(String stringUrl) {
+    public Video(String stringUrl) {
         this.url = null;
         this.stringUrl = stringUrl;
     }

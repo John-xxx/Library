@@ -8,6 +8,7 @@ import com.franmontiel.persistentcookiejar.persistence.SharedPrefsCookiePersisto
 import com.liux.http.converter.FastJsonConverterFactory;
 import com.liux.http.interceptor.CheckInterceptor;
 import com.liux.http.interceptor.HttpLoggingInterceptor;
+import com.liux.http.interceptor.BaseUrlInterceptor;
 import com.liux.http.interceptor.UserAgentInterceptor;
 
 import java.io.File;
@@ -62,6 +63,7 @@ public class HttpClient {
     private Context mContext;
     private Retrofit mRetrofit;
     private OkHttpClient mOkHttpClient;
+    private BaseUrlInterceptor mBaseUrlInterceptor;
     private UserAgentInterceptor mUserAgentInterceptor;
     private CheckInterceptor mCheckInterceptor = new CheckInterceptor();
     private HttpLoggingInterceptor mHttpLoggingInterceptor = new HttpLoggingInterceptor();
@@ -72,10 +74,14 @@ public class HttpClient {
 
         mContext = context.getApplicationContext();
 
+        mBaseUrlInterceptor = new BaseUrlInterceptor(this);
         mUserAgentInterceptor = new UserAgentInterceptor(mContext);
+
+        setBaseUrl(baseUrl);
 
         if (builder != null) {
             mOkHttpClient = builder
+                    .addInterceptor(mBaseUrlInterceptor)
                     .addInterceptor(mUserAgentInterceptor)
                     .addInterceptor(mCheckInterceptor)
                     .addInterceptor(mHttpLoggingInterceptor)
@@ -94,7 +100,8 @@ public class HttpClient {
                     .readTimeout(30, TimeUnit.SECONDS)
                     .cache(new Cache(cacheDir.getAbsoluteFile(), 200 * 1024 * 1024))
                     .retryOnConnectionFailure(true)
-                    .addInterceptor(mHttpLoggingInterceptor)
+                    .addInterceptor(mBaseUrlInterceptor)
+                    .addInterceptor(mUserAgentInterceptor)
                     .addInterceptor(mCheckInterceptor)
                     .addInterceptor(mHttpLoggingInterceptor)
                     // 不能通过网络拦截器修改参数
@@ -328,6 +335,77 @@ public class HttpClient {
      */
     public HttpClient setOnRequestListener(OnRequestListener listener) {
         mCheckInterceptor.setOnRequestListener(listener);
+        return this;
+    }
+
+    public static final String BASE_URL = BaseUrlInterceptor.BASE_URL + ':';
+    public static final String BASE_URL_RULE = BaseUrlInterceptor.BASE_URL_RULE + ':';
+
+    /**
+     * 获取当前全局BaseUrl
+     * @return
+     */
+    public String getBaseUrl() {
+        return mBaseUrlInterceptor.getBaseUrl();
+    }
+
+    /**
+     * 设置当前全局BaseUrl
+     *
+     * @Headers({
+     *         HttpClient.BASE_URL + "https://api.domain.com:88/api/"
+     * })
+     *
+     * @param baseUrl
+     * @return
+     */
+    public HttpClient setBaseUrl(String baseUrl) {
+        HttpUtil.checkBaseUrl(baseUrl);
+        mBaseUrlInterceptor.setBaseUrl(baseUrl);
+        return this;
+    }
+
+    /**
+     * 获取某个规则对应的URL
+     * @param rule
+     * @return
+     */
+    public String getDomainRule(String rule) {
+        String url = mBaseUrlInterceptor.getDomainRule(rule);
+        return url;
+    }
+
+    /**
+     * 加入某个URL对应的规则
+     *
+     * @Headers({
+     *         HttpClient.BASE_URL_RULE + "{rule}"
+     * })
+     *
+     * @param rule
+     * @param baseUrl
+     * @return
+     */
+    public HttpClient putDomainRule(String rule, String baseUrl) {
+        HttpUtil.checkBaseUrl(baseUrl);
+        mBaseUrlInterceptor.putDomainRule(rule, baseUrl);
+        return this;
+    }
+
+    /**
+     * 获取所有URL对应规则,Copy目的是防止跳过检查添加规则
+     * @return
+     */
+    public Map<String, String> getDomainRules() {
+        return mBaseUrlInterceptor.getDomainRules();
+    }
+
+    /**
+     * 清除所有URL对应规则
+     * @return
+     */
+    public HttpClient clearDomainRules() {
+        mBaseUrlInterceptor.clearDomainRules();
         return this;
     }
 }

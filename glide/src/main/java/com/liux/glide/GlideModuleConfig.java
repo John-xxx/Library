@@ -16,7 +16,7 @@ import com.bumptech.glide.load.model.GlideUrl;
 import com.bumptech.glide.module.AppGlideModule;
 import com.bumptech.glide.request.RequestOptions;
 import com.liux.glide.video.VideoModelLoader;
-import com.liux.glide.video.VideoUrl;
+import com.liux.glide.video.Video;
 
 import java.io.InputStream;
 
@@ -80,7 +80,7 @@ public class GlideModuleConfig extends AppGlideModule {
 
         // 注册视频获取缩略图的扩展
         VideoModelLoader.Factory factory_videourl = new VideoModelLoader.Factory();
-        registry.replace(VideoUrl.class, InputStream.class, factory_videourl);
+        registry.replace(Video.class, InputStream.class, factory_videourl);
     }
 
     /**

@@ -9,30 +9,24 @@ import android.view.View;
 import android.view.ViewGroup;
 
 import com.liux.example.R;
-import com.liux.player.Media;
-import com.liux.player.PlayerGroup;
-import com.liux.player.PlayerView;
-
-import java.util.ArrayList;
-import java.util.List;
 
 public class MoreMediaActiviy extends AppCompatActivity {
-    private List<Media> mSourceData;
+//    private List<Media> mSourceData;
     private RecyclerView mRecyclerView;
 
-    private PlayerGroup mPlayerGroup;
+//    private PlayerGroup mPlayerGroup;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_player_more);
 
-        mSourceData = new ArrayList<>();
-        for (int i = 0; i < 30; i++) {
-            mSourceData.add(Media.create(PlayerActivity.SOURCE[i % 4]));
-        }
-
-        mPlayerGroup = new PlayerGroup();
+//        mSourceData = new ArrayList<>();
+//        for (int i = 0; i < 30; i++) {
+//            mSourceData.add(Media.create(PlayerActivity.SOURCE[i % 4]));
+//        }
+//
+//        mPlayerGroup = new PlayerGroup();
 
         mRecyclerView = (RecyclerView) findViewById(R.id.rv_list);
         mRecyclerView.setLayoutManager(new LinearLayoutManager(this));
@@ -45,15 +39,16 @@ public class MoreMediaActiviy extends AppCompatActivity {
 
             @Override
             public void onBindViewHolder(RecyclerView.ViewHolder holder, int position) {
-                Media media = mSourceData.get(position);
-                PlayerView playerView = (PlayerView) holder.itemView;
-                playerView.setPlayerGroup(mPlayerGroup);
-                playerView.setMedia(media);
+//                Media media = mSourceData.get(position);
+//                PlayerView playerView = (PlayerView) holder.itemView;
+//                playerView.setPlayerGroup(mPlayerGroup);
+//                playerView.setMedia(media);
             }
 
             @Override
             public int getItemCount() {
-                return mSourceData.size();
+                return 0;
+//                return mSourceData.size();
             }
         });
     }

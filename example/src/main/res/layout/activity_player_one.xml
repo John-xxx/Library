@@ -16,10 +16,10 @@
         android:textSize="18dp"
         android:text="TexturePlayerView"/>
 
-    <com.liux.player.TexturePlayerView
-        android:id="@+id/pv_tpv"
-        android:layout_width="match_parent"
-        android:layout_height="210dp"/>
+    <!--<com.liux.player.TexturePlayerView-->
+        <!--android:id="@+id/pv_tpv"-->
+        <!--android:layout_width="match_parent"-->
+        <!--android:layout_height="210dp"/>-->
 
     <TextView
         android:layout_width="wrap_content"

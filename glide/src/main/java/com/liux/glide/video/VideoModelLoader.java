@@ -13,25 +13,25 @@ import java.io.InputStream;
  * Created by Liux on 2017/9/13.
  */
 
-public class VideoModelLoader implements ModelLoader<VideoUrl, InputStream> {
+public class VideoModelLoader implements ModelLoader<Video, InputStream> {
 
     @Nullable
     @Override
-    public LoadData<InputStream> buildLoadData(VideoUrl videoUrl, int width, int height, Options options) {
+    public LoadData<InputStream> buildLoadData(Video video, int width, int height, Options options) {
         return new LoadData<InputStream>(
-                videoUrl,
-                new VideoDataFetcher(videoUrl, width, height)
+                video,
+                new VideoDataFetcher(video, width, height)
         );
     }
 
     @Override
-    public boolean handles(VideoUrl videoUrl) {
+    public boolean handles(Video video) {
         return true;
     }
 
-    public static class Factory implements ModelLoaderFactory<VideoUrl, InputStream> {
+    public static class Factory implements ModelLoaderFactory<Video, InputStream> {
         @Override
-        public ModelLoader<VideoUrl, InputStream> build(MultiModelLoaderFactory multiModelLoaderFactory) {
+        public ModelLoader<Video, InputStream> build(MultiModelLoaderFactory multiModelLoaderFactory) {
             return new VideoModelLoader();
         }
 

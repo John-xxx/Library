@@ -6,8 +6,10 @@ import android.content.pm.PackageManager;
 import java.io.File;
 import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
+import java.util.List;
 import java.util.Locale;
 
+import okhttp3.HttpUrl;
 import okhttp3.MediaType;
 import okhttp3.MultipartBody;
 import okhttp3.RequestBody;
@@ -291,5 +293,23 @@ public class HttpUtil {
             }
         }
         return newValue;
+    }
+
+    /**
+     * 预检查BaseUrl格式
+     * @param baseUrl
+     */
+    public static void checkBaseUrl(String baseUrl) {
+        if (baseUrl == null) {
+            throw new NullPointerException("baseUrl == null");
+        }
+        HttpUrl httpUrl = HttpUrl.parse(baseUrl);
+        if (httpUrl == null) {
+            throw new IllegalArgumentException("Illegal URL: " + baseUrl);
+        }
+        List<String> pathSegments = httpUrl.pathSegments();
+        if (!"".equals(pathSegments.get(pathSegments.size() - 1))) {
+            throw new IllegalArgumentException("baseUrl must end in /: " + baseUrl);
+        }
     }
 }

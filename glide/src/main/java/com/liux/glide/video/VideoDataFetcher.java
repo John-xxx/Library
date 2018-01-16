@@ -19,22 +19,23 @@ import java.util.HashMap;
 
 public class VideoDataFetcher implements DataFetcher<InputStream> {
 
-    private VideoUrl mVideoUrl;
+    private Video mVideo;
     private int mWidth, mHeight;
 
-    public VideoDataFetcher(VideoUrl videoUrl, int width, int height) {
-        mVideoUrl = videoUrl;
+    private MediaMetadataRetriever mMediaMetadataRetriever;
+
+    public VideoDataFetcher(Video video, int width, int height) {
+        mVideo = video;
         mWidth = width;
         mHeight = height;
     }
 
     @Override
     public void loadData(Priority priority, DataCallback<? super InputStream> dataCallback) {
-        String url = mVideoUrl.getStringUrl();
+        String url = mVideo.getStringUrl();
 
-        MediaMetadataRetriever retriever = null;
+        MediaMetadataRetriever retriever = getMediaMetadataRetriever();
         try {
-            retriever = new MediaMetadataRetriever();
             if (Build.VERSION.SDK_INT >= 14) {
                 retriever.setDataSource(url, new HashMap<String, String>());
             } else {
@@ -42,12 +43,10 @@ public class VideoDataFetcher implements DataFetcher<InputStream> {
             }
 
             Bitmap bitmap = retriever.getFrameAtTime();
-
-//            // 计算缩略图
-//            // 已取消,交给Glide自行处理
-//            if (bitmap != null) {
-//                bitmap = ThumbnailUtils.extractThumbnail(bitmap, mWidth, mHeight);
-//            }
+            if (bitmap != null) {
+                dataCallback.onLoadFailed(new NullPointerException("gets thumbnail failure."));
+                return;
+            }
 
             ByteArrayOutputStream baos = new ByteArrayOutputStream();
             bitmap.compress(Bitmap.CompressFormat.JPEG, 70, baos);
@@ -65,14 +64,27 @@ public class VideoDataFetcher implements DataFetcher<InputStream> {
         }
     }
 
+    private MediaMetadataRetriever getMediaMetadataRetriever() {
+        if (mMediaMetadataRetriever == null) {
+            mMediaMetadataRetriever = new MediaMetadataRetriever();
+        }
+        return mMediaMetadataRetriever;
+    }
+
     @Override
     public void cleanup() {
-
+        if (getMediaMetadataRetriever() != null) {
+            getMediaMetadataRetriever().release();
+            mMediaMetadataRetriever = null;
+        }
     }
 
     @Override
     public void cancel() {
-
+        if (getMediaMetadataRetriever() != null) {
+            getMediaMetadataRetriever().release();
+            mMediaMetadataRetriever = null;
+        }
     }
 
     @Override

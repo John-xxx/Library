@@ -19,8 +19,8 @@ import android.widget.EditText;
 import com.liux.abstracts.titlebar.DefaultTitleBar;
 import com.liux.abstracts.titlebar.TitleBar;
 
-import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 
@@ -279,7 +279,7 @@ public abstract class AbstractsActivity extends AppCompatActivity implements Han
 
     private List<View> getIgnoreViews() {
         if (mIgnoreViews == null) {
-            mIgnoreViews = new ArrayList<>();
+            mIgnoreViews = new LinkedList<>();
         }
         return mIgnoreViews;
     }
