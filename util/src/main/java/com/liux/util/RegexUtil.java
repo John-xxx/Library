@@ -38,6 +38,7 @@ public class RegexUtil {
         // 组装
         String regex = String.format("^%s((%s)|(%s))%s$", area, yearMmdd, leapyearMmdd, mantissa);
 
+        num = num.replace(" ", "");
         if (!num.matches(regex)) return false;
 
         int summary = 0
@@ -61,10 +62,39 @@ public class RegexUtil {
      * @param num
      * @return
      */
+    public static boolean isCellphoneNumber(String num) {
+        return isCellphoneNumber(num, true);
+    }
+
+    /**
+     * 是否是手机号码
+     * @param num
+     * @param virtual 是否包含虚拟号段
+     * @return
+     */
+    public static boolean isCellphoneNumber(String num, boolean virtual) {
+        if (num == null) return false;
+        num = num.replace(" ", "");
+        num = num.replaceAll("^\\+?86", "");
+        if (!virtual) {
+            // 不包含虚拟号段
+            return num.matches("^(13[0-9]|14[579]|15[012356789]|17[35678]|18[0-9])[0-9]{8}$");
+        } else {
+            // 包含虚拟号段
+            return num.matches("^(13[0-9]|14[1456789]|15[012356789]|16[6]|17[01345678]|18[0-9]|19[89])[0-9]{8}$");
+        }
+    }
+
+    /**
+     * 是否是座机号码
+     * @param num
+     * @return
+     */
     public static boolean isPhoneNumber(String num) {
         if (num == null) return false;
-        num.replace("+86", "");
-        return num.matches("^1[34578]\\d{9}$");
+        num = num.replace(" ", "");
+        num = num.replaceAll("^\\+?86", "");
+        return num.matches("^0\\d{2,3}-?[1-9]\\d{4,7}$");
     }
 
     /**
@@ -137,7 +167,7 @@ public class RegexUtil {
      */
     public static boolean isBankCard(String card) {
         if (card == null) return false;
-        card.replace(" ", "");
+        card = card.replace(" ", "");
         return card.matches("^\\d{16,19}$");
     }
 
@@ -148,6 +178,7 @@ public class RegexUtil {
      */
     public static boolean isLowerMoney(String money) {
         if (money == null) return false;
+        money = money.replace(",", "");
         return money.matches("^\\d+\\.?\\d{0,2}$");
     }
 
