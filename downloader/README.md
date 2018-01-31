@@ -1,10 +1,10 @@
-XXX
+Downloader
 ===
 
 使用说明
 ---
 ```
-compile 'com.liux:xxx:x.y.z'
+implementation 'com.liux:downloader:x.y.z'
 ```
 
 混淆参考
@@ -15,5 +15,5 @@ compile 'com.liux:xxx:x.y.z'
 
 更新说明
 ---
-####x.y.z_201x-xx-xx
+### x.y.z_201x-xx-xx
     1.

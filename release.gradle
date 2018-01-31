@@ -20,8 +20,8 @@ publish {
     licences = ['MIT']
 
     desc = 'My rapid development library'
-    website = 'https://gitee.com/lx0758/Library'
-    repository = 'https://gitee.com/lx0758/Library.git'
+    website = 'https://github.com/lx0758/Library'
+    repository = 'https://github.com/lx0758/Library.git'
 }
 
 // release to Nexus
@@ -44,15 +44,15 @@ uploadArchives {
                 artifactId = params.artifactId
                 version = params.version
 
-                url 'https://gitee.com/lx0758/Library'
+                url 'https://github.com/lx0758/Library'
                 name project.name
                 packaging 'aar'
                 description 'My rapid development library'
 
                 scm {
-                    url 'https://gitee.com/lx0758/Library'
-                    connection 'git@gitee.com:lx0758/Library.git'
-                    developerConnection 'git@gitee.com:lx0758/Library.git'
+                    url 'https://github.com/lx0758/Library'
+                    connection 'git@github.com:lx0758/Library.git'
+                    developerConnection 'git@github.com:lx0758/Library.git'
                 }
 
                 licenses {

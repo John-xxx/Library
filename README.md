@@ -33,6 +33,10 @@ BaseDialog扩展沉浸式的Dialog
 ---
 对bilibili的Boxing媒体选择器组件封装
 
+[downloader](/downloader/README.md)
+---
+全局背景下载业务封装,实现多线程断点续传等能力
+
 [glide](/glide/README.md)
 ---
 Glide转换器,自定义Glide4配置和实现视屏缩略图的自定义加载过程
