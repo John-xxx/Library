@@ -19,7 +19,7 @@ import butterknife.OnClick;
  */
 
 public class GlideActivity extends AppCompatActivity {
-    private static final String TEST_URL = "https://lx0758.cc/html/files/big_buck_bunny_240p_h264.mp4";
+    private static final String TEST_URL = "https://6xyun.cn/html/files/big_buck_bunny_240p_h264.mp4";
 
     @BindView(R.id.iv_image)
     ImageView ivImage;

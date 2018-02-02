@@ -29,7 +29,7 @@ apply plugin: 'maven'
 uploadArchives {
     repositories {
         mavenDeployer {
-            repository(url: 'http://maven.lx0758.cc/artifactory/android/') {
+            repository(url: 'http://maven.6xyun.cn/artifactory/android/') {
                 Properties properties = new Properties()
                 InputStream inputStream = project.rootProject.file('local.properties').newDataInputStream()
                 properties.load(inputStream)

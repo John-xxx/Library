@@ -4,13 +4,13 @@ Library
 封装了一些和业务模式无强关联的库类<br>
 并引用了一些时下较流行的三方开源库
 
-[maven](http://maven.lx0758.cc)
+[maven](http://maven.6xyun.cn)
 ---
 ```
 repositories {
     ...
     maven {
-        url 'http://maven.lx0758.cc/artifactory/public/'
+        url 'http://maven.6xyun.cn/artifactory/public/'
     }
     ...
 }

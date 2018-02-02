@@ -76,7 +76,7 @@ public class BannerActivity extends AppCompatActivity {
 
         String[] paths = new String[20];
         for (int i = 0; i < paths.length; i++) {
-            paths[i] = "http://lx0758.cc/templates/themes/default/static/img/rand/" + (i + 1) + ".jpg";
+            paths[i] = "http://6xyun.cn/templates/themes/default/static/img/rand/" + (i + 1) + ".jpg";
         }
         Observable.fromArray(paths)
                 .delay(100, TimeUnit.MILLISECONDS)

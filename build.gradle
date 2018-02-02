@@ -4,7 +4,7 @@ buildscript {
             dirs '../aarlibs'
         }
         maven {
-            url 'http://maven.lx0758.cc/artifactory/public/'
+            url 'http://maven.6xyun.cn/artifactory/public/'
         }
         //google()
         //jcenter()
@@ -28,7 +28,7 @@ allprojects{
             dirs '../aarlibs'
         }
         maven {
-            url 'http://maven.lx0758.cc/artifactory/public/'
+            url 'http://maven.6xyun.cn/artifactory/public/'
         }
         //google()
         //jcenter()

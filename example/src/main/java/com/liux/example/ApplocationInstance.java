@@ -30,7 +30,7 @@ public class ApplocationInstance extends Application {
         super.onCreate();
 
         /* 初始化 HttpClient */
-        HttpClient.initialize(this, "http://lx0758.cc/mobile/");
+        HttpClient.initialize(this, "http://6xyun.cn/mobile/");
         HttpClient.getInstance().setLoggingLevel(HttpLoggingInterceptor.Level.BODY);
         HttpClient.getInstance().setOnHeaderListener(new OnHeaderListener() {
             @Override
