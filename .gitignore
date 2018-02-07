@@ -17,7 +17,7 @@
 build/
 /captures/
 /local.properties
-/.externalNativeBuild/
+.externalNativeBuild/
 # Mac
 .DS_Store
 # Gradle
