@@ -10,19 +10,6 @@ implementation 'com.liux:http:x.y.z'
 混淆参考
 ---
 ```
- RxJava2
--dontwarn rx.*
--dontwarn sun.misc.**
--keepclassmembers class rx.internal.util.unsafe.*ArrayQueue*Field* {
-    long producerIndex;
-    long consumerIndex;
-}
--keepclassmembers class rx.internal.util.unsafe.BaseLinkedQueueProducerNodeRef {
-    rx.internal.util.atomic.LinkedQueueNode producerNode;
-}
--keepclassmembers class rx.internal.util.unsafe.BaseLinkedQueueConsumerNodeRef {
-    rx.internal.util.atomic.LinkedQueueNode consumerNode;
-}
 # OkHttp3
 -dontwarn okhttp3.**
 -keep class okhttp3.** {*;}
