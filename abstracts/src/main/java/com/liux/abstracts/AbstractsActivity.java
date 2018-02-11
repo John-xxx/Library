@@ -19,6 +19,7 @@ import android.widget.EditText;
 import com.liux.abstracts.titlebar.DefaultTitleBar;
 import com.liux.abstracts.titlebar.TitleBar;
 
+import java.lang.reflect.Field;
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
@@ -68,6 +69,8 @@ public abstract class AbstractsActivity extends AppCompatActivity implements Han
         }
 
         onInitView(savedInstanceState);
+
+        onInitViewFinish();
     }
 
     @Override
@@ -139,6 +142,7 @@ public abstract class AbstractsActivity extends AppCompatActivity implements Han
     @Override
     protected void onDestroy() {
         super.onDestroy();
+        FixInputMethodManagerLeak.install(this);
     }
 
     /* ============== 生命周期_End ============== */
@@ -387,8 +391,14 @@ public abstract class AbstractsActivity extends AppCompatActivity implements Han
     /**
      * 调用 {@link #onInitData(Bundle, Intent)} 后调用
      * @param savedInstanceState
+     * @return
      */
     protected abstract void onInitView(@Nullable Bundle savedInstanceState);
+
+    /**
+     * View创建完毕
+     */
+    protected abstract void onInitViewFinish();
 
     /**
      * 懒加载模式, {@link #onPostCreate(Bundle)} 后调用
@@ -428,4 +438,49 @@ public abstract class AbstractsActivity extends AppCompatActivity implements Han
     }
 
     /* ============== TitleBar_End ============== */
+
+    /**
+     * 修复输入法内存泄漏
+     */
+    public static class FixInputMethodManagerLeak {
+
+        /**
+         * 防止inputMethodManager造成的内存泄漏
+         * @param destContext
+         */
+        public static void install(Context destContext) {
+            if (destContext == null) {
+                return;
+            }
+
+            InputMethodManager imm = (InputMethodManager) destContext.getSystemService(Context.INPUT_METHOD_SERVICE);
+            if (imm == null) {
+                return;
+            }
+
+            String [] arr = new String[]{"mCurRootView", "mServedView", "mNextServedView","mLastSrvView"};
+            Field f = null;
+            Object obj_get = null;
+            for (String param : arr) {
+                try {
+                    f = imm.getClass().getDeclaredField(param);
+                    if (!f.isAccessible()) {
+                        f.setAccessible(true);
+                    }
+                    obj_get = f.get(imm);
+                    if (obj_get != null && obj_get instanceof View) {
+                        View v_get = (View) obj_get;
+                        if (v_get.getContext() == destContext) { // 被InputMethodManager持有引用的context是想要目标销毁的
+                            f.set(imm, null); // 置空，破坏掉path to gc节点
+                        } else {
+                            // 不是想要目标销毁的，即为又进了另一层界面了，不要处理，避免影响原逻辑,也就不用继续for循环了
+                            continue;
+                        }
+                    }
+                } catch (Throwable t) {
+                    t.printStackTrace();
+                }
+            }
+        }
+    }
 }

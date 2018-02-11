@@ -50,6 +50,11 @@ public class TransparentTitleBarActivity extends AbstractsActivity {
     }
 
     @Override
+    protected void onInitViewFinish() {
+
+    }
+
+    @Override
     protected void onLazyLoad() {
 
     }

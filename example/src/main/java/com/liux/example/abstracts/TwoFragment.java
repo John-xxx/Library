@@ -30,6 +30,11 @@ public class TwoFragment extends AbstractsFragment {
     }
 
     @Override
+    protected void onInitViewFinish(View view) {
+
+    }
+
+    @Override
     protected void onLazyLoad() {
 
     }

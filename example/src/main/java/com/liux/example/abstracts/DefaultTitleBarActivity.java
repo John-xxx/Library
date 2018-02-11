@@ -3,6 +3,8 @@ package com.liux.example.abstracts;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
+import android.view.View;
+import android.view.ViewGroup;
 
 import com.liux.abstracts.AbstractsActivity;
 import com.liux.example.R;
@@ -50,6 +52,11 @@ public class DefaultTitleBarActivity extends AbstractsActivity {
 //                .getMoreText();
         // 忽略某控件
         addIgnoreView(findViewById(R.id.btn_button_1));
+    }
+
+    @Override
+    protected void onInitViewFinish() {
+
     }
 
     @Override

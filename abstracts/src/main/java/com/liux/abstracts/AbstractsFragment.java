@@ -8,6 +8,7 @@ import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
+import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentTransaction;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -44,13 +45,16 @@ public abstract class AbstractsFragment extends Fragment implements HandlerTouch
             boolean isHidden = savedInstanceState.getBoolean(STATE_SAVE_IS_HIDDEN);
             savedInstanceState.remove(STATE_SAVE_IS_HIDDEN);
 
-            FragmentTransaction ft = getFragmentManager().beginTransaction();
-            if (isHidden) {
-                ft.hide(this);
-            } else {
-                ft.show(this);
+            FragmentManager fm = getFragmentManager();
+            if (fm != null) {
+                FragmentTransaction ft = fm.beginTransaction();
+                if (isHidden) {
+                    ft.hide(this);
+                } else {
+                    ft.show(this);
+                }
+                ft.commit();
             }
-            ft.commit();
         }
 
         onInitData(getArguments());
@@ -62,7 +66,9 @@ public abstract class AbstractsFragment extends Fragment implements HandlerTouch
 
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
-        return onInitView(inflater, container, savedInstanceState);
+        View view = onInitView(inflater, container, savedInstanceState);
+        onInitViewFinish(view);
+        return view;
     }
 
     @Override
@@ -208,6 +214,12 @@ public abstract class AbstractsFragment extends Fragment implements HandlerTouch
      * @param savedInstanceState
      */
     protected abstract View onInitView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState);
+
+    /**
+     * View创建完毕
+     * @param view
+     */
+    protected abstract void onInitViewFinish(View view);
 
     /**
      * 懒加载模式,保证创建完成后第一次显示时调用一次 <br>
