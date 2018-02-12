@@ -28,23 +28,12 @@ public class FragmentActivity extends AbstractsActivity {
     RadioGroup rgSelect;
 
     @Override
-    protected void onCreate(@Nullable Bundle savedInstanceState, Intent intent) {
+    public void onCreate(@Nullable Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_base_fragment);
+
         ButterKnife.bind(this);
-    }
 
-    @Override
-    protected void onInitData(@Nullable Bundle savedInstanceState, Intent intent) {
-
-    }
-
-    @Override
-    protected void onRestoreData(Map<String, Object> data) {
-
-    }
-
-    @Override
-    protected void onInitView(@Nullable Bundle savedInstanceState) {
         vpContent.setAdapter(new FragmentStatePagerAdapter(getSupportFragmentManager()) {
             @Override
             public Fragment getItem(int position) {
@@ -122,20 +111,5 @@ public class FragmentActivity extends AbstractsActivity {
         });
 
         rgSelect.check(R.id.rb_one);
-    }
-
-    @Override
-    protected void onInitViewFinish() {
-
-    }
-
-    @Override
-    protected void onLazyLoad() {
-
-    }
-
-    @Override
-    protected void onSaveData(Map<String, Object> data) {
-
     }
 }

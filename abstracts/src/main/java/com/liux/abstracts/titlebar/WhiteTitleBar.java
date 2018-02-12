@@ -6,6 +6,7 @@ import android.view.View;
 import android.view.ViewGroup;
 
 import com.liux.abstracts.R;
+import com.liux.abstracts.util.TitleBarUtil;
 
 /**
  * 白色背景的 TitleBar 实现
@@ -36,6 +37,6 @@ public class WhiteTitleBar extends DefaultTitleBar {
                 (int)(1.0F * scale + 0.5F)
         ));
 
-        setStatusBarMode(true);
+        TitleBarUtil.setStatusBarMode(getActivity(), true);
     }
 }

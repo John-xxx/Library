@@ -1,4 +1,4 @@
-package com.liux.abstracts;
+package com.liux.abstracts.touch;
 
 import android.view.View;
 
@@ -6,7 +6,7 @@ import android.view.View;
  * Created by Liux on 2017/12/4.
  */
 
-public interface HandlerTouch {
+public interface TouchCallback {
 
     /**
      * 获取是否处理了全局触控事件

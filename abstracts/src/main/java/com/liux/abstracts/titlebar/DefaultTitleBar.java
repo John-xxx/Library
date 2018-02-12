@@ -14,6 +14,7 @@ import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.liux.abstracts.R;
+import com.liux.abstracts.util.TitleBarUtil;
 
 import java.lang.reflect.Field;
 
@@ -66,7 +67,7 @@ public class DefaultTitleBar extends TitleBar<DefaultTitleBar> {
                 )
         );
 
-        operationToolbar(mRoot);
+        TitleBarUtil.operationToolbar(mRoot);
 
         mBack = mRoot.findViewById(R.id.view_titlebar_default_back);
         mMore = mRoot.findViewById(R.id.view_titlebar_default_more);
@@ -149,54 +150,5 @@ public class DefaultTitleBar extends TitleBar<DefaultTitleBar> {
 
     public TextView getMoreText() {
         return mMoreText;
-    }
-
-    /**
-     * 取消Toolbar自带的边距,处理Toolbar可以自适应标题栏高度
-     * @param view
-     */
-    private void operationToolbar(View view) {
-        try {
-            Toolbar toolbar = (Toolbar) view.getParent();
-            // 修改Toolbar边距
-            FrameLayout.LayoutParams lp = (FrameLayout.LayoutParams) toolbar.getLayoutParams();
-            lp.width = ViewGroup.LayoutParams.MATCH_PARENT;
-            lp.height = ViewGroup.LayoutParams.WRAP_CONTENT;
-            lp.setMargins(0, 0, 0, 0);
-            toolbar.setPadding(0, 0, 0, 0);
-            toolbar.setLayoutParams(lp);
-            toolbar.setContentInsetsAbsolute(0, 0);
-            toolbar.setContentInsetsRelative(0, 0);
-
-            // 设置Toolbar背景
-            ((View) toolbar.getParent()).setBackgroundColor(Color.TRANSPARENT);
-
-            // 设置Toolbar尺寸
-            toolbar.setMinimumHeight(0);
-            // 隐藏 MenuView
-            toolbar.getMenu();
-            Class clazz = toolbar.getClass();
-            Field field = clazz.getDeclaredField("mMenuView");
-            field.setAccessible(true);
-            ActionMenuView actionMenuView = (ActionMenuView) field.get(toolbar);
-            actionMenuView.setVisibility(View.GONE);
-        } catch (Exception e) {
-
-        }
-    }
-
-    public interface OnTitleBarListener {
-
-        /**
-         * 返回事件触发 <br>
-         * @return 是否已处理,否则调用 {@link android.app.Activity#onBackPressed()}
-         */
-        boolean onBack();
-
-        /**
-         * 更多事件处理 <br>
-         * @return 是否已处理
-         */
-        boolean onMore();
     }
 }
