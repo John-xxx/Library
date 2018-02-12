@@ -7,9 +7,13 @@ import android.view.MotionEvent;
 import android.view.View;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.EditText;
+import android.widget.TextView;
 
 import com.liux.abstracts.titlebar.TitleBar;
 import com.liux.abstracts.util.FixInputMethodManagerLeak;
+import com.mobsandgeeks.saripaar.Rule;
+import com.mobsandgeeks.saripaar.ValidationError;
+import com.mobsandgeeks.saripaar.Validator;
 
 import java.util.HashMap;
 import java.util.LinkedList;
@@ -33,6 +37,7 @@ public class AbstractsActivityProxy {
     public void onCreate() {
         initTitleBar();
         restoreData();
+        initValidator();
     }
 
     public Object onRetainCustomNonConfigurationInstance() {
@@ -228,6 +233,42 @@ public class AbstractsActivityProxy {
             return true;
         } else {
             return false;
+        }
+    }
+
+    // ===============================================================
+
+    private Validator mValidator;
+
+    public Validator getValidator() {
+        return mValidator;
+    }
+
+    private void initValidator() {
+        mValidator = new Validator(mIAbstractsActivity.getTarget());
+        mValidator.setValidationListener(mIAbstractsActivity);
+    }
+
+    public void onValidationFailed(List<ValidationError> errors) {
+        if (!errors.isEmpty()) {
+            ValidationError error = errors.get(0);
+            List<Rule> rules = error.getFailedRules();
+            if (rules != null && !rules.isEmpty()) {
+                String message = rules.get(0).getMessage(mIAbstractsActivity.getTarget());
+                View view = error.getView();
+                boolean isNeedToast = true;
+                if (view instanceof TextView) {
+                    ((TextView) view).setError(message);
+                    if (view instanceof EditText && view.isEnabled()) {
+                        view.requestFocus();
+                        isNeedToast = false;
+                    }
+                }
+
+                if(isNeedToast) {
+                    mIAbstractsActivity.onValidationFailed(message);
+                }
+            }
         }
     }
 }

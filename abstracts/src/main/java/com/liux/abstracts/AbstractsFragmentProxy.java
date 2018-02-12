@@ -6,10 +6,16 @@ import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentTransaction;
 import android.view.View;
+import android.widget.EditText;
+import android.widget.TextView;
 
 import com.liux.abstracts.touch.TouchCallback;
+import com.mobsandgeeks.saripaar.Rule;
+import com.mobsandgeeks.saripaar.ValidationError;
+import com.mobsandgeeks.saripaar.Validator;
 
 import java.lang.reflect.Field;
+import java.util.List;
 
 /**
  * 2018/2/12
@@ -28,6 +34,7 @@ public class AbstractsFragmentProxy {
 
     public void onCreate(Bundle savedInstanceState) {
         restoreHideState(savedInstanceState);
+        initValidator();
     }
 
     public void onViewCreated() {
@@ -180,5 +187,41 @@ public class AbstractsFragmentProxy {
             return (TouchCallback) activity;
         }
         return null;
+    }
+
+    // ===============================================================
+
+    private Validator mValidator;
+
+    public Validator getValidator() {
+        return mValidator;
+    }
+
+    private void initValidator() {
+        mValidator = new Validator(mIAbstractsFragment.getTarget());
+        mValidator.setValidationListener(mIAbstractsFragment);
+    }
+
+    public void onValidationFailed(List<ValidationError> errors) {
+        if (!errors.isEmpty()) {
+            ValidationError error = errors.get(0);
+            List<Rule> rules = error.getFailedRules();
+            if (rules != null && !rules.isEmpty()) {
+                String message = rules.get(0).getMessage(mIAbstractsFragment.getTarget().getContext());
+                View view = error.getView();
+                boolean isNeedToast = true;
+                if (view instanceof TextView) {
+                    ((TextView) view).setError(message);
+                    if (view instanceof EditText && view.isEnabled()) {
+                        view.requestFocus();
+                        isNeedToast = false;
+                    }
+                }
+
+                if(isNeedToast) {
+                    mIAbstractsFragment.onValidationFailed(message);
+                }
+            }
+        }
     }
 }

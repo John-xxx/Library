@@ -1,7 +1,6 @@
 package com.liux.abstracts;
 
 import android.os.Bundle;
-import android.os.PersistableBundle;
 import android.support.annotation.Nullable;
 import android.support.v7.app.AppCompatActivity;
 import android.view.MotionEvent;
@@ -10,7 +9,10 @@ import android.view.View;
 import com.liux.abstracts.titlebar.DefaultTitleBar;
 import com.liux.abstracts.titlebar.TitleBar;
 import com.liux.abstracts.touch.TouchCallback;
+import com.mobsandgeeks.saripaar.ValidationError;
+import com.mobsandgeeks.saripaar.Validator;
 
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -93,6 +95,11 @@ public abstract class AbstractsActivity extends AppCompatActivity
     }
 
     @Override
+    public Validator getValidator() {
+        return mProxy.getValidator();
+    }
+
+    @Override
     public boolean isHandlerTouch() {
         return mProxy.isHandlerTouch();
     }
@@ -118,12 +125,27 @@ public abstract class AbstractsActivity extends AppCompatActivity
     }
 
     @Override
+    public void onValidationSucceeded() {
+
+    }
+
+    @Override
+    public void onValidationFailed(List<ValidationError> errors) {
+        mProxy.onValidationFailed(errors);
+    }
+
+    @Override
     public void onRestoreData(Map<String, Object> data) {
 
     }
 
     @Override
     public void onSaveData(Map<String, Object> data) {
+
+    }
+
+    @Override
+    public void onValidationFailed(String message) {
 
     }
 }

@@ -22,6 +22,7 @@ android {
 
 dependencies {
     api fileTree(dir: 'libs', include: ['*.jar'])
+    api 'com.mobsandgeeks:android-saripaar:2.0.3'
     api "com.android.support:appcompat-v7:${LIBRARY_SUPPORT}"
 }
 
@@ -29,7 +30,7 @@ dependencies {
 ext {
     params = [
             artifactId : 'abstracts',
-            version : '0.2.3'
+            version : '0.2.4'
     ]
 }
 apply from: '../release.gradle'

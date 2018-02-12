@@ -9,6 +9,10 @@ import android.view.View;
 import android.view.ViewGroup;
 
 import com.liux.abstracts.touch.TouchCallback;
+import com.mobsandgeeks.saripaar.ValidationError;
+import com.mobsandgeeks.saripaar.Validator;
+
+import java.util.List;
 
 /**
  * 抽象Fragment,提供以下能力 <br>
@@ -82,6 +86,11 @@ public abstract class AbstractsFragment extends Fragment
     }
 
     @Override
+    public Validator getValidator() {
+        return mProxy.getValidator();
+    }
+
+    @Override
     public boolean isHandlerTouch() {
         return mProxy.isHandlerTouch();
     }
@@ -107,12 +116,27 @@ public abstract class AbstractsFragment extends Fragment
     }
 
     @Override
+    public void onValidationSucceeded() {
+
+    }
+
+    @Override
+    public void onValidationFailed(List<ValidationError> errors) {
+        mProxy.onValidationFailed(errors);
+    }
+
+    @Override
     public void onLazyLoad() {
 
     }
 
     @Override
     public void onVisibleChanged() {
+
+    }
+
+    @Override
+    public void onValidationFailed(String message) {
 
     }
 }

@@ -1,11 +1,11 @@
 package com.liux.abstracts;
 
-import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.view.MotionEvent;
 
 import com.liux.abstracts.titlebar.TitleBar;
 import com.liux.abstracts.touch.TouchCallback;
+import com.mobsandgeeks.saripaar.Validator;
 
 import java.util.Map;
 
@@ -15,7 +15,7 @@ import java.util.Map;
  * lx0758@qq.com
  */
 
-public interface IAbstractsActivity extends TouchCallback {
+public interface IAbstractsActivity extends TouchCallback, Validator.ValidationListener {
 
     AppCompatActivity getTarget();
 
@@ -62,4 +62,18 @@ public interface IAbstractsActivity extends TouchCallback {
      * @return
      */
     boolean superOnTouchEvent(MotionEvent event);
+
+    // ===============================================================
+
+    /**
+     * 获取表单验证器
+     * @return
+     */
+    Validator getValidator();
+
+    /**
+     * 显示表单验证失败信息
+     * @param message
+     */
+    void onValidationFailed(String message);
 }

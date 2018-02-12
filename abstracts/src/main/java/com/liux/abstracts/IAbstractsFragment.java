@@ -5,6 +5,7 @@ import android.support.v4.app.Fragment;
 import android.view.View;
 
 import com.liux.abstracts.touch.TouchCallback;
+import com.mobsandgeeks.saripaar.Validator;
 
 /**
  * 2018/2/12
@@ -12,7 +13,7 @@ import com.liux.abstracts.touch.TouchCallback;
  * lx0758@qq.com
  */
 
-public interface IAbstractsFragment extends TouchCallback {
+public interface IAbstractsFragment extends TouchCallback, Validator.ValidationListener {
 
     Fragment getTarget();
 
@@ -31,4 +32,18 @@ public interface IAbstractsFragment extends TouchCallback {
      * {@link Fragment#onHiddenChanged(boolean)} 后调用
      */
     void onVisibleChanged();
+
+    // ===============================================================
+
+    /**
+     * 获取表单验证器
+     * @return
+     */
+    Validator getValidator();
+
+    /**
+     * 显示表单验证失败信息
+     * @param message
+     */
+    void onValidationFailed(String message);
 }
