@@ -8,6 +8,7 @@ import com.liux.http.HttpClient;
 import com.liux.http.OnHeaderListener;
 import com.liux.http.OnRequestListener;
 import com.liux.http.interceptor.HttpLoggingInterceptor;
+import com.liux.rx.lifecycle.LifecyleProviderManager;
 
 import java.util.Map;
 
@@ -23,6 +24,7 @@ public class ApplocationInstance extends Application {
     protected void attachBaseContext(Context base) {
         super.attachBaseContext(base);
         MultiDex.install(this);
+        LifecyleProviderManager.install(this);
     }
 
     @Override

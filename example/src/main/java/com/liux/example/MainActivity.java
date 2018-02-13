@@ -71,6 +71,7 @@ public class MainActivity extends AppCompatActivity {
         add("Pay", "封装支付宝/微信/银联支付过程", PayActivity.class);
         add("Permission", "运行时权限申请过程封装", PermissionActivity.class);
         add("Player", "基于ijkplayer封装的播放器", PlayerActivity.class);
+        add("RX", "基于ReactiveX的RxJava2全家桶部分成员", PlayerActivity.class);
         add("Tool", "一些工具类集合", ToolActivity.class);
         add("Util", "一些工具方法集合", UtilActivity.class);
         add("View", "一些自定义View集合", ViewActivity.class);

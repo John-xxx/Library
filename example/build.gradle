@@ -65,6 +65,7 @@ dependencies {
     implementation project(':pay')
     implementation project(':permission')
     implementation project(':player')
+    implementation project(':rx')
     implementation project(':util')
     implementation project(':view')
 
