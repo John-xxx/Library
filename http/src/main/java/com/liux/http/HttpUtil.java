@@ -14,6 +14,7 @@ import okhttp3.MediaType;
 import okhttp3.MultipartBody;
 import okhttp3.RequestBody;
 import okhttp3.internal.http.HttpMethod;
+import retrofit2.CallAdapter;
 
 /**
  * Http 协议配套工具类
@@ -311,5 +312,37 @@ public class HttpUtil {
         if (!"".equals(pathSegments.get(pathSegments.size() - 1))) {
             throw new IllegalArgumentException("baseUrl must end in /: " + baseUrl);
         }
+    }
+
+    /**
+     * 尝试获取 RxJava 的Retrofit适配器
+     * @return
+     */
+    public static CallAdapter.Factory getRxJavaCallAdapterFactory() {
+        try {
+            Class check = Class.forName("rx.Observable");
+            Class clazz = Class.forName("retrofit2.adapter.rxjava.RxJavaCallAdapterFactory");
+            Object factory = clazz.getMethod("create").invoke(null);
+            return (CallAdapter.Factory) factory;
+        } catch (Exception e) {
+
+        }
+        return null;
+    }
+
+    /**
+     * 尝试获取 RxJava2 的Retrofit适配器
+     * @return
+     */
+    public static CallAdapter.Factory getRxJava2CallAdapterFactory() {
+        try {
+            Class check = Class.forName("io.reactivex.Observable");
+            Class clazz = Class.forName("retrofit2.adapter.rxjava2.RxJava2CallAdapterFactory");
+            Object factory = clazz.getMethod("create").invoke(null);
+            return (CallAdapter.Factory) factory;
+        } catch (Exception e) {
+
+        }
+        return null;
     }
 }

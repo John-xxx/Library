@@ -191,6 +191,7 @@ public class BaseUrlInterceptor implements Interceptor {
      * @return
      */
     private boolean equalsRetorfitBaseUrl(String url) {
+        if (url == null || url.length() == 0) return true;
         String oldUrl = mHttpClient.getRetrofit().baseUrl().url().toString();
         return oldUrl.equals(url);
     }

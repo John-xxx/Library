@@ -19,10 +19,23 @@ import android.util.Log;
 
 import com.liux.http.HttpClient;
 
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
+
 import java.io.EOFException;
 import java.io.IOException;
+import java.io.StringReader;
+import java.io.StringWriter;
 import java.nio.charset.Charset;
 import java.util.concurrent.TimeUnit;
+
+import javax.xml.transform.OutputKeys;
+import javax.xml.transform.Source;
+import javax.xml.transform.Transformer;
+import javax.xml.transform.TransformerFactory;
+import javax.xml.transform.stream.StreamResult;
+import javax.xml.transform.stream.StreamSource;
 
 import okhttp3.Connection;
 import okhttp3.Headers;
@@ -45,11 +58,23 @@ import okio.BufferedSource;
  * a stable logging format, use your own interceptor.
  */
 public class HttpLoggingInterceptor implements Interceptor {
-    private static final int MAX_LOG_LENGTH = 4000;
+    private static final int MAX_LOG_LENGTH = 10000;
     private static final Charset UTF8 = Charset.forName("UTF-8");
     private static final String SEPARATOR = System.getProperty("line.separator");
-    private static final String DIVIDE_1 = "================================================================================================";
-    private static final String DIVIDE_2 = "------------------------------------------------------------------------------------------------";
+    private static final String DIVIDE_0 = "┃";
+    private static final String DIVIDE_1;
+    private static final String DIVIDE_2;
+    private static final String DIVIDE_3;
+
+    static {
+        StringBuilder builder = new StringBuilder();
+        for (int i = 0; i < 200; i++) {
+            builder.append('━');
+        }
+        DIVIDE_1 = "┏" + builder.toString();
+        DIVIDE_2 = "┣" + builder.toString();
+        DIVIDE_3 = "┗" + builder.toString();
+    }
 
     public enum Level {
         /** No logs. */
@@ -119,7 +144,11 @@ public class HttpLoggingInterceptor implements Interceptor {
                     newline = newline != -1 ? newline : length;
                     do {
                         int end = Math.min(newline, i + MAX_LOG_LENGTH);
-                        Log.println(Log.DEBUG, HttpClient.TAG, message.substring(i, end));
+                        String lineStr = message.substring(i, end);
+                        if (!DIVIDE_1.equals(lineStr) && !DIVIDE_2.equals(lineStr) && !DIVIDE_3.equals(lineStr)) {
+                            lineStr = DIVIDE_0 + lineStr;
+                        }
+                        Log.println(Log.DEBUG, HttpClient.TAG, lineStr);
                         i = end;
                     } while (i < newline);
                 }
@@ -150,7 +179,8 @@ public class HttpLoggingInterceptor implements Interceptor {
         return level;
     }
 
-    @Override public Response intercept(Chain chain) throws IOException {
+    @Override
+    public Response intercept(Chain chain) throws IOException {
         HttpLoggingInterceptor.Level level = this.level;
 
         Request request = chain.request();
@@ -246,6 +276,7 @@ public class HttpLoggingInterceptor implements Interceptor {
         } catch (Exception e) {
             //logger.log("<-- HTTP FAILED: " + e);
             addLog(stringBuffer, "<-- HTTP FAILED: " + e);
+            addLog(stringBuffer, DIVIDE_3);
             printLog(stringBuffer);
             throw e;
         }
@@ -309,6 +340,7 @@ public class HttpLoggingInterceptor implements Interceptor {
             }
         }
 
+        addLog(stringBuffer, DIVIDE_3);
         printLog(stringBuffer);
 
         return response;
@@ -344,11 +376,53 @@ public class HttpLoggingInterceptor implements Interceptor {
     }
 
     private void addLog(StringBuffer stringBuffer, String log) {
+        log = formatJson(log);
+        log = formatXml(log);
         stringBuffer.append(log).append(SEPARATOR);
     }
 
     private void printLog(StringBuffer stringBuffer) {
-        addLog(stringBuffer, DIVIDE_1);
         logger.log(stringBuffer.toString());
+    }
+
+    /**
+     * 格式化 Json
+     * @param json
+     * @return
+     */
+    private static String formatJson(String json) {
+        try {
+            if (json.startsWith("{")) {
+                json = new JSONObject(json).toString(4);
+            } else if (json.startsWith("[")) {
+                json = new JSONArray(json).toString(4);
+            }
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+        return json;
+    }
+
+    /**
+     * 格式化 Xml
+     * @param xml
+     * @return
+     */
+    private static String formatXml(String xml) {
+        try {
+            if (xml.startsWith("<")) {
+                return xml;
+            }
+            Source xmlInput = new StreamSource(new StringReader(xml));
+            StreamResult xmlOutput = new StreamResult(new StringWriter());
+            Transformer transformer = TransformerFactory.newInstance().newTransformer();
+            transformer.setOutputProperty(OutputKeys.INDENT, "yes");
+            transformer.setOutputProperty("{http://xml.apache.org/xslt}indent-amount", "4");
+            transformer.transform(xmlInput, xmlOutput);
+            xml = xmlOutput.getWriter().toString().replaceFirst(">", ">" + SEPARATOR);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return xml;
     }
 }

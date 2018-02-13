@@ -25,8 +25,8 @@ import okhttp3.OkHttpClient;
 import okhttp3.Request;
 import okhttp3.RequestBody;
 import okhttp3.Response;
+import retrofit2.CallAdapter;
 import retrofit2.Retrofit;
-import retrofit2.adapter.rxjava2.RxJava2CallAdapterFactory;
 
 /**
  * 基于 Retrofit2 和 OkHttp3 实现的HttpClient <br>
@@ -40,21 +40,28 @@ import retrofit2.adapter.rxjava2.RxJava2CallAdapterFactory;
 
 public class HttpClient {
     private static volatile HttpClient mInstance;
-    public static boolean isInitialize() {
-        return mInstance != null;
-    }
     public static HttpClient getInstance() {
         if (mInstance == null) throw new NullPointerException("HttpClient has not been initialized");
         return mInstance;
     }
-    public static void initialize(Context context, String baseUrl) {
-        initialize(context, baseUrl, null);
+
+    public static boolean isInitialize() {
+        synchronized(HttpClient.class) {
+            return mInstance != null;
+        }
     }
-    public static void initialize(Context context, String baseUrl, OkHttpClient.Builder builder) {
+    public static void initialize(Context context, String baseUrl) {
+        initialize(
+                context,
+                null,
+                new Retrofit.Builder().baseUrl(baseUrl)
+        );
+    }
+    public static void initialize(Context context, OkHttpClient.Builder okHttpBuilder, Retrofit.Builder retrofitBuilder) {
         if (mInstance != null) return;
         synchronized(HttpClient.class) {
             if (mInstance != null) return;
-            mInstance = new HttpClient(context, baseUrl, builder);
+            mInstance = new HttpClient(context, okHttpBuilder, retrofitBuilder);
         }
     }
 
@@ -68,29 +75,30 @@ public class HttpClient {
     private CheckInterceptor mCheckInterceptor = new CheckInterceptor();
     private HttpLoggingInterceptor mHttpLoggingInterceptor = new HttpLoggingInterceptor();
 
-    private HttpClient(Context context, String baseUrl, OkHttpClient.Builder builder) {
+    private HttpClient(Context context, OkHttpClient.Builder okHttpBuilder, Retrofit.Builder retrofitBuilder) {
         if (context == null) throw new NullPointerException("Context required.");
-        if (baseUrl == null) throw new NullPointerException("Base URL required.");
 
         mContext = context.getApplicationContext();
 
         mBaseUrlInterceptor = new BaseUrlInterceptor(this);
         mUserAgentInterceptor = new UserAgentInterceptor(mContext);
 
-        setBaseUrl(baseUrl);
+        mOkHttpClient = initOkHttpClient(okHttpBuilder);
 
-        if (builder != null) {
-            mOkHttpClient = builder
-                    .addInterceptor(mBaseUrlInterceptor)
-                    .addInterceptor(mUserAgentInterceptor)
-                    .addInterceptor(mCheckInterceptor)
-                    .addInterceptor(mHttpLoggingInterceptor)
-                    .build();
-        } else {
+        mRetrofit = initRetorfit(retrofitBuilder);
+    }
+
+    /**
+     * 初始化 OkHttpClient
+     * @param okHttpBuilder
+     * @return
+     */
+    private OkHttpClient initOkHttpClient(OkHttpClient.Builder okHttpBuilder) {
+        if (okHttpBuilder == null) {
             File cacheDir = mContext.getExternalCacheDir();
             if (cacheDir == null || !cacheDir.exists()) cacheDir = mContext.getCacheDir();
 
-            mOkHttpClient = new OkHttpClient.Builder()
+            return new OkHttpClient.Builder()
                     .cookieJar(new PersistentCookieJar(
                             new SetCookieCache(),
                             new SharedPrefsCookiePersistor(mContext)
@@ -107,14 +115,37 @@ public class HttpClient {
                     // 不能通过网络拦截器修改参数
                     // .addNetworkInterceptor()
                     .build();
+        } else {
+            return okHttpBuilder
+                    .addInterceptor(mBaseUrlInterceptor)
+                    .addInterceptor(mUserAgentInterceptor)
+                    .addInterceptor(mCheckInterceptor)
+                    .addInterceptor(mHttpLoggingInterceptor)
+                    .build();
+        }
+    }
+
+    /**
+     * 初始化 Retorfit
+     * @param retrofitBuilder
+     * @return
+     */
+    private Retrofit initRetorfit(Retrofit.Builder retrofitBuilder) {
+        retrofitBuilder
+                .client(mOkHttpClient)
+                .addConverterFactory(FastJsonConverterFactory.create());
+
+        CallAdapter.Factory factory;
+        factory = HttpUtil.getRxJavaCallAdapterFactory();
+        if (factory != null) {
+            retrofitBuilder.addCallAdapterFactory(factory);
+        }
+        factory = HttpUtil.getRxJava2CallAdapterFactory();
+        if (factory != null) {
+            retrofitBuilder.addCallAdapterFactory(factory);
         }
 
-        mRetrofit = new Retrofit.Builder()
-                .baseUrl(baseUrl)
-                .client(mOkHttpClient)
-                .addConverterFactory(FastJsonConverterFactory.create())
-                .addCallAdapterFactory(RxJava2CallAdapterFactory.create())
-                .build();
+        return retrofitBuilder.build();
     }
 
     /**
