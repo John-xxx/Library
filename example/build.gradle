@@ -63,7 +63,6 @@ dependencies {
     implementation project(':list')
     implementation project(':tool')
     implementation project(':pay')
-    implementation project(':pay-unionpay')
     implementation project(':permission')
     implementation project(':player')
     implementation project(':util')
