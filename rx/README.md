@@ -1,10 +1,10 @@
-﻿RxJava
+﻿RX
 ===
 
 使用说明
 ---
 ```
-implementation 'com.liux:rxjava:x.y.z'
+implementation 'com.liux:rx:x.y.z'
 ```
 
 混淆参考

@@ -21,7 +21,7 @@ android {
 }
 
 dependencies {
-    compile fileTree(dir: 'libs', include: ['*.jar'])
+    api fileTree(dir: 'libs', include: ['*.jar'])
     compileOnly "com.android.support:support-fragment:${LIBRARY_SUPPORT}"
 
     api "io.reactivex.rxjava2:rxjava:${LIBRARY_RXJAVA2}"
@@ -33,9 +33,9 @@ dependencies {
 
 // Release Library Param
 ext {
-    param = [
-            ARTIFACTID : 'rx',
-            VERSION : '0.2.0'
+    params = [
+            artifactId : 'rx',
+            version : '0.2.0'
     ]
 }
-// apply from: '../release.gradle'
+apply from: '../release.gradle'
