@@ -75,7 +75,7 @@ public class LifecyleProviderManager {
         }
 
         private BehaviorSubject<ActivityEvent> getBehaviorSubject(Activity activity) {
-            return LifecyleProviderManager.getLifcycleProvider(activity).getSubject();
+            return LifecyleProviderManager.getLifecycleProvider(activity).getSubject();
         }
     };
 
@@ -212,7 +212,7 @@ public class LifecyleProviderManager {
     };
 
     @SuppressWarnings({"unchecked", "SynchronizationOnLocalVariableOrMethodParameter"})
-    public static LifecycleProviderImpl<ActivityEvent> getLifcycleProvider(Activity activity) {
+    public static LifecycleProviderImpl<ActivityEvent> getLifecycleProvider(Activity activity) {
         synchronized (activity) {
             LifecycleProviderImpl<ActivityEvent> lifecycleProvider = activityLifecycleProviderWeakHashMap.get(activity);
             if (lifecycleProvider == null) {
