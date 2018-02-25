@@ -2,10 +2,10 @@
 <resources>
 
     <declare-styleable name="CircleImageView">
-        <attr name="civ_border_width" format="dimension" />
-        <attr name="civ_border_color" format="color" />
+        <attr name="civ_border_width" format="dimension|reference" />
+        <attr name="civ_border_color" format="color|reference" />
         <attr name="civ_border_overlay" format="boolean" />
-        <attr name="civ_fill_color" format="color" />
+        <attr name="civ_fill_color" format="color|reference" />
     </declare-styleable>
 
     <declare-styleable name="ClearEditText">
@@ -14,8 +14,8 @@
     </declare-styleable>
 
     <declare-styleable name="FlowLayout">
-        <attr name="flow_horizontal" format="dimension" />
-        <attr name="flow_vertical" format="dimension" />
+        <attr name="flow_horizontal" format="dimension|reference" />
+        <attr name="flow_vertical" format="dimension|reference" />
     </declare-styleable>
 
     <declare-styleable name="NumberPickerView">
@@ -50,22 +50,31 @@
             the string array will never be displayed.
             you can set this attr if you want to keep the wraped numberpickerview
             width unchanged when alter the content list-->
-        <attr name="npv_AlternativeTextArrayWithMeasureHint" format="reference" />
-        <attr name="npv_AlternativeTextArrayWithoutMeasureHint" format="reference" />
+        <attr name="npv_AlternativeTextArrayWithMeasureHint" format="reference|string" />
+        <attr name="npv_AlternativeTextArrayWithoutMeasureHint" format="reference|string" />
         <!--the max length of hint content-->
         <attr name="npv_AlternativeHint" format="reference|string" />
     </declare-styleable>
 
     <declare-styleable name="PasswordInputView">
-        <attr name="password_size" format="dimension"/>
-        <attr name="password_color" format="color"/>
-        <attr name="password_length" format="integer"/>
-        <attr name="password_drawable" format="reference|color"/>
-        <attr name="password_interval" format="dimension"/>
+        <attr name="piv_size" format="dimension|reference"/>
+        <attr name="piv_color" format="color|reference"/>
+        <attr name="piv_drawable" format="color|reference"/>
+        <attr name="piv_interval" format="dimension|reference"/>
     </declare-styleable>
 
     <declare-styleable name="SquareRelativeLayout">
         <attr name="srl_align_width" format="boolean" />
+    </declare-styleable>
+
+    <declare-styleable name="ShadowLayout">
+        <attr name="sl_size" format="dimension|reference"/>
+        <attr name="sl_color" format="color|reference"/>
+    </declare-styleable>
+
+    <declare-styleable name="AuthCodeEditText">
+        <attr name="acet_drawable" format="color|reference"/>
+        <attr name="acet_interval" format="dimension|reference"/>
     </declare-styleable>
 
 </resources>
