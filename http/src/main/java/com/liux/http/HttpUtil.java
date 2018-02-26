@@ -55,6 +55,8 @@ public class HttpUtil {
      * @return
      */
     public static boolean notRequiresRequestBody(String method) {
+        if (!isHttpMethod(method)) return false;
+        method = method.toUpperCase();
         return !HttpMethod.permitsRequestBody(method)
                 || method.equals("GET")
                 || method.equals("HEAD")
@@ -68,6 +70,8 @@ public class HttpUtil {
      * @return
      */
     public static boolean requiresRequestBody(String method) {
+        if (!isHttpMethod(method)) return false;
+        method = method.toUpperCase();
         return HttpMethod.requiresRequestBody(method);
     }
 
@@ -77,6 +81,8 @@ public class HttpUtil {
      * @return
      */
     public static boolean permitsRequestBody(String method) {
+        if (!isHttpMethod(method)) return false;
+        method = method.toUpperCase();
         return HttpMethod.permitsRequestBody(method);
     }
 

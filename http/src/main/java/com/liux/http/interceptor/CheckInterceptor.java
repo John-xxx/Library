@@ -100,15 +100,9 @@ public class CheckInterceptor implements Interceptor {
         mOnHeaderListener.onHeaders(request, headers);
 
         // 合成新的 Header
-        Headers.Builder builder = new Headers.Builder();
-        for(Map.Entry<String, String> entry : headers.entrySet()){
-            builder.add(
-                    HttpUtil.checkChar(entry.getKey()),
-                    HttpUtil.checkChar(entry.getValue())
-            );
-        }
+        Headers okHeaders = Headers.of(headers);
 
-        requestBuilder.headers(builder.build());
+        requestBuilder.headers(okHeaders);
     }
 
     /**
