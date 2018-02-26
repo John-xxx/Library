@@ -51,7 +51,7 @@ public class PasswordInputView extends EditText {
 
     @Override
     protected MovementMethod getDefaultMovementMethod() {
-        //return ArrowKeyMovementMethod.getInstance();
+        //return super.getDefaultMovementMethod();
         return null;
     }
 
@@ -95,10 +95,9 @@ public class PasswordInputView extends EditText {
     }
 
     @Override
-    public boolean onTouchEvent(MotionEvent event) {
-        boolean result = super.onTouchEvent(event);
+    protected void onSelectionChanged(int selStart, int selEnd) {
+        super.onSelectionChanged(selStart, selEnd);
         setSelection(getText().length());
-        return result;
     }
     
     @Override
