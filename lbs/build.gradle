@@ -24,15 +24,15 @@ dependencies {
     api fileTree(dir: 'libs', include: ['*.jar'])
     compileOnly "io.reactivex.rxjava2:rxjava:${LIBRARY_RXJAVA2}"
     compileOnly "io.reactivex.rxjava2:rxandroid:${LIBRARY_RXANDROID}"
-    compileOnly files('../jarlibs/BaiduLBs_android_4.5.2.jar')
-    compileOnly files('../jarlibs/AMap3DMap_5.5.0_AMapSearch_5.5.0_AMapLocation_3.6.1_20171107.jar')
+    compileOnly files('../jarlibs/BaiduLBS_Android_4.5.2_20180227.jar')
+    compileOnly files('../jarlibs/AMap3DMap_6.0.0_AMapSearch_5.7.0_AMapLocation_3.8.0_20180211.jar')
 }
 
 // Release Library Param
 ext {
     params = [
             artifactId : 'lbs',
-            version : '0.2.0'
+            version : '0.2.1'
     ]
 }
 apply from: '../release.gradle'

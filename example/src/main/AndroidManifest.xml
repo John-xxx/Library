@@ -93,6 +93,9 @@
             android:label="MoreMedia"
             android:configChanges="orientation|keyboardHidden|screenSize"/>
 
+        <activity android:name=".rx.RXActivity"
+            android:label="RX"/>
+
         <activity android:name=".other.ToolActivity"
             android:label="Other"/>
 

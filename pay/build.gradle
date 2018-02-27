@@ -29,7 +29,7 @@ dependencies {
 ext {
     params = [
             artifactId : 'pay',
-            version : '0.2.2'
+            version : '0.2.3'
     ]
 }
 apply from: '../release.gradle'
