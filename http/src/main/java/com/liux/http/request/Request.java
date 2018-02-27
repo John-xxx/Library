@@ -1,6 +1,6 @@
 package com.liux.http.request;
 
-import com.liux.http.HttpUtil;
+import android.text.TextUtils;
 
 import java.io.IOException;
 import java.util.IdentityHashMap;
@@ -19,14 +19,14 @@ public abstract class Request<T extends Request> {
 
     private String mUrl;
     private Object mTag;
-    private String mMethod;
+    private Method mMethod;
 
     private Call mCall;
     private Call.Factory mFactory;
+
     private IdentityHashMap<String, String> mHeaderHashMap;
 
-    public Request(Call.Factory factory, String method) {
-        if (!HttpUtil.isHttpMethod(method)) throw new IllegalArgumentException("method is not right");
+    public Request(Call.Factory factory, Method method) {
         mFactory = factory;
         mMethod = method;
     }
@@ -56,17 +56,85 @@ public abstract class Request<T extends Request> {
         return (T) this;
     }
 
-    public void async(Callback callback) {
-        onCreateCall().enqueue(callback);
-    }
-
     public Response sync() throws IOException {
-        return onCreateCall().execute();
+        checkUrl();
+        Response response = handlerCall().execute();
+        response = handlerResponse(response);
+        return response;
     }
 
-    protected abstract HttpUrl.Builder onCreateHttpUrlBuilder();
+    public void async() {
+        async(null);
+    }
 
-    protected abstract okhttp3.Request.Builder onCreateRequestBuilder();
+    public void async(final Callback callback) {
+        checkUrl();
+        handlerCall().enqueue(new Callback() {
+
+            @Override
+            public void onFailure(Call call, IOException e) {
+                if (callback != null) callback.onFailure(call, e);
+            }
+
+            @Override
+            public void onResponse(Call call, Response response) throws IOException {
+                response = handlerResponse(response);
+                if (callback != null) callback.onResponse(call, response);
+            }
+        });
+    }
+
+    public void cancel() {
+        Call call = getCall();
+        if (call != null && !call.isCanceled() && !call.isExecuted()) {
+            call.cancel();
+        }
+    }
+
+    protected abstract HttpUrl.Builder onCreateHttpUrlBuilder(HttpUrl.Builder builder);
+
+    protected abstract HttpUrl onCreateHttpUrl(HttpUrl httpUrl);
+
+    protected abstract okhttp3.Request.Builder onCreateRequestBuilder(okhttp3.Request.Builder builder);
+
+    protected abstract okhttp3.Request onCreateRequest(okhttp3.Request request);
+
+    protected abstract okhttp3.Response.Builder onCreateResponseBuilder(okhttp3.Response.Builder builder);
+
+    protected abstract okhttp3.Response onCreateResponse(okhttp3.Response response);
+
+    protected HttpUrl handlerHttpUrl() {
+        HttpUrl.Builder builder = HttpUrl.parse(getUrl()).newBuilder();
+        builder = onCreateHttpUrlBuilder(builder);
+
+        HttpUrl httpUrl = builder.build();
+        httpUrl = onCreateHttpUrl(httpUrl);
+
+        return httpUrl;
+    }
+
+    protected Call handlerCall() {
+        HttpUrl httpUrl = handlerHttpUrl();
+
+        okhttp3.Request.Builder builder = new okhttp3.Request.Builder();
+        builder = onCreateRequestBuilder(builder);
+
+        okhttp3.Request request = builder
+                .url(httpUrl)
+                .tag(WapperTag.warpper(getTag()))
+                .headers(Headers.of(getHeaderHashMap()))
+                .build();
+        request = onCreateRequest(request);
+
+        mCall = getFactory().newCall(onCreateRequest(request));
+        return mCall;
+    }
+
+    protected Response handlerResponse(Response response) {
+        Response.Builder builder = onCreateResponseBuilder(response.newBuilder());
+        response = onCreateResponse(builder.build());
+        return response;
+    }
 
     protected String getUrl() {
         return mUrl;
@@ -76,7 +144,7 @@ public abstract class Request<T extends Request> {
         return mTag;
     }
 
-    protected String getMethod() {
+    protected Method getMethod() {
         return mMethod;
     }
 
@@ -95,14 +163,12 @@ public abstract class Request<T extends Request> {
         return mHeaderHashMap;
     }
 
-    private Call onCreateCall() {
-        okhttp3.Request.Builder builder = onCreateRequestBuilder()
-                .url(onCreateHttpUrlBuilder().build())
-                .tag(getTag())
-                .headers(Headers.of(getHeaderHashMap()));
-
-        mCall = getFactory().newCall(builder.build());
-
-        return mCall;
+    private void checkUrl() {
+        if (TextUtils.isEmpty(getUrl())) {
+            throw new NullPointerException("url is empty");
+        }
+        if (HttpUrl.parse(getUrl()) == null) {
+            throw new IllegalArgumentException("\"" + getUrl() + "\" is not right");
+        }
     }
 }

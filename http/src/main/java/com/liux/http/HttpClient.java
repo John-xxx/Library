@@ -10,21 +10,15 @@ import com.liux.http.interceptor.CheckInterceptor;
 import com.liux.http.interceptor.HttpLoggingInterceptor;
 import com.liux.http.interceptor.BaseUrlInterceptor;
 import com.liux.http.interceptor.UserAgentInterceptor;
+import com.liux.http.request.BodyRequest;
+import com.liux.http.request.QueryRequest;
 
 import java.io.File;
-import java.io.IOException;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
 
 import okhttp3.Cache;
-import okhttp3.Call;
-import okhttp3.Callback;
-import okhttp3.FormBody;
-import okhttp3.MultipartBody;
 import okhttp3.OkHttpClient;
-import okhttp3.Request;
-import okhttp3.RequestBody;
-import okhttp3.Response;
 import retrofit2.CallAdapter;
 import retrofit2.Retrofit;
 
@@ -88,211 +82,28 @@ public class HttpClient {
         mRetrofit = initRetorfit(retrofitBuilder);
     }
 
-    /**
-     * 初始化 OkHttpClient
-     * @param okHttpBuilder
-     * @return
-     */
-    private OkHttpClient initOkHttpClient(OkHttpClient.Builder okHttpBuilder) {
-        if (okHttpBuilder == null) {
-            File cacheDir = mContext.getExternalCacheDir();
-            if (cacheDir == null || !cacheDir.exists()) cacheDir = mContext.getCacheDir();
-
-            return new OkHttpClient.Builder()
-                    .cookieJar(new PersistentCookieJar(
-                            new SetCookieCache(),
-                            new SharedPrefsCookiePersistor(mContext)
-                    ))
-                    .connectTimeout(10, TimeUnit.SECONDS)
-                    .writeTimeout(30, TimeUnit.SECONDS)
-                    .readTimeout(30, TimeUnit.SECONDS)
-                    .cache(new Cache(cacheDir.getAbsoluteFile(), 200 * 1024 * 1024))
-                    .retryOnConnectionFailure(true)
-                    .addInterceptor(mBaseUrlInterceptor)
-                    .addInterceptor(mUserAgentInterceptor)
-                    .addInterceptor(mCheckInterceptor)
-                    .addInterceptor(mHttpLoggingInterceptor)
-                    // 不能通过网络拦截器修改参数
-                    // .addNetworkInterceptor()
-                    .build();
-        } else {
-            return okHttpBuilder
-                    .addInterceptor(mBaseUrlInterceptor)
-                    .addInterceptor(mUserAgentInterceptor)
-                    .addInterceptor(mCheckInterceptor)
-                    .addInterceptor(mHttpLoggingInterceptor)
-                    .build();
-        }
+    public QueryRequest get(String url) {
+        return new QueryRequest(getOkHttpClient(), QueryRequest.Method.GET).url(url);
     }
 
-    /**
-     * 初始化 Retorfit
-     * @param retrofitBuilder
-     * @return
-     */
-    private Retrofit initRetorfit(Retrofit.Builder retrofitBuilder) {
-        retrofitBuilder
-                .client(mOkHttpClient)
-                .addConverterFactory(FastJsonConverterFactory.create());
-
-        CallAdapter.Factory factory;
-        factory = HttpUtil.getRxJavaCallAdapterFactory();
-        if (factory != null) {
-            retrofitBuilder.addCallAdapterFactory(factory);
-        }
-        factory = HttpUtil.getRxJava2CallAdapterFactory();
-        if (factory != null) {
-            retrofitBuilder.addCallAdapterFactory(factory);
-        }
-
-        return retrofitBuilder.build();
+    public QueryRequest head(String url) {
+        return new QueryRequest(getOkHttpClient(), QueryRequest.Method.HEAD).url(url);
     }
 
-    /**
-     * 同步 Form 表单请求
-     * @param method
-     * @param url
-     * @param param
-     * @return
-     * @throws IOException
-     */
-    public Response syncForm(String method, String url, Map<String, String> param) throws IOException {
-        FormBody.Builder builder = new FormBody.Builder();
-        if (param != null) {
-            for (Map.Entry<String, String> entry : param.entrySet()) {
-                String key = entry.getKey();
-                String value = entry.getValue();
-                if (key != null && value != null) {
-                    builder.addEncoded(key, value);
-                }
-            }
-        }
-        return sync(method, url, builder.build());
+    public BodyRequest post(String url) {
+        return new BodyRequest(getOkHttpClient(), BodyRequest.Method.POST).url(url);
     }
 
-    /**
-     * 同步 Multipart 表单请求
-     * @param method
-     * @param url
-     * @param param
-     * @return
-     * @throws IOException
-     */
-    public Response syncMultipart(String method, String url, Map<String, Object> param) throws IOException {
-        MultipartBody.Builder builder = new MultipartBody.Builder().setType(MultipartBody.FORM);
-        if (param != null) {
-            for (Map.Entry<String, Object> entry : param.entrySet()) {
-                String key = entry.getKey();
-                Object value = entry.getValue();
-                if (key != null && value != null) {
-                    if (value instanceof File) {
-                        builder.addPart(HttpUtil.parsePart(key, (File) value));
-                    } else {
-                        builder.addFormDataPart(key, String.valueOf(value));
-                    }
-                }
-            }
-        }
-        return sync(method, url, builder.build());
+    public BodyRequest delete(String url) {
+        return new BodyRequest(getOkHttpClient(), BodyRequest.Method.DELETE).url(url);
     }
 
-    /**
-     * 同步请求
-     * @param method
-     * @param url
-     * @param body
-     * @return
-     * @throws IOException
-     */
-    public Response sync(String method, String url, RequestBody body) throws IOException {
-        return call(method, url, body, null);
+    public BodyRequest put(String url) {
+        return new BodyRequest(getOkHttpClient(), BodyRequest.Method.PUT).url(url);
     }
 
-    /**
-     * 异步 From 表单请求
-     * @param method
-     * @param url
-     * @param param
-     * @param callback
-     */
-    public void asyncForm(String method, String url, Map<String, String> param, Callback callback) {
-        FormBody.Builder builder = new FormBody.Builder();
-        if (param != null) {
-            for (Map.Entry<String, String> entry : param.entrySet()) {
-                String key = entry.getKey();
-                String value = entry.getValue();
-                if (key != null && value != null) {
-                    builder.addEncoded(key, value);
-                }
-            }
-        }
-        async(method, url, builder.build(), callback);
-    }
-
-    /**
-     * 异步 Multipart 表单请求
-     * @param method
-     * @param url
-     * @param param
-     * @param callback
-     */
-    public void asyncMultipart(String method, String url, Map<String, Object> param, Callback callback) {
-        MultipartBody.Builder builder = new MultipartBody.Builder().setType(MultipartBody.FORM);
-        if (param != null) {
-            for (Map.Entry<String, Object> entry : param.entrySet()) {
-                String key = entry.getKey();
-                Object value = entry.getValue();
-                if (key != null && value != null) {
-                    if (value instanceof File) {
-                        builder.addPart(HttpUtil.parsePart(key, (File) value));
-                    } else {
-                        builder.addFormDataPart(key, String.valueOf(value));
-                    }
-                }
-            }
-        }
-        async(method, url, builder.build(), callback);
-    }
-
-    /**
-     * 异步请求
-     * @param method
-     * @param url
-     * @param body
-     * @param callback
-     */
-    public void async(String method, String url, RequestBody body, Callback callback) {
-        try {
-            call(method, url, body, callback);
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-    }
-
-    /**
-     * 通用请求
-     * @param method
-     * @param url
-     * @param body
-     * @param callback
-     * @return
-     */
-    private Response call(String method, String url, RequestBody body, Callback callback) throws IOException {
-        if (!HttpUtil.isHttpMethod(method)) throw new IllegalArgumentException("method is not right");
-
-        Request request = new Request.Builder()
-                .method(method, body)
-                .url(url)
-                .build();
-
-        if (callback != null){
-            Call call = mOkHttpClient.newCall(request);
-            call.enqueue(callback);
-            return null;
-        } else {
-            Call call = mOkHttpClient.newCall(request);
-            return call.execute();
-        }
+    public BodyRequest patch(String url) {
+        return new BodyRequest(getOkHttpClient(), BodyRequest.Method.PATCH).url(url);
     }
 
     /**
@@ -438,5 +249,65 @@ public class HttpClient {
     public HttpClient clearDomainRules() {
         mBaseUrlInterceptor.clearDomainRules();
         return this;
+    }
+
+    /**
+     * 初始化 OkHttpClient
+     * @param okHttpBuilder
+     * @return
+     */
+    private OkHttpClient initOkHttpClient(OkHttpClient.Builder okHttpBuilder) {
+        if (okHttpBuilder == null) {
+            File cacheDir = mContext.getExternalCacheDir();
+            if (cacheDir == null || !cacheDir.exists()) cacheDir = mContext.getCacheDir();
+
+            return new OkHttpClient.Builder()
+                    .cookieJar(new PersistentCookieJar(
+                            new SetCookieCache(),
+                            new SharedPrefsCookiePersistor(mContext)
+                    ))
+                    .connectTimeout(10, TimeUnit.SECONDS)
+                    .writeTimeout(30, TimeUnit.SECONDS)
+                    .readTimeout(30, TimeUnit.SECONDS)
+                    .cache(new Cache(cacheDir.getAbsoluteFile(), 200 * 1024 * 1024))
+                    .retryOnConnectionFailure(true)
+                    .addInterceptor(mBaseUrlInterceptor)
+                    .addInterceptor(mUserAgentInterceptor)
+                    .addInterceptor(mCheckInterceptor)
+                    .addInterceptor(mHttpLoggingInterceptor)
+                    // 不能通过网络拦截器修改参数
+                    // .addNetworkInterceptor()
+                    .build();
+        } else {
+            return okHttpBuilder
+                    .addInterceptor(mBaseUrlInterceptor)
+                    .addInterceptor(mUserAgentInterceptor)
+                    .addInterceptor(mCheckInterceptor)
+                    .addInterceptor(mHttpLoggingInterceptor)
+                    .build();
+        }
+    }
+
+    /**
+     * 初始化 Retorfit
+     * @param retrofitBuilder
+     * @return
+     */
+    private Retrofit initRetorfit(Retrofit.Builder retrofitBuilder) {
+        retrofitBuilder
+                .client(mOkHttpClient)
+                .addConverterFactory(FastJsonConverterFactory.create());
+
+        CallAdapter.Factory factory;
+        factory = HttpUtil.getRxJavaCallAdapterFactory();
+        if (factory != null) {
+            retrofitBuilder.addCallAdapterFactory(factory);
+        }
+        factory = HttpUtil.getRxJava2CallAdapterFactory();
+        if (factory != null) {
+            retrofitBuilder.addCallAdapterFactory(factory);
+        }
+
+        return retrofitBuilder.build();
     }
 }

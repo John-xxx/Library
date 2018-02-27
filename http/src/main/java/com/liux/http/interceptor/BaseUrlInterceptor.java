@@ -3,6 +3,7 @@ package com.liux.http.interceptor;
 import android.text.TextUtils;
 
 import com.liux.http.HttpClient;
+import com.liux.http.request.WapperTag;
 
 import java.io.IOException;
 import java.util.HashMap;
@@ -46,6 +47,15 @@ public class BaseUrlInterceptor implements Interceptor {
     @Override
     public Response intercept(Chain chain) throws IOException {
         Request request = chain.request();
+
+        // 使用 HttpClient 手动发起的请求不做处理
+        Object tag = request.tag();
+        if (tag instanceof WapperTag) {
+            request = request.newBuilder()
+                    .tag(((WapperTag) tag).getTag())
+                    .build();
+            return chain.proceed(request);
+        }
 
         String url = null;
 

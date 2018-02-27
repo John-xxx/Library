@@ -2,6 +2,7 @@ package com.liux.http;
 
 import android.content.Context;
 import android.content.pm.PackageManager;
+import android.text.TextUtils;
 
 import java.io.File;
 import java.io.UnsupportedEncodingException;
@@ -187,10 +188,11 @@ public class HttpUtil {
      * @param file
      * @return
      */
-    public static MultipartBody.Part parsePart(String key, File file) {
+    public static MultipartBody.Part parseFilePart(String key, File file, String fileName) {
+        if (TextUtils.isEmpty(fileName)) fileName = file.getName();
         MediaType mediaType = getMimeType(file);
         RequestBody body = RequestBody.create(mediaType, file);
-        return MultipartBody.Part.createFormData(key, file.getName(), body);
+        return MultipartBody.Part.createFormData(key, fileName, body);
     }
 
     /**

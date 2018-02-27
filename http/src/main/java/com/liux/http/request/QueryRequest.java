@@ -1,37 +1,93 @@
 package com.liux.http.request;
 
+import com.liux.http.progress.OnResponseProgressListener;
+import com.liux.http.progress.ResponseProgressBody;
+
 import java.util.IdentityHashMap;
+import java.util.Iterator;
 import java.util.Map;
 
 import okhttp3.Call;
 import okhttp3.HttpUrl;
+import okhttp3.Response;
 
 /**
+ * 未处理当 {@link #url(String)} 本身含有参数的情况
+ * 目前逻辑是直接添加到参数中,可能会导致参数存在多个
  * Created by Liux on 2018/2/26.
  */
 
-public class QueryRequest<T extends Request> extends Request<T> {
+public class QueryRequest<T extends QueryRequest> extends Request<T> {
 
     private IdentityHashMap<String, String> mQueryHashMap;
 
-    public QueryRequest(Call.Factory factory, String method) {
+    private OnResponseProgressListener mResponseProgressListener;
+
+    public QueryRequest(Call.Factory factory, Method method) {
         super(factory, method);
     }
 
     @Override
-    protected HttpUrl.Builder onCreateHttpUrlBuilder() {
-        HttpUrl.Builder builder = HttpUrl.parse(getUrl()).newBuilder();
+    public T url(String url) {
+        return super.url(url);
+    }
 
+    @Override
+    public T header(String name, String value) {
+        return super.header(name, value);
+    }
+
+    @Override
+    public T addHeader(String name, String value) {
+        return super.addHeader(name, value);
+    }
+
+    @Override
+    public T removeHeader(String name) {
+        return super.removeHeader(name);
+    }
+
+    @Override
+    public T tag(Object object) {
+        return super.tag(object);
+    }
+
+    @Override
+    protected HttpUrl.Builder onCreateHttpUrlBuilder(HttpUrl.Builder builder) {
         for (Map.Entry<String, String> param : getQueryHashMap().entrySet()) {
             builder.addEncodedQueryParameter(param.getKey(), param.getValue());
         }
-
         return builder;
     }
 
     @Override
-    protected okhttp3.Request.Builder onCreateRequestBuilder() {
-        return new okhttp3.Request.Builder().method(getMethod(), null);
+    protected HttpUrl onCreateHttpUrl(HttpUrl httpUrl) {
+        return httpUrl;
+    }
+
+    @Override
+    protected okhttp3.Request.Builder onCreateRequestBuilder(okhttp3.Request.Builder builder) {
+        return builder.method(getMethod().toString(), null);
+    }
+
+    @Override
+    protected okhttp3.Request onCreateRequest(okhttp3.Request request) {
+        return request;
+    }
+
+    @Override
+    protected Response.Builder onCreateResponseBuilder(Response.Builder builder) {
+        return builder;
+    }
+
+    @Override
+    protected Response onCreateResponse(Response response) {
+        if (mResponseProgressListener != null) {
+            Response.Builder builder = response.newBuilder();
+            builder.body(new ResponseProgressBody(response.request().url(), response.body(), mResponseProgressListener));
+            response = builder.build();
+        }
+        return response;
     }
 
     public T query(String name, String value) {
@@ -49,10 +105,35 @@ public class QueryRequest<T extends Request> extends Request<T> {
         return (T) this;
     }
 
+    public T removeQueryAll(String name) {
+        for (Iterator<Map.Entry<String, String>> it = getQueryHashMap().entrySet().iterator(); it.hasNext(); ) {
+            Map.Entry<String, String> entry = it.next();
+            if (entry.getKey().equals(name)) {
+                it.remove();
+            }
+        }
+        return (T) this;
+    }
+
+    public T progress(OnResponseProgressListener listener) {
+        mResponseProgressListener = listener;
+        return (T) this;
+    }
+
     protected IdentityHashMap<String, String> getQueryHashMap() {
         if (mQueryHashMap == null) {
             mQueryHashMap = new IdentityHashMap<>();
         }
         return mQueryHashMap;
+    }
+
+    public static class Method extends com.liux.http.request.Method {
+
+        public static final Method GET = new Method("GET");
+        public static final Method HEAD = new Method("HEAD");
+
+        Method(String method) {
+            super(method);
+        }
     }
 }
