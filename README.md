@@ -53,7 +53,7 @@ repositories {
 	封装类似ListView中分割线控制的ColorDecoration
 	封装灵活的Holder,内部缓存控件提升性能
 
-[pay](/pay/README.md)/[pay-unionpay](/pay-unionpay/README.md)
+[pay](/pay/README.md)
 ---
 	基于支付宝/微信支付/银联支付的支付逻辑封装
 
@@ -64,6 +64,10 @@ repositories {
 [player](/player/README.md)
 ---
 	基于[ijkplayer](https://github.com/Bilibili/ijkplayer)的一个Android播放器库
+
+[rx](/rx/README.md)
+---
+	基于ReactiveX的RxJava2全家桶部分成员
 
 [other](/other/README.md)/[util](/util/README.md)/[view](/view/README.md)
 ---
