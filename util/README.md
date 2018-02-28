@@ -15,6 +15,9 @@ implementation 'com.liux:util:x.y.z'
 
 更新说明
 ---
+### x.y.z_201x-xx-xx
+    1.
+
 ### 0.2.1_2018-01-08
     1.添加AppUtil功能
     1.添加ImageUtil功能

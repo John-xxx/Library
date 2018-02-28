@@ -15,6 +15,9 @@ implementation 'com.liux:abstracts:x.y.z'
 
 更新说明
 ---
+### x.y.z_201x-xx-xx
+    1.
+
 ### 0.2.4_2018-02-12
     1.集成saripaar的表单验证能力
 

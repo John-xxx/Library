@@ -28,6 +28,9 @@ implementation 'com.liux:http:x.y.z'
 
 更新说明
 ---
+### x.y.z_201x-xx-xx
+    1.更新代码结构
+
 ### 0.3.0_2018-02-27
     1.完成链式调用的HttpClient
     2.增加上传/下载进度反馈能力

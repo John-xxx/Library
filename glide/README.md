@@ -17,6 +17,9 @@ implementation 'com.liux:glide:x.y.z'
 
 更新说明
 ---
+### x.y.z_201x-xx-xx
+    1.
+
 ### 0.2.3_2018-02-27
     1.升级依赖版本
 

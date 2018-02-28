@@ -15,6 +15,9 @@ implementation 'com.liux:view:x.y.z'
 
 更新说明
 ---
+### x.y.z_201x-xx-xx
+    1.
+
 ### 0.2.1_2018-01-08
     1.修复控件BUG
     2.增加若干控件

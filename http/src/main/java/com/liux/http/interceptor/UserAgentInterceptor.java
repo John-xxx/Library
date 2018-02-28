@@ -1,10 +1,12 @@
 package com.liux.http.interceptor;
 
 import android.content.Context;
+import android.content.pm.PackageManager;
 
 import com.liux.http.HttpUtil;
 
 import java.io.IOException;
+import java.util.Locale;
 
 import okhttp3.Interceptor;
 import okhttp3.Request;
@@ -18,7 +20,7 @@ public class UserAgentInterceptor implements Interceptor {
     private static String USER_AGENT = System.getProperty("http.agent");
 
     public UserAgentInterceptor(Context context) {
-        USER_AGENT = HttpUtil.getDefaultUserAgent(context);
+        USER_AGENT = getDefaultUserAgent(context);
     }
 
     @Override
@@ -26,7 +28,7 @@ public class UserAgentInterceptor implements Interceptor {
         Request.Builder builder = chain.request().newBuilder();
         // 手动添加该请求头时OkHttp不会自动解压响应数据
         // builder.header("Accept-Encoding", "gzip,deflate");
-        builder.header("User-Agent", HttpUtil.checkChar(USER_AGENT));
+        builder.header("User-Agent", HttpUtil.checkHeaderChar(USER_AGENT));
         return chain.proceed(builder.build());
     }
 
@@ -36,5 +38,33 @@ public class UserAgentInterceptor implements Interceptor {
 
     public void setUserAgent(String userAgent) {
         USER_AGENT = userAgent;
+    }
+
+    /**
+     * Dalvik/2.1.0 (Linux; U; Android 6.0.1; MI 4LTE MIUI/7.11.9) App_packageName_versionCode
+     * @param context
+     * @return
+     */
+    private String getDefaultUserAgent(Context context) {
+        // Mozilla/5.0 (Linux; Android 6.0.1; MI 4LTE Build/MMB29M; wv) AppleWebKit/537.36 (KHTML, like Gecko) Version/4.0 Chrome/57.0.2987.132 Mobile Safari/537.36
+        // WebSettings.getDefaultUserAgent(context);
+        //
+        // Dalvik/2.1.0 (Linux; U; Android 6.0.1; MI 4LTE MIUI/7.11.9)
+        // System.getProperty("http.agent");
+
+        int versionCode = -1;
+        try {
+            versionCode = context.getPackageManager().getPackageInfo(context.getPackageName(), PackageManager.GET_CONFIGURATIONS).versionCode;
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+        return String.format(
+                Locale.CHINA,
+                "%s App_%s_%d",
+                System.getProperty("http.agent"),
+                context.getPackageName(),
+                versionCode
+        );
     }
 }

@@ -14,10 +14,12 @@ import com.liux.http.request.BodyRequest;
 import com.liux.http.request.QueryRequest;
 
 import java.io.File;
+import java.util.List;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
 
 import okhttp3.Cache;
+import okhttp3.HttpUrl;
 import okhttp3.OkHttpClient;
 import retrofit2.CallAdapter;
 import retrofit2.Retrofit;
@@ -202,7 +204,7 @@ public class HttpClient {
      * @return
      */
     public HttpClient setBaseUrl(String baseUrl) {
-        HttpUtil.checkBaseUrl(baseUrl);
+        checkBaseUrl(baseUrl);
         mBaseUrlInterceptor.setBaseUrl(baseUrl);
         return this;
     }
@@ -229,7 +231,7 @@ public class HttpClient {
      * @return
      */
     public HttpClient putDomainRule(String rule, String baseUrl) {
-        HttpUtil.checkBaseUrl(baseUrl);
+        checkBaseUrl(baseUrl);
         mBaseUrlInterceptor.putDomainRule(rule, baseUrl);
         return this;
     }
@@ -309,5 +311,23 @@ public class HttpClient {
         }
 
         return retrofitBuilder.build();
+    }
+
+    /**
+     * 预检查BaseUrl格式
+     * @param baseUrl
+     */
+    private void checkBaseUrl(String baseUrl) {
+        if (baseUrl == null) {
+            throw new NullPointerException("baseUrl == null");
+        }
+        HttpUrl httpUrl = HttpUrl.parse(baseUrl);
+        if (httpUrl == null) {
+            throw new IllegalArgumentException("Illegal URL: " + baseUrl);
+        }
+        List<String> pathSegments = httpUrl.pathSegments();
+        if (!"".equals(pathSegments.get(pathSegments.size() - 1))) {
+            throw new IllegalArgumentException("baseUrl must end in /: " + baseUrl);
+        }
     }
 }

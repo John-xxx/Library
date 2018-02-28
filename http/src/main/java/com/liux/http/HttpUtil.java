@@ -1,16 +1,11 @@
 package com.liux.http;
 
-import android.content.Context;
-import android.content.pm.PackageManager;
 import android.text.TextUtils;
 
 import java.io.File;
 import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
-import java.util.List;
-import java.util.Locale;
 
-import okhttp3.HttpUrl;
 import okhttp3.MediaType;
 import okhttp3.MultipartBody;
 import okhttp3.RequestBody;
@@ -188,6 +183,17 @@ public class HttpUtil {
      * @param file
      * @return
      */
+    public static MultipartBody.Part parseFilePart(String key, File file) {
+        return parseFilePart(key, file, null);
+    }
+
+    /**
+     * 生成一个 {@link MultipartBody.Part}
+     * @param key
+     * @param file
+     * @param fileName
+     * @return
+     */
     public static MultipartBody.Part parseFilePart(String key, File file, String fileName) {
         if (TextUtils.isEmpty(fileName)) fileName = file.getName();
         MediaType mediaType = getMimeType(file);
@@ -257,38 +263,11 @@ public class HttpUtil {
     }
 
     /**
-     * Dalvik/2.1.0 (Linux; U; Android 6.0.1; MI 4LTE MIUI/7.11.9) App_packageName_versionCode
-     * @param context
-     * @return
-     */
-    public static String getDefaultUserAgent(Context context) {
-        // Mozilla/5.0 (Linux; Android 6.0.1; MI 4LTE Build/MMB29M; wv) AppleWebKit/537.36 (KHTML, like Gecko) Version/4.0 Chrome/57.0.2987.132 Mobile Safari/537.36
-        // WebSettings.getDefaultUserAgent(context);
-        // Dalvik/2.1.0 (Linux; U; Android 6.0.1; MI 4LTE MIUI/7.11.9)
-        // System.getProperty("http.agent");
-
-        int versionCode = -1;
-        try {
-            versionCode = context.getPackageManager().getPackageInfo(context.getPackageName(), PackageManager.GET_CONFIGURATIONS).versionCode;
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-
-        return String.format(
-                Locale.CHINA,
-                "%s App_%s_%d",
-                System.getProperty("http.agent"),
-                context.getPackageName(),
-                versionCode
-        );
-    }
-
-    /**
      * OkHttp 请求头不能是 null/换行符/中文 等一些字符
      * @param text
      * @return
      */
-    public static String checkChar(String text) {
+    public static String checkHeaderChar(String text) {
         if (text == null) return "";
         String newValue = text.replace("\n", "");
         for (int i = 0, length = newValue.length(); i < length; i++) {
@@ -302,24 +281,6 @@ public class HttpUtil {
             }
         }
         return newValue;
-    }
-
-    /**
-     * 预检查BaseUrl格式
-     * @param baseUrl
-     */
-    public static void checkBaseUrl(String baseUrl) {
-        if (baseUrl == null) {
-            throw new NullPointerException("baseUrl == null");
-        }
-        HttpUrl httpUrl = HttpUrl.parse(baseUrl);
-        if (httpUrl == null) {
-            throw new IllegalArgumentException("Illegal URL: " + baseUrl);
-        }
-        List<String> pathSegments = httpUrl.pathSegments();
-        if (!"".equals(pathSegments.get(pathSegments.size() - 1))) {
-            throw new IllegalArgumentException("baseUrl must end in /: " + baseUrl);
-        }
     }
 
     /**

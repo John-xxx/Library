@@ -15,6 +15,9 @@ implementation 'com.liux:list:x.y.z'
 
 更新说明
 ---
+### x.y.z_201x-xx-xx
+    1.
+
 ### 0.2.0_2017-12-14
     1.升级SDK到27
     2.支持库到27+
