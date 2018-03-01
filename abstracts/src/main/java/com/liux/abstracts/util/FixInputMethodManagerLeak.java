@@ -47,8 +47,8 @@ public class FixInputMethodManagerLeak {
                         continue;
                     }
                 }
-            } catch (Throwable t) {
-                t.printStackTrace();
+            } catch (Exception e) {
+
             }
         }
     }
