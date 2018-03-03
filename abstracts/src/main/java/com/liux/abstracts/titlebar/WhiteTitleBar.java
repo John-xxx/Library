@@ -22,7 +22,7 @@ public class WhiteTitleBar extends DefaultTitleBar {
     @Override
     public void initView() {
         super.initView();
-        getBackIcon().setImageResource(R.drawable.view_titlebar_white_back);
+        getBackIcon().setImageResource(R.drawable.ic_arrow_back_black);
 
         setStatusBarColor(Color.WHITE);
         setTitleBarColor(Color.WHITE);

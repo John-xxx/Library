@@ -18,6 +18,9 @@ implementation 'com.liux:abstracts:x.y.z'
 ### x.y.z_201x-xx-xx
     1.
 
+### 0.2.5_2018-03-04
+    1.优化默认的TitleBar尺寸
+
 ### 0.2.4_2018-02-12
     1.集成saripaar的表单验证能力
 
