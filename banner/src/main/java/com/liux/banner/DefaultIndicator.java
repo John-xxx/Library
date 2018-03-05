@@ -1,6 +1,7 @@
 package com.liux.banner;
 
 import android.content.Context;
+import android.graphics.drawable.Drawable;
 import android.support.annotation.DrawableRes;
 import android.support.annotation.Nullable;
 import android.util.AttributeSet;
@@ -16,8 +17,6 @@ import android.widget.LinearLayout;
  */
 
 public class DefaultIndicator extends LinearLayout implements Indicator {
-    // 指示器大小
-    private int mIndicatorSize;
     // 指示器资源
     private int mIndicatorResource;
 
@@ -44,9 +43,7 @@ public class DefaultIndicator extends LinearLayout implements Indicator {
     }
 
     public void init() {
-        mIndicatorSize = dp2px(getContext(), 8);
-
-        setPadding(0, 0, 0, dp2px(getContext(), 20));
+        setPadding(0, 0, 0, dp2px(getContext(), 12));
         setGravity(Gravity.CENTER_HORIZONTAL|Gravity.BOTTOM);
     }
 
@@ -54,10 +51,13 @@ public class DefaultIndicator extends LinearLayout implements Indicator {
     public void onInit(BannerView bannerView, int count) {
         removeAllViews();
         for (int i = 0; i < count; i++) {
+            Drawable drawable = getResources().getDrawable(mIndicatorResource);
+            int width = drawable.getIntrinsicWidth();
+            int height = drawable.getIntrinsicHeight();
             View view = new View(getContext());
-            view.setBackgroundResource(mIndicatorResource);
-            LayoutParams lp = new LayoutParams(mIndicatorSize, mIndicatorSize);
-            lp.setMargins(mIndicatorSize / 3, 0, mIndicatorSize / 3, 0);
+            view.setBackgroundDrawable(drawable);
+            LayoutParams lp = new LayoutParams(width, height);
+            lp.setMargins(width / 4, 0, width / 4, 0);
             view.setLayoutParams(lp);
             addView(view);
         }
