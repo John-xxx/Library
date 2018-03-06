@@ -33,20 +33,20 @@ public interface IState<T, R extends RecyclerView.Adapter> extends IAppend<T, R>
      * 是否开启选择
      * @return 开启
      */
-    boolean isOpenSelect();
+    boolean isEnabledSelect();
 
     /**
      * 设置开启选择(单选)
-     * @param open 开启
+     * @param enabled 开启
      */
-    R setOpenSelect(boolean open);
+    R setEnabledSelect(boolean enabled);
 
     /**
      * 设置开启选择
-     * @param open 开启
+     * @param enabled 开启
      * @param maxSelectCount 最大数量
      */
-    R setOpenSelect(boolean open, int maxSelectCount);
+    R setEnabledSelect(boolean enabled, int maxSelectCount);
 
     /**
      * 获取最大可选择数
@@ -73,6 +73,20 @@ public interface IState<T, R extends RecyclerView.Adapter> extends IAppend<T, R>
      * @return 是否选中
      */
     boolean toggleSelect(int position);
+
+    /**
+     * 某条数据是否选中
+     * @param t 数据
+     * @return 是否选中
+     */
+    boolean isSelect(T t);
+
+    /**
+     * 某条数据是否选中
+     * @param position 数据位置
+     * @return 是否选中
+     */
+    boolean isSelect(int position);
 
     /**
      * 设置某条数据选中状态
@@ -107,20 +121,6 @@ public interface IState<T, R extends RecyclerView.Adapter> extends IAppend<T, R>
      * @return 是否反选成功
      */
     boolean reverseSelectAll();
-
-    /**
-     * 某条数据是否选中
-     * @param t 数据
-     * @return 是否选中
-     */
-    boolean isSelect(T t);
-
-    /**
-     * 某条数据是否选中
-     * @param position 数据位置
-     * @return 是否选中
-     */
-    boolean isSelect(int position);
 
     /**
      * 获取已选中的全部数据

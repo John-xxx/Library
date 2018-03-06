@@ -7,20 +7,20 @@ package com.liux.list.adapter.state;
 
 public class State<T> {
 
-    private T data;
+    private T mData;
 
     public State(T data) {
-        this.data = data;
+        this.mData = data;
     }
 
     public T getData() {
-        return data;
+        return mData;
     }
 
 
 
     // 不可选择
-    public static final int STATE_SELECT_CLOSE = -1;
+    public static final int STATE_SELECT_DISABLED = -1;
     // 未选中
     public static final int STATE_SELECT_UNSELECTED = 0;
     // 已选中
@@ -28,11 +28,11 @@ public class State<T> {
 
     private int mSelectState = STATE_SELECT_UNSELECTED;
 
-    public boolean isSelectClose() {
-        return this.mSelectState == STATE_SELECT_CLOSE;
+    public boolean isSelectDisabled() {
+        return this.mSelectState == STATE_SELECT_DISABLED;
     }
-    public void setSelectClose() {
-        this.mSelectState = STATE_SELECT_CLOSE;
+    public void setSelectDisabled() {
+        this.mSelectState = STATE_SELECT_DISABLED;
     }
 
     public boolean isSelectUnselected() {
@@ -52,20 +52,19 @@ public class State<T> {
 
 
     // 不可滑动
-    public static final int STATE_SLIDE_CLOSE = -1;
+    public static final int STATE_SLIDE_DISABLED = -1;
     // 未滑动
     public static final int STATE_SLIDE_UNSLIDE = 0;
-    // 已滑动(左滑/右滑)
-    public static final int STATE_SLIDE_LEFT = 1;
-    public static final int STATE_SLIDE_RIGHT = 2;
+    // 已滑动(目前未处理两边滑动的情况)
+    public static final int STATE_SLIDE_SLIDED = 1;
 
-    private int mSlideState = STATE_SLIDE_CLOSE;
+    private int mSlideState = STATE_SLIDE_DISABLED;
 
-    public boolean isSlideClose() {
-        return this.mSelectState == STATE_SLIDE_CLOSE;
+    public boolean isSlideDisabled() {
+        return this.mSelectState == STATE_SLIDE_DISABLED;
     }
-    public void setSlideClose() {
-        this.mSelectState = STATE_SLIDE_CLOSE;
+    public void setSlideDisabled() {
+        this.mSelectState = STATE_SLIDE_DISABLED;
     }
 
     public boolean isSlideUnslide() {
@@ -75,18 +74,11 @@ public class State<T> {
         this.mSelectState = STATE_SELECT_UNSELECTED;
     }
 
-    public boolean isSlideLift() {
-        return this.mSelectState == STATE_SLIDE_LEFT;
+    public boolean isSlideSlided() {
+        return this.mSelectState == STATE_SLIDE_SLIDED;
     }
-    public void setSlideLift() {
-        this.mSelectState = STATE_SLIDE_LEFT;
-    }
-
-    public boolean isSlideRight() {
-        return this.mSelectState == STATE_SLIDE_RIGHT;
-    }
-    public void setSlideRight() {
-        this.mSelectState = STATE_SLIDE_RIGHT;
+    public void setSlideSlided() {
+        this.mSelectState = STATE_SLIDE_SLIDED;
     }
 
 
@@ -106,7 +98,7 @@ public class State<T> {
     @Override
     public String toString() {
         return "State{" +
-                "data=" + data +
+                "Data=" + mData +
                 ", Select=" + mSelectState +
                 ", Slide=" + mSlideState +
                 ", Tag=" + mTag +

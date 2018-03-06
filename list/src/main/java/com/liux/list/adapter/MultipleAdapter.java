@@ -75,7 +75,7 @@ public class MultipleAdapter<T> extends RecyclerView.Adapter<RecyclerView.ViewHo
         Rule rule = mRuleProxy.getObjectRule(t);
 
         State state = mStateProxy.getData().getState(position);
-        if (!isOpenSelect()) state.setSelectClose();
+        if (!isEnabledSelect()) state.setSelectDisabled();
 
         rule.onDataBind(holder, t, state, position);
     }
@@ -149,19 +149,19 @@ public class MultipleAdapter<T> extends RecyclerView.Adapter<RecyclerView.ViewHo
     }
 
     @Override
-    public boolean isOpenSelect() {
-        return mStateProxy.isOpenSelect();
+    public boolean isEnabledSelect() {
+        return mStateProxy.isEnabledSelect();
     }
 
     @Override
-    public MultipleAdapter<T> setOpenSelect(boolean open) {
-        mStateProxy.setOpenSelect(open);
+    public MultipleAdapter<T> setEnabledSelect(boolean enabled) {
+        mStateProxy.setOpenSelect(enabled);
         return this;
     }
 
     @Override
-    public MultipleAdapter<T> setOpenSelect(boolean open, int maxSelectCount) {
-        mStateProxy.setOpenSelect(open, maxSelectCount);
+    public MultipleAdapter<T> setEnabledSelect(boolean enabled, int maxSelectCount) {
+        mStateProxy.setOpenSelect(enabled, maxSelectCount);
         return this;
     }
 
@@ -187,6 +187,16 @@ public class MultipleAdapter<T> extends RecyclerView.Adapter<RecyclerView.ViewHo
     }
 
     @Override
+    public boolean isSelect(T t) {
+        return mStateProxy.isSelect(t);
+    }
+
+    @Override
+    public boolean isSelect(int position) {
+        return mStateProxy.isSelect(position);
+    }
+
+    @Override
     public boolean setSelect(T t, boolean selected) {
         return mStateProxy.setSelect(t, selected);
     }
@@ -209,16 +219,6 @@ public class MultipleAdapter<T> extends RecyclerView.Adapter<RecyclerView.ViewHo
     @Override
     public boolean reverseSelectAll() {
         return mStateProxy.reverseSelectAll();
-    }
-
-    @Override
-    public boolean isSelect(T t) {
-        return mStateProxy.isSelect(t);
-    }
-
-    @Override
-    public boolean isSelect(int position) {
-        return mStateProxy.isSelect(position);
     }
 
     @Override

@@ -133,12 +133,12 @@ public class ListActivity extends AppCompatActivity {
                 mMultipleAdapter.getData().remove(0);
                 break;
             case R.id.btn_open5:
-                mMultipleAdapter.setOpenSelect(true, 5);
+                mMultipleAdapter.setEnabledSelect(true, 5);
                 break;
             case R.id.btn_set8:
                 break;
             case R.id.btn_close:
-                mMultipleAdapter.setOpenSelect(false);
+                mMultipleAdapter.setEnabledSelect(false);
                 break;
         }
         mMultipleAdapter.notifyDataSetChanged();

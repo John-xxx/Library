@@ -15,10 +15,10 @@ public class StateProxy<T> {
 
     private IState mIState;
 
-    private int mMaxSelectCount = 0;
-    private boolean mOpenSelect = false;
     private StateList<T> mStateList = new StateList<>();
 
+    private int mMaxSelectCount = 0;
+    private boolean mEnabledSelect = false;
     private OnSelectListener<T> mOnSelectListener;
 
     public StateProxy(IState iState) {
@@ -26,8 +26,9 @@ public class StateProxy<T> {
     }
 
     public void setData(List<T> dataSource) {
+        getData().clear();
         if (dataSource != null) {
-            mStateList.addAll(dataSource);
+            getData().addAll(dataSource);
         }
     }
 
@@ -36,24 +37,24 @@ public class StateProxy<T> {
     }
 
     public List<State<T>> getState() {
-        return mStateList.getStates();
+        return getData().getStates();
     }
 
-    public boolean isOpenSelect() {
-        return mOpenSelect;
+    public boolean isEnabledSelect() {
+        return mEnabledSelect;
     }
 
-    public void setOpenSelect(boolean open) {
-        setOpenSelect(open, 1);
+    public void setOpenSelect(boolean enabled) {
+        setOpenSelect(enabled, 1);
     }
 
-    public void setOpenSelect(boolean open, int maxSelectCount) {
-        if (isOpenSelect() == open) return;
+    public void setOpenSelect(boolean enabled, int maxSelectCount) {
+        if (isEnabledSelect() == enabled) return;
 
-        openSelectState(open);
-        mOpenSelect = open;
+        enabledSelectState(enabled);
+        mEnabledSelect = enabled;
 
-        if (isOpenSelect() && maxSelectCount < 1) {
+        if (isEnabledSelect() && maxSelectCount < 1) {
             maxSelectCount = 1;
         }
         setMaxSelectCount(maxSelectCount);
@@ -66,7 +67,7 @@ public class StateProxy<T> {
     }
 
     public void setMaxSelectCount(int count) {
-        if (isOpenSelect()) {
+        if (isEnabledSelect()) {
             mMaxSelectCount = count;
         }
     }
@@ -76,8 +77,16 @@ public class StateProxy<T> {
     }
 
     public boolean toggleSelect(int position) {
-        if (!isOpenSelect()) return false;
+        if (!isEnabledSelect()) return false;
         return setSelect(position, !isSelect(position));
+    }
+
+    public boolean isSelect(T t) {
+        return isSelect(getData().indexOf(t));
+    }
+
+    public boolean isSelect(int position) {
+        return getData().getState(position).isSelectSelected();
     }
 
     public boolean setSelect(T t, boolean selected) {
@@ -85,7 +94,7 @@ public class StateProxy<T> {
     }
 
     public boolean setSelect(int position, boolean selected) {
-        if (!isOpenSelect()) return false;
+        if (!isEnabledSelect()) return false;
 
         if (isSelect(position) == selected) return selected;
 
@@ -152,7 +161,7 @@ public class StateProxy<T> {
     }
 
     public boolean selectAll() {
-        if (!isOpenSelect()) return false;
+        if (!isEnabledSelect()) return false;
 
         if (getData().size() > mMaxSelectCount) {
             if (mOnSelectListener != null) {
@@ -167,7 +176,7 @@ public class StateProxy<T> {
     }
 
     public boolean unSelectAll() {
-        if (!isOpenSelect()) return false;
+        if (!isEnabledSelect()) return false;
 
         switchSelectState(false);
         mIState.notifyDataSetChanged();
@@ -175,7 +184,7 @@ public class StateProxy<T> {
     }
 
     public boolean reverseSelectAll() {
-        if (!isOpenSelect()) return false;
+        if (!isEnabledSelect()) return false;
 
         int size = getSelectedAll().size();
         if (getData().size() - size > mMaxSelectCount) {
@@ -188,14 +197,6 @@ public class StateProxy<T> {
         reverseSelectStateAll();
         mIState.notifyDataSetChanged();
         return true;
-    }
-
-    public boolean isSelect(T t) {
-        return isSelect(getData().indexOf(t));
-    }
-
-    public boolean isSelect(int position) {
-        return getData().getState(position).isSelectSelected();
     }
 
     public List<T> getSelectedAll() {
@@ -214,12 +215,12 @@ public class StateProxy<T> {
      * 开关数据状态
      * @param open 是否开启选择
      */
-    private void openSelectState(boolean open) {
+    private void enabledSelectState(boolean open) {
         for (State<T> s : getData().getStates()) {
             if (open) {
                 s.setSelectUnselected();
             } else {
-                s.setSelectClose();
+                s.setSelectDisabled();
             }
         }
     }
@@ -258,7 +259,7 @@ public class StateProxy<T> {
      */
     private List<T> getSelectStateAll(boolean isSelect) {
         List<T> list = new ArrayList<>();
-        if (!isOpenSelect()) return list;
+        if (!isEnabledSelect()) return list;
         for (State<T> s: getData().getStates()) {
             if (isSelect) {
                 if (s.isSelectSelected()) list.add(s.getData());
