@@ -28,6 +28,10 @@ import java.util.List;
  * <br>
  * 移植添加数据状态能力 <br>
  * 2017-8-11
+ * <br>
+ * 增强数据状态能力
+ * 代理模式重构
+ * 2018-3-6
  */
 
 public class MultipleAdapter<T> extends RecyclerView.Adapter<RecyclerView.ViewHolder> implements
@@ -235,5 +239,52 @@ public class MultipleAdapter<T> extends RecyclerView.Adapter<RecyclerView.ViewHo
     public MultipleAdapter<T> setOnSelectListener(OnSelectListener<T> listener) {
         mStateProxy.setOnSelectListener(listener);
         return this;
+    }
+
+    @Override
+    public boolean isEnabledSlide() {
+        return mStateProxy.isEnabledSlide();
+    }
+
+    @Override
+    public MultipleAdapter<T> setEnabledSlide(boolean enabled) {
+        mStateProxy.setEnabledSlide(enabled);
+        return this;
+    }
+
+    @Override
+    public MultipleAdapter<T> setEnabledSlide(boolean enabled, boolean single) {
+        mStateProxy.setEnabledSlide(enabled, single);
+        return this;
+    }
+
+    @Override
+    public void toggleSlide(T t) {
+        mStateProxy.toggleSlide(t);
+    }
+
+    @Override
+    public void toggleSlide(int position) {
+        mStateProxy.toggleSlide(position);
+    }
+
+    @Override
+    public boolean isSlide(T t) {
+        return mStateProxy.isSlide(t);
+    }
+
+    @Override
+    public boolean isSlide(int position) {
+        return mStateProxy.isSlide(position);
+    }
+
+    @Override
+    public void setSlide(T t, boolean slided) {
+        mStateProxy.setSlide(t, slided);
+    }
+
+    @Override
+    public void setSlide(int position, boolean slided) {
+        mStateProxy.setSlide(position, slided);
     }
 }

@@ -20,11 +20,11 @@ public class State<T> {
 
 
     // 不可选择
-    public static final int STATE_SELECT_DISABLED = -1;
+    private static final int STATE_SELECT_DISABLED = -1;
     // 未选中
-    public static final int STATE_SELECT_UNSELECTED = 0;
+    private static final int STATE_SELECT_UNSELECTED = 0;
     // 已选中
-    public static final int STATE_SELECT_SELECTED = 1;
+    private static final int STATE_SELECT_SELECTED = 1;
 
     private int mSelectState = STATE_SELECT_UNSELECTED;
 
@@ -52,11 +52,11 @@ public class State<T> {
 
 
     // 不可滑动
-    public static final int STATE_SLIDE_DISABLED = -1;
+    private static final int STATE_SLIDE_DISABLED = -1;
     // 未滑动
-    public static final int STATE_SLIDE_UNSLIDE = 0;
+    private static final int STATE_SLIDE_UNSLIDE = 0;
     // 已滑动(目前未处理两边滑动的情况)
-    public static final int STATE_SLIDE_SLIDED = 1;
+    private static final int STATE_SLIDE_SLIDED = 1;
 
     private int mSlideState = STATE_SLIDE_DISABLED;
 
@@ -97,11 +97,6 @@ public class State<T> {
 
     @Override
     public String toString() {
-        return "State{" +
-                "Data=" + mData +
-                ", Select=" + mSelectState +
-                ", Slide=" + mSlideState +
-                ", Tag=" + mTag +
-                '}';
+        return "[" + mSelectState + "," + mSlideState + "," + mTag + ']';
     }
 }

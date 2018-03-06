@@ -21,6 +21,9 @@ public class StateProxy<T> {
     private boolean mEnabledSelect = false;
     private OnSelectListener<T> mOnSelectListener;
 
+    private boolean mSingleSlide = false;
+    private boolean mEnabledSlide = false;
+
     public StateProxy(IState iState) {
         mIState = iState;
     }
@@ -211,13 +214,83 @@ public class StateProxy<T> {
         mOnSelectListener = listener;
     }
 
+    public boolean isEnabledSlide() {
+        return mEnabledSlide;
+    }
+
+    public void setEnabledSlide(boolean enabled) {
+        setEnabledSlide(enabled, true);
+    }
+
+    public void setEnabledSlide(boolean enabled, boolean single) {
+        if (isEnabledSlide() == enabled) return;
+
+        enableSlideState(enabled);
+        mEnabledSlide = enabled;
+
+        mSingleSlide = single;
+
+        mIState.notifyDataSetChanged();
+    }
+
+    public boolean toggleSlide(T t) {
+        return toggleSelect(getData().indexOf(t));
+    }
+
+    public boolean toggleSlide(int position) {
+        if (!isEnabledSlide()) return false;
+        return setSlide(position, !isSlide(position));
+    }
+
+    public boolean isSlide(T t) {
+        return isSlide(getData().indexOf(t));
+    }
+
+    public boolean isSlide(int position) {
+        return getData().getState(position).isSlideSlided();
+    }
+
+    public boolean setSlide(T t, boolean slided) {
+        return setSlide(getData().indexOf(t), slided);
+    }
+
+    public boolean setSlide(int position, boolean slided) {
+        if (!isEnabledSlide()) return false;
+
+        if (isSlide(position) == slided) return slided;
+
+        if (slided) {
+            if (mSingleSlide) {
+                // 单选模式反转上一个
+                List<State<T>> slideStateAll = getSlideStateAll(true);
+                for (State<T> s : slideStateAll) {
+                    s.setSlideUnslide();
+                    int index = getData().indexOf(s.getData());
+                    index = mIState.getShamPosition(index);
+                    mIState.notifyItemChanged(index);
+                }
+            }
+        }
+
+        State<T> state = getData().getState(position);
+        if (slided) {
+            state.setSlideSlided();
+        } else {
+            state.setSlideUnslide();
+        }
+
+        position = mIState.getShamPosition(position);
+        mIState.notifyItemChanged(position);
+        return true;
+    }
+
     /**
      * 开关数据状态
-     * @param open 是否开启选择
+     * @param enabled 是否开启选择
      */
-    private void enabledSelectState(boolean open) {
+    private void enabledSelectState(boolean enabled) {
         for (State<T> s : getData().getStates()) {
-            if (open) {
+            if (enabled) {
                 s.setSelectUnselected();
             } else {
                 s.setSelectDisabled();
@@ -265,6 +338,37 @@ public class StateProxy<T> {
                 if (s.isSelectSelected()) list.add(s.getData());
             } else {
                 if (s.isSelectUnselected()) list.add(s.getData());
+            }
+        }
+        return list;
+    }
+
+    /**
+     * 开关数据状态
+     * @param enabled
+     */
+    private void enableSlideState(boolean enabled) {
+        for (State<T> s : getData().getStates()) {
+            if (enabled) {
+                s.setSlideUnslide();
+            } else {
+                s.setSlideDisabled();
+            }
+        }
+    }
+
+    /**
+     * 获取
+     * @return
+     */
+    private List<State<T>> getSlideStateAll(boolean slided) {
+        List<State<T>> list = new ArrayList<>();
+        if (!isEnabledSlide()) return list;
+        for (State<T> s : getState()) {
+            if (slided) {
+                if (s.isSlideSlided()) list.add(s);
+            } else {
+                if (s.isSlideUnslide()) list.add(s);
             }
         }
         return list;

@@ -16,6 +16,7 @@ import com.liux.list.adapter.state.SuperRule;
 import com.liux.list.decoration.AbsItemDecoration;
 import com.liux.list.holder.SuperHolder;
 import com.liux.list.listener.OnSelectListener;
+import com.liux.util.DateUtil;
 import com.liux.view.SingleToast;
 
 import java.util.Date;
@@ -71,7 +72,7 @@ public class ListActivity extends AppCompatActivity {
 
                     @Override
                     public void onDataBind(SuperHolder holder, String s, State state, final int position) {
-                        holder.setText(android.R.id.text1, String.format("String is %s (%s)", s, state));
+                        holder.setText(android.R.id.text1, String.format("String is %s\n(%s)", s, state));
                         holder.setOnClickListener(new View.OnClickListener() {
                             @Override
                             public void onClick(View v) {
@@ -87,8 +88,8 @@ public class ListActivity extends AppCompatActivity {
                     }
 
                     @Override
-                    public void onDataBind(SuperHolder holder, Long l, final State state, final int position) {
-                        holder.setText(android.R.id.text1, String.format("Integer is %s (%s)", l.toString(), state));
+                    public void onDataBind(SuperHolder holder, Long l, State state, final int position) {
+                        holder.setText(android.R.id.text1, String.format("Long is %s\n(%s)", l.toString(), state));
                         holder.setText(android.R.id.text2, String.format("I'm a descriptive text %s", l.toString()));
                         holder.setOnClickListener(new View.OnClickListener() {
                             @Override
@@ -123,7 +124,7 @@ public class ListActivity extends AppCompatActivity {
     public void onViewClicked(View view) {
         switch (view.getId()) {
             case R.id.btn_add_string:
-                mMultipleAdapter.getData().add(new Date().toString());
+                mMultipleAdapter.getData().add(DateUtil.date2string5(new Date()));
                 break;
             case R.id.btn_add_long:
                 mMultipleAdapter.getData().add(new Date().getTime());

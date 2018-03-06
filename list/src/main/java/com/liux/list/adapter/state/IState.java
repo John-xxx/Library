@@ -139,4 +139,65 @@ public interface IState<T, R extends RecyclerView.Adapter> extends IAppend<T, R>
      * @param listener 监听器
      */
     R setOnSelectListener(OnSelectListener<T> listener);
+
+    /**
+     * 是否开启了侧滑能力
+     * @return
+     */
+    boolean isEnabledSlide();
+
+    /**
+     * 开启侧滑状态保存功能(单个)
+     * @param enabled
+     * @return
+     */
+    R setEnabledSlide(boolean enabled);
+
+    /**
+     * 开启侧滑状态保存功能
+     * @param enabled
+     * @param single
+     * @return
+     */
+    R setEnabledSlide(boolean enabled, boolean single);
+
+    /**
+     * 切换某条数据侧滑状态
+     * @param t 数据
+     */
+    void toggleSlide(T t);
+
+    /**
+     * 切换某条数据侧滑状态
+     * @param position 数据位置
+     */
+    void toggleSlide(int position);
+
+    /**
+     * 某条数据是否侧滑
+     * @param t 数据
+     * @return 是否侧滑
+     */
+    boolean isSlide(T t);
+
+    /**
+     * 某条数据是否侧滑
+     * @param position 数据位置
+     * @return 是否侧滑
+     */
+    boolean isSlide(int position);
+
+    /**
+     * 设置某条数据侧滑状态
+     * @param t 数据
+     * @param slided 侧滑状态
+     */
+    void setSlide(T t, boolean slided);
+
+    /**
+     * 设置某条数据侧滑状态
+     * @param position 数据位置
+     * @param slided 侧滑状态
+     */
+    void setSlide(int position, boolean slided);
 }
