@@ -5,6 +5,7 @@ import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.ViewParent;
 
 /**
  * Created by Liux on 2017/9/19.
@@ -19,5 +20,13 @@ public class MarginHolder extends RecyclerView.ViewHolder {
 
     public MarginHolder(View itemView) {
         super(itemView);
+        checkParent(itemView);
+    }
+
+    private void checkParent(View itemView) {
+        ViewParent viewParent = itemView.getParent();
+        if (viewParent != null && viewParent instanceof ViewGroup) {
+            ((ViewGroup) viewParent).removeView(itemView);
+        }
     }
 }

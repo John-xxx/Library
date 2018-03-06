@@ -16,7 +16,8 @@ implementation 'com.liux:list:x.y.z'
 更新说明
 ---
 ### x.y.z_201x-xx-xx
-    1.
+    1.代理模式重构Adapter
+    2.增强State状态保持器
 
 ### 0.2.0_2017-12-14
     1.升级SDK到27

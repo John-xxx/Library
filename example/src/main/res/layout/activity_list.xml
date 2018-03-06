@@ -23,12 +23,12 @@
             android:text="add_str" />
 
         <Button
-            android:id="@+id/btn_add_integer"
+            android:id="@+id/btn_add_long"
             android:layout_width="0dp"
             android:layout_weight="1"
             android:layout_height="wrap_content"
             android:textAllCaps="false"
-            android:text="add_int"/>
+            android:text="add_long"/>
 
         <Button
             android:id="@+id/btn_del_first"

@@ -1,7 +1,8 @@
-package com.liux.list.adapter;
+package com.liux.list.adapter.state;
 
 import android.view.ViewGroup;
 
+import com.liux.list.adapter.rule.Rule;
 import com.liux.list.holder.SuperHolder;
 
 /**

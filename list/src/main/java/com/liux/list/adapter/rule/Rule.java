@@ -1,8 +1,10 @@
-package com.liux.list.adapter;
+package com.liux.list.adapter.rule;
 
 import android.support.annotation.LayoutRes;
 import android.support.v7.widget.RecyclerView;
 import android.view.ViewGroup;
+
+import com.liux.list.adapter.state.State;
 
 /**
  * Bean 和 View 绑定显示规则

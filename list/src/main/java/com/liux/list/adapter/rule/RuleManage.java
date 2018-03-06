@@ -1,8 +1,4 @@
-package com.liux.list.adapter;
-
-
-import android.support.v7.widget.RecyclerView;
-import android.view.ViewGroup;
+package com.liux.list.adapter.rule;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -16,20 +12,19 @@ public class RuleManage {
 
     /**
      * 添加规则
-     * {@link MultipleAdapter#addRule(Rule)}
+     * {@link IRule#addRule(Rule)}
      * @param rule
      */
-    void addRule(Rule rule) {
+    public void addRule(Rule rule) {
         mRules.add(rule);
     }
 
     /**
      * 根据数据类型返回规则序号(类型)
-     * {@link MultipleAdapter#getItemViewType(int)}
      * @param object
      * @return
      */
-    int getRuleType(Object object) {
+    public int getRuleType(Object object) {
         for (int index = 0; index < mRules.size(); index++) {
             if (mRules.get(index).doBindObject(object)) {
                 return index;
@@ -40,21 +35,19 @@ public class RuleManage {
 
     /**
      * 根据规则序号(类型)查询对应规则
-     * {@link MultipleAdapter#onCreateViewHolder(ViewGroup, int)}
      * @param type
      * @return
      */
-    Rule getRuleForType(int type) {
+    public Rule getTypeRule(int type) {
         return mRules.get(type);
     }
 
     /**
      * 根据目标数据查找对应规则
-     * {@link MultipleAdapter#onBindViewHolder(RecyclerView.ViewHolder, int)}
      * @param object
      * @return
      */
-    Rule getRuleForObject(Object object) {
+    public Rule getObjectRule(Object object) {
         for (Rule rule : mRules) {
             if (rule.doBindObject(object)) return rule;
         }

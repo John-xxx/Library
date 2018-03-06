@@ -11,13 +11,14 @@ import android.view.View;
 
 import com.liux.example.R;
 import com.liux.list.adapter.MultipleAdapter;
-import com.liux.list.adapter.State;
-import com.liux.list.adapter.SuperRule;
+import com.liux.list.adapter.state.State;
+import com.liux.list.adapter.state.SuperRule;
 import com.liux.list.decoration.AbsItemDecoration;
 import com.liux.list.holder.SuperHolder;
 import com.liux.list.listener.OnSelectListener;
 import com.liux.view.SingleToast;
 
+import java.util.Date;
 import java.util.List;
 
 import butterknife.BindView;
@@ -70,29 +71,29 @@ public class ListActivity extends AppCompatActivity {
 
                     @Override
                     public void onDataBind(SuperHolder holder, String s, State state, final int position) {
-                        holder.setText(android.R.id.text1, String.format("String is %s (%d)", s, state.state));
+                        holder.setText(android.R.id.text1, String.format("String is %s (%s)", s, state));
                         holder.setOnClickListener(new View.OnClickListener() {
                             @Override
                             public void onClick(View v) {
-                                mMultipleAdapter.toggle(position);
+                                mMultipleAdapter.toggleSelect(position);
                             }
                         });
                     }
                 })
-                .addRule(new SuperRule<Integer>(android.R.layout.simple_list_item_2) {
+                .addRule(new SuperRule<Long>(android.R.layout.simple_list_item_2) {
                     @Override
-                    public boolean doBindData(Integer integer) {
+                    public boolean doBindData(Long l) {
                         return true;
                     }
 
                     @Override
-                    public void onDataBind(SuperHolder holder, Integer integer, State state, final int position) {
-                        holder.setText(android.R.id.text1, String.format("Integer is %d (%d)", integer, state.state));
-                        holder.setText(android.R.id.text2, String.format("I'm a descriptive text", integer));
+                    public void onDataBind(SuperHolder holder, Long l, final State state, final int position) {
+                        holder.setText(android.R.id.text1, String.format("Integer is %s (%s)", l.toString(), state));
+                        holder.setText(android.R.id.text2, String.format("I'm a descriptive text %s", l.toString()));
                         holder.setOnClickListener(new View.OnClickListener() {
                             @Override
                             public void onClick(View v) {
-                                mMultipleAdapter.toggle(position);
+                                mMultipleAdapter.toggleSelect(position);
                             }
                         });
                     }
@@ -111,25 +112,25 @@ public class ListActivity extends AppCompatActivity {
 
             @Override
             public void onSelectComplete() {
-                List<Object> list = mMultipleAdapter.getStateAll(State.STATE_SELECTED);
+                List<Object> list = mMultipleAdapter.getSelectedAll();
                 SingleToast.makeText(ListActivity.this, list.toString(), SingleToast.LENGTH_SHORT).show();
             }
         });
         rvList.setAdapter(mMultipleAdapter);
     }
 
-    @OnClick({R.id.btn_add_string, R.id.btn_add_integer, R.id.btn_del_first, R.id.btn_open5, R.id.btn_set8, R.id.btn_close})
+    @OnClick({R.id.btn_add_string, R.id.btn_add_long, R.id.btn_del_first, R.id.btn_open5, R.id.btn_set8, R.id.btn_close})
     public void onViewClicked(View view) {
         switch (view.getId()) {
             case R.id.btn_add_string:
-                mMultipleAdapter.getDataSource().add(String.valueOf(System.currentTimeMillis() / 10000L));
+                mMultipleAdapter.getData().add(new Date().toString());
                 break;
-            case R.id.btn_add_integer:
-                mMultipleAdapter.getDataSource().add(Integer.valueOf((int) (System.currentTimeMillis() % 1502000000000L)));
+            case R.id.btn_add_long:
+                mMultipleAdapter.getData().add(new Date().getTime());
                 break;
             case R.id.btn_del_first:
-                if (mMultipleAdapter.getDataSource().isEmpty()) return;
-                mMultipleAdapter.getDataSource().remove(0);
+                if (mMultipleAdapter.getData().isEmpty()) return;
+                mMultipleAdapter.getData().remove(0);
                 break;
             case R.id.btn_open5:
                 mMultipleAdapter.setOpenSelect(true, 5);

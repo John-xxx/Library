@@ -1,16 +1,20 @@
 package com.liux.list.adapter;
 
-import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.RecyclerView;
-import android.support.v7.widget.StaggeredGridLayoutManager;
 import android.view.View;
 import android.view.ViewGroup;
 
+import com.liux.list.adapter.append.AppendProxy;
+import com.liux.list.adapter.append.IAppend;
+import com.liux.list.adapter.rule.IRule;
+import com.liux.list.adapter.rule.Rule;
+import com.liux.list.adapter.rule.RuleProxy;
+import com.liux.list.adapter.state.IState;
+import com.liux.list.adapter.state.State;
+import com.liux.list.adapter.state.StateProxy;
 import com.liux.list.holder.MarginHolder;
 import com.liux.list.listener.OnSelectListener;
 
-import java.util.ArrayList;
-import java.util.Collection;
 import java.util.List;
 
 /**
@@ -26,46 +30,36 @@ import java.util.List;
  * 2017-8-11
  */
 
-public class MultipleAdapter<T> extends RecyclerView.Adapter {
+public class MultipleAdapter<T> extends RecyclerView.Adapter<RecyclerView.ViewHolder> implements
+        IRule<T, MultipleAdapter>, IState<T, MultipleAdapter>, IAppend<T, MultipleAdapter> {
+
+    private RuleProxy<T> mRuleProxy = new RuleProxy<>(this);
+    private StateProxy<T> mStateProxy = new StateProxy<>(this);
+    private AppendProxy<T> mAppendProxy = new AppendProxy<>(this);
 
     public MultipleAdapter() {
-        mDataSource = new StateList<>();
-    }
 
-    /**
-     * 使用此方法设置数据源时,由于是新建了一个{@link StateList} <br>
-     * 然后调用{@link StateList#addAll(Collection)}方法复制数据 <br>
-     * 所以对原始List操作不会同步到适配器数据源 <br>
-     * 容易造成混淆,故而废弃此方法
-     * @param dataSource 数据源,拷贝模式
-     */
-    @Deprecated
-    public MultipleAdapter(List<T> dataSource) {
-        mDataSource = StateList.from(dataSource);
     }
 
     @Override
     public int getItemViewType(int position) {
-        if (position < mHeaders.size()) return ITEM_VIEW_TYPE_HEADER;
-        if (position >= getItemCount() - mFooters.size()) return ITEM_VIEW_TYPE_FOOTER;
+        if (mAppendProxy.isAppendPosition(position)) {
+            return mAppendProxy.getAppendPositionType(position);
+        }
 
-        position = getRealPosition(position);
+        position = mAppendProxy.getRealPosition(position);
 
-        T t = mDataSource.get(position);
-        return mRuleManage.getRuleType(t);
+        T t = getData().get(position);
+        return mRuleProxy.getRuleType(t);
     }
 
     @Override
     public RecyclerView.ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
-        if (viewType == ITEM_VIEW_TYPE_HEADER) {
-            return mHeaders.get(0);
+        if (mAppendProxy.isAppendType(viewType)) {
+            return mAppendProxy.getAppendTypeHolder(viewType);
         }
 
-        if (viewType == ITEM_VIEW_TYPE_FOOTER) {
-            return mFooters.get(0);
-        }
-
-        Rule rule = mRuleManage.getRuleForType(viewType);
+        Rule rule = mRuleProxy.getTypeRule(viewType);
         return rule.createHolder(parent, rule.layout);
     }
 
@@ -77,426 +71,169 @@ public class MultipleAdapter<T> extends RecyclerView.Adapter {
 
         position = getRealPosition(position);
 
-        T t = mDataSource.get(position);
-        Rule rule = mRuleManage.getRuleForObject(t);
-        State state = mDataSource.getState(position);
-        if (!isOpenSelect()) state.state = State.STATE_NONE;
+        T t = getData().get(position);
+        Rule rule = mRuleProxy.getObjectRule(t);
+
+        State state = mStateProxy.getData().getState(position);
+        if (!isOpenSelect()) state.setSelectClose();
+
         rule.onDataBind(holder, t, state, position);
     }
 
-    /**
-     * 取当前条目总数,包括页眉和页脚
-     * @return 总条数
-     */
     @Override
     public int getItemCount() {
         int count = 0;
-        if (!mHeaders.isEmpty()) count = count + mHeaders.size();
-        if (!mFooters.isEmpty()) count = count + mFooters.size();
-        if (!mDataSource.isEmpty()) count = count + mDataSource.size();
+        count += mAppendProxy.getAppendItemCount();
+        count += mStateProxy.getData().size();
         return count;
     }
 
-    /* ============== 数据源_Bengin ============== */
-
-    private StateList<T> mDataSource;
-
-    public List<T> getDataSource() {
-        return mDataSource;
-    }
-
-    /* ============== 数据源_End ============== */
-
-
-
-    /* ============== 绑定规则_Begin ============== */
-
-    private RuleManage mRuleManage = new RuleManage();
-
-    /**
-     * 添加数据和视图关联规则
-     * @param rule 适配规则
-     * @return 当前实例
-     */
-    public MultipleAdapter<T> addRule(Rule<? extends T, ? extends RecyclerView.ViewHolder> rule) {
-        mRuleManage.addRule(rule);
-        return this;
-    }
-
-    /* ============== 绑定规则_End ============== */
-
-
-
-    /* ============== Header/Footer_Bengin ============== */
-
-    private static final int ITEM_VIEW_TYPE_HEADER = -10;
-    private static final int ITEM_VIEW_TYPE_FOOTER = -20;
-
-    private List<MarginHolder> mHeaders = new ArrayList<>();
-    private List<MarginHolder> mFooters = new ArrayList<>();
-
-    /**
-     * 设置页眉布局
-     * @param view View
-     */
-    public MultipleAdapter<T> setHeader(View view) {
-        if (mHeaders.isEmpty()) {
-            mHeaders.add(0, new MarginHolder(view));
-            notifyItemInserted(0);
-        } else {
-            mHeaders.set(0, new MarginHolder(view));
-            notifyItemChanged(0);
-        }
-        return this;
-    }
-
-    /**
-     * 设置页脚布局
-     * @param view View
-     */
-    public MultipleAdapter<T> setFooter(View view) {
-        if (mFooters.isEmpty()) {
-            mFooters.add(0, new MarginHolder(view));
-            notifyItemInserted(getItemCount() - 1);
-        } else {
-            mFooters.set(0, new MarginHolder(view));
-            notifyItemChanged(getItemCount() - 1);
-        }
-        return this;
-    }
-
-    /**
-     * 获取除去 Header/Footer 之后真实的位置
-     * @param position 绘图定位
-     * @return 真实定位
-     */
-    public int getRealPosition(int position) {
-        return position - mHeaders.size();
-    }
-
-    /**
-     * 获取包含 Header/Footer 之后真实的位置
-     * @param position 绘图定位
-     * @return 真实定位
-     */
-    public int getShamPosition(int position) {
-        return position + mHeaders.size();
-    }
-
-    /**
-     * 检查是否是页眉布局
-     * @param position 绘图定位
-     * @return 是否是页眉布局
-     */
-    public boolean isHeaderPosition(int position) {
-        return getItemViewType(position) == ITEM_VIEW_TYPE_HEADER;
-    }
-
-    /**
-     * 检查是否是页脚布局
-     * @param position 绘图定位
-     * @return 是否是页脚布局
-     */
-    public boolean isFooterPosition(int position) {
-        return getItemViewType(position) == ITEM_VIEW_TYPE_FOOTER;
-    }
-
-    /**
-     * 适配当 RecyclerView.LayoutManager() 为 GridLayoutManager()
-     * @param recyclerView 目标
-     */
     @Override
     public void onAttachedToRecyclerView(RecyclerView recyclerView) {
         super.onAttachedToRecyclerView(recyclerView);
-        RecyclerView.LayoutManager manager = recyclerView.getLayoutManager();
-        if(manager instanceof GridLayoutManager) {
-            final GridLayoutManager gridManager = (GridLayoutManager) manager;
-            gridManager.setSpanSizeLookup(new GridLayoutManager.SpanSizeLookup() {
-                @Override
-                public int getSpanSize(int position) {
-                    int type = getItemViewType(position);
-                    switch (type) {
-                        case ITEM_VIEW_TYPE_HEADER:
-                        case ITEM_VIEW_TYPE_FOOTER:
-                            return gridManager.getSpanCount();
-                        default:
-                            return 1;
-                    }
-                }
-            });
-        }
+        mAppendProxy.onAttachedToRecyclerView(recyclerView);
     }
 
-    /**
-     * 适配当 RecyclerView.LayoutManager() 为 StaggeredGridLayoutManager()
-     * @param holder 目标
-     */
     @Override
     public void onViewAttachedToWindow(RecyclerView.ViewHolder holder) {
         super.onViewAttachedToWindow(holder);
-        int type = getItemViewType(holder.getItemViewType());
-        switch (type) {
-            case ITEM_VIEW_TYPE_HEADER:
-            case ITEM_VIEW_TYPE_FOOTER:
-                ViewGroup.LayoutParams lp_vg = holder.itemView.getLayoutParams();
-                if(lp_vg != null && lp_vg instanceof StaggeredGridLayoutManager.LayoutParams) {
-                    StaggeredGridLayoutManager.LayoutParams lp_sglm = (StaggeredGridLayoutManager.LayoutParams) lp_vg;
-                    lp_sglm.setFullSpan(true);
-                }
-                break;
-            default:
-                break;
-        }
+        mAppendProxy.onViewAttachedToWindow(holder);
     }
 
-    /* ============== Header/Footer_Bengin ============== */
-
-
-
-    /* ============== 数据状态_Begin ============== */
-
-    private int mMaxSelectCount = 0;
-    private boolean mOpenSelect = false;
-    private OnSelectListener<T> mOnSelectListener;
-
-    /**
-     * 设置开启选择(单选)
-     * @param open 开启
-     */
-    public void setOpenSelect(boolean open) {
-        setOpenSelect(open, 1);
+    @Override
+    public MultipleAdapter<T> addRule(Rule<? extends T, ? extends RecyclerView.ViewHolder> rule) {
+        mRuleProxy.addRule(rule);
+        return this;
     }
 
-    /**
-     * 设置开启选择
-     * @param open 开启
-     * @param maxSelectCount 最大数量
-     */
-    public void setOpenSelect(boolean open, int maxSelectCount) {
-        if (mOpenSelect == open) return;
-        switchOpenSelect(open);
-        mOpenSelect = open;
-
-        if (mOpenSelect && maxSelectCount < 1) {
-            maxSelectCount = 1;
-        }
-        mMaxSelectCount = maxSelectCount;
-
-        notifyDataSetChanged();
+    @Override
+    public MultipleAdapter<T> setHeader(View view) {
+        mAppendProxy.setHeader(view);
+        return this;
     }
 
-    /**
-     * 是否开启选择
-     * @return 开启
-     */
+    @Override
+    public MultipleAdapter<T> setFooter(View view) {
+        mAppendProxy.setFooter(view);
+        return this;
+    }
+
+    @Override
+    public int getRealPosition(int position) {
+        return mAppendProxy.getRealPosition(position);
+    }
+
+    @Override
+    public int getShamPosition(int position) {
+        return mAppendProxy.getShamPosition(position);
+    }
+
+    @Override
+    public boolean isHeaderPosition(int position) {
+        return mAppendProxy.isHeaderPosition(position);
+    }
+
+    @Override
+    public boolean isFooterPosition(int position) {
+        return mAppendProxy.isFooterPosition(position);
+    }
+
+    @Override
+    public List<T> getData() {
+        return mStateProxy.getData();
+    }
+
+    @Override
+    public List<State<T>> getState() {
+        return mStateProxy.getState();
+    }
+
+    @Override
     public boolean isOpenSelect() {
-        return mOpenSelect;
+        return mStateProxy.isOpenSelect();
     }
 
-    /**
-     * 获取最大可选择数
-     * @return 最大可选择数
-     */
+    @Override
+    public MultipleAdapter<T> setOpenSelect(boolean open) {
+        mStateProxy.setOpenSelect(open);
+        return this;
+    }
+
+    @Override
+    public MultipleAdapter<T> setOpenSelect(boolean open, int maxSelectCount) {
+        mStateProxy.setOpenSelect(open, maxSelectCount);
+        return this;
+    }
+
+    @Override
     public int getMaxSelectCount() {
-        return mMaxSelectCount;
+        return mStateProxy.getMaxSelectCount();
     }
 
-    /**
-     * 设置最大可选择数
-     * @param count 最大可选择数
-     */
-    public void setMaxSelectCount(int count) {
-        if (isOpenSelect()) {
-            mMaxSelectCount = count;
-        }
+    @Override
+    public MultipleAdapter<T> setMaxSelectCount(int count) {
+        mStateProxy.setMaxSelectCount(count);
+        return this;
     }
 
-    /**
-     * 切换某条数据选中状态
-     * @param t 数据
-     * @return 是否选中
-     */
-    public boolean toggle(T t) {
-        return toggle(mDataSource.indexOf(t));
+    @Override
+    public boolean toggleSelect(T t) {
+        return mStateProxy.toggleSelect(t);
     }
 
-    /**
-     * 切换某条数据选中状态
-     * @param position 数据位置
-     * @return 是否选中
-     */
-    public boolean toggle(int position) {
-        if (!isOpenSelect()) return false;
-        return setSelect(position, !isSelect(position));
+    @Override
+    public boolean toggleSelect(int position) {
+        return mStateProxy.toggleSelect(position);
     }
 
-    /**
-     * 设置某条数据选中状态
-     * @param t 数据
-     * @param selected 选中状态
-     * @return 是否选中
-     */
+    @Override
     public boolean setSelect(T t, boolean selected) {
-        return setSelect(mDataSource.indexOf(t), selected);
+        return mStateProxy.setSelect(t, selected);
     }
 
-    /**
-     * 设置某条数据选中状态
-     * @param position 数据位置
-     * @param selected 选中状态
-     * @return 是否选中
-     */
+    @Override
     public boolean setSelect(int position, boolean selected) {
-        if (!isOpenSelect()) return false;
-
-        if (isSelect(position) == selected) return selected;
-        if (selected) {
-            if (mMaxSelectCount == 1) {
-                // 单选模式
-                List<T> ts = mDataSource.getStateAll(State.STATE_SELECTED);
-                for (T t : ts) {
-                    int index = mDataSource.indexOf(t);
-
-                    boolean result = true;
-                    if (mOnSelectListener != null) {
-                        result = mOnSelectListener.onSelectChange(t, index, false);
-                    }
-                    if (!result) {
-                        //if (mOnSelectListener != null) {
-                        //    mOnSelectListener.onSelectFailure();
-                        //}
-                        return false;
-                    }
-
-                    mDataSource.setState(index, State.STATE_UNSELECTED);
-                    index = getShamPosition(index);
-                    notifyItemChanged(index);
-                }
-            } else if (mDataSource.getStateAllCount(State.STATE_SELECTED) >= mMaxSelectCount) {
-                if (mOnSelectListener != null) {
-                    mOnSelectListener.onSelectFailure();
-                }
-                return false;
-            }
-        }
-
-        boolean result = true;
-        if (mOnSelectListener != null) {
-            result = mOnSelectListener.onSelectChange(mDataSource.get(position), position, selected);
-        }
-        if (!result) {
-            //if (mOnSelectListener != null) {
-            //    mOnSelectListener.onSelectFailure();
-            //}
-            return false;
-        }
-
-        mDataSource.getState(position).state = selected ? State.STATE_SELECTED : State.STATE_UNSELECTED;
-
-        if (mDataSource.getStateAllCount(State.STATE_SELECTED) >= mMaxSelectCount) {
-            if (mOnSelectListener != null) {
-                mOnSelectListener.onSelectComplete();
-            }
-        }
-
-        position = getShamPosition(position);
-        notifyItemChanged(position);
-        return true;
+        return mStateProxy.setSelect(position, selected);
     }
 
-    /**
-     * 全选
-     * @return 是否全部选中
-     */
+    @Override
     public boolean selectAll() {
-        if (!isOpenSelect()) return false;
-
-        if (mDataSource.size() > mMaxSelectCount) {
-            if (mOnSelectListener != null) {
-                mOnSelectListener.onSelectFailure();
-            }
-            return false;
-        }
-
-        mDataSource.setStateAll(State.STATE_SELECTED);
-        notifyDataSetChanged();
-        return true;
+        return mStateProxy.selectAll();
     }
 
-    /**
-     * 全不选
-     * @return 是否全部没选中
-     */
+    @Override
     public boolean unSelectAll() {
-        if (!isOpenSelect()) return false;
-
-        mDataSource.setStateAll(State.STATE_UNSELECTED);
-        notifyDataSetChanged();
-        return true;
+        return mStateProxy.unSelectAll();
     }
 
-    /**
-     * 反选
-     * @return 是否反选
-     */
+    @Override
     public boolean reverseSelectAll() {
-        if (!isOpenSelect()) return false;
-
-        int selected = mDataSource.getStateAllCount(State.STATE_SELECTED);
-        if (mDataSource.size() - selected > mMaxSelectCount) {
-            if (mOnSelectListener != null) {
-                mOnSelectListener.onSelectFailure();
-            }
-            return false;
-        }
-
-        mDataSource.reverseStateAll();
-        notifyDataSetChanged();
-        return true;
+        return mStateProxy.reverseSelectAll();
     }
 
-    /**
-     * 某条数据是否选中
-     * @param t 数据
-     * @return 是否选中
-     */
+    @Override
     public boolean isSelect(T t) {
-        return isSelect(mDataSource.indexOf(t));
+        return mStateProxy.isSelect(t);
     }
 
-    /**
-     * 某条数据是否选中
-     * @param position 数据位置
-     * @return 是否选中
-     */
+    @Override
     public boolean isSelect(int position) {
-        return mDataSource.getState(position).state == State.STATE_SELECTED;
+        return mStateProxy.isSelect(position);
     }
 
-    /**
-     * 获取某种状态的全部数据
-     * @param state 状态值
-     * @return 数据列表
-     */
-    public List<T> getStateAll(int state) {
-        return mDataSource.getStateAll(state);
+    @Override
+    public List<T> getSelectedAll() {
+        return mStateProxy.getSelectedAll();
     }
 
-    /**
-     * 设置选择事件监听
-     * @param listener 监听器
-     */
-    public void setOnSelectListener(OnSelectListener<T> listener) {
-        mOnSelectListener = listener;
+    @Override
+    public List<T> getUnselectedAll() {
+        return mStateProxy.getUnselectedAll();
     }
 
-    /**
-     * 切换全部数据状态
-     * @param open 是否开启选择
-     */
-    private void switchOpenSelect(boolean open) {
-        mDataSource.setStateAll(open ? State.STATE_UNSELECTED : State.STATE_NONE);
+    @Override
+    public MultipleAdapter<T> setOnSelectListener(OnSelectListener<T> listener) {
+        mStateProxy.setOnSelectListener(listener);
+        return this;
     }
-
-    /* ============== 数据状态_End ============== */
 }

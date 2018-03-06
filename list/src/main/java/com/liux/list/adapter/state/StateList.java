@@ -1,4 +1,4 @@
-package com.liux.list.adapter;
+package com.liux.list.adapter.state;
 
 import android.support.annotation.NonNull;
 
@@ -13,10 +13,10 @@ import java.util.List;
  */
 public class StateList<T> extends ArrayList<T> {
 
-    private List<State<T>> mStates = new ArrayList<State<T>>();
+    private List<State<T>> mStates = new ArrayList<>();
 
     public static <T> StateList<T> from(List<T> data) {
-        StateList<T> stateList = new StateList<T>();
+        StateList<T> stateList = new StateList<>();
         if (data != null) {
             stateList.addAll(data);
         }
@@ -25,7 +25,7 @@ public class StateList<T> extends ArrayList<T> {
 
     @Override
     public boolean add(T t) {
-        mStates.add(new State<T>(t));
+        mStates.add(new State<>(t));
         return super.add(t);
     }
 
@@ -42,7 +42,7 @@ public class StateList<T> extends ArrayList<T> {
     public boolean addAll(@NonNull Collection<? extends T> c) {
         List<State<T>> list = new ArrayList<>();
         for (T t : c) {
-            list.add(new State<T>(t));
+            list.add(new State<>(t));
         }
         mStates.addAll(list);
         return super.addAll(c);
@@ -52,7 +52,7 @@ public class StateList<T> extends ArrayList<T> {
     public boolean addAll(int index, @NonNull Collection<? extends T> c) {
         List<State<T>> list = new ArrayList<>();
         for (T t : c) {
-            list.add(new State<T>(t));
+            list.add(new State<>(t));
         }
         mStates.addAll(index, list);
         return super.addAll(index, c);
@@ -63,7 +63,7 @@ public class StateList<T> extends ArrayList<T> {
         Iterator<State<T>> iterator = mStates.iterator();
         while (iterator.hasNext()) {
             State<T> state = iterator.next();
-            if (c.contains(state.data)) {
+            if (c.contains(state.getData())) {
                 iterator.remove();
             }
         }
@@ -75,7 +75,7 @@ public class StateList<T> extends ArrayList<T> {
         Iterator<State<T>> iterator = mStates.iterator();
         while (iterator.hasNext()) {
             State<T> state = iterator.next();
-            if (!c.contains(state.data)) {
+            if (!c.contains(state.getData())) {
                 iterator.remove();
             }
         }
@@ -90,13 +90,13 @@ public class StateList<T> extends ArrayList<T> {
 
     @Override
     public T set(int index, T element) {
-        mStates.set(index, new State<T>(element));
+        mStates.set(index, new State<>(element));
         return super.set(index, element);
     }
 
     @Override
     public void add(int index, T element) {
-        mStates.add(index, new State<T>(element));
+        mStates.add(index, new State<>(element));
         super.add(index, element);
     }
 
@@ -118,50 +118,7 @@ public class StateList<T> extends ArrayList<T> {
         return null;
     }
 
-    public void setState(int index, int state) {
-        mStates.get(index).state = state;
-    }
-
-    public void setState(T t, int state) {
-        int index = indexOf(t);
-        if (index != -1) {
-            mStates.get(index).state = state;
-        }
-    }
-
     public List<State<T>> getStates() {
         return mStates;
-    }
-
-    public void setStateAll(int state) {
-        for (State<T> s : mStates) {
-            s.state = state;
-        }
-    }
-
-    public List<T> getStateAll(int state) {
-        List<T> ts = new ArrayList<T>();
-        for (State<T> s : mStates) {
-            if (s.state == state) ts.add(s.data);
-        }
-        return ts;
-    }
-
-    public int getStateAllCount(int state) {
-        int count = 0;
-        for (State<T> s : mStates) {
-            if (s.state == state) count++;
-        }
-        return count;
-    }
-
-    public void reverseStateAll() {
-        for (State<T> s : mStates) {
-            if (s.state == State.STATE_SELECTED) {
-                s.state = State.STATE_UNSELECTED;
-            } else {
-                s.state = State.STATE_SELECTED;
-            }
-        }
     }
 }

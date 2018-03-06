@@ -21,8 +21,8 @@ import com.liux.boxing.OnSingleSelectListener;
 import com.liux.boxing.OnVideoSelectListener;
 import com.liux.example.R;
 import com.liux.list.adapter.MultipleAdapter;
-import com.liux.list.adapter.State;
-import com.liux.list.adapter.SuperRule;
+import com.liux.list.adapter.state.State;
+import com.liux.list.adapter.state.SuperRule;
 import com.liux.list.decoration.GridItemDecoration;
 import com.liux.list.holder.SuperHolder;
 
@@ -69,8 +69,8 @@ public class BoxingActivity extends AppCompatActivity {
                         holder.setOnClickListener(new View.OnClickListener() {
                             @Override
                             public void onClick(View v) {
-                                String[] medias = new String[mMultipleAdapter.getDataSource().size()];
-                                mMultipleAdapter.getDataSource().toArray(medias);
+                                String[] medias = new String[mMultipleAdapter.getData().size()];
+                                mMultipleAdapter.getData().toArray(medias);
                                 BoxingTool.startPreview(BoxingActivity.this, medias, position);
                             }
                         });
@@ -90,8 +90,8 @@ public class BoxingActivity extends AppCompatActivity {
                 BoxingTool.startSingle(this, true, false, new OnSingleSelectListener() {
                     @Override
                     public void onSingleSelect(ImageMedia imageMedia) {
-                        mMultipleAdapter.getDataSource().clear();
-                        mMultipleAdapter.getDataSource().add(imageMedia.getPath());
+                        mMultipleAdapter.getData().clear();
+                        mMultipleAdapter.getData().add(imageMedia.getPath());
                         mMultipleAdapter.notifyDataSetChanged();
                     }
                 });
@@ -100,8 +100,8 @@ public class BoxingActivity extends AppCompatActivity {
                 BoxingTool.startSingle(this, true, true, new OnSingleSelectListener() {
                     @Override
                     public void onSingleSelect(ImageMedia imageMedia) {
-                        mMultipleAdapter.getDataSource().clear();
-                        mMultipleAdapter.getDataSource().add(imageMedia.getPath());
+                        mMultipleAdapter.getData().clear();
+                        mMultipleAdapter.getData().add(imageMedia.getPath());
                         mMultipleAdapter.notifyDataSetChanged();
                     }
                 });
@@ -110,9 +110,9 @@ public class BoxingActivity extends AppCompatActivity {
                 BoxingTool.startMulti(this, 5, true, new OnMultiSelectListener() {
                     @Override
                     public void onMultiSelect(List<ImageMedia> imageMedias) {
-                        mMultipleAdapter.getDataSource().clear();
+                        mMultipleAdapter.getData().clear();
                         for (BaseMedia media : imageMedias) {
-                            mMultipleAdapter.getDataSource().add(media.getPath());
+                            mMultipleAdapter.getData().add(media.getPath());
                         }
                         mMultipleAdapter.notifyDataSetChanged();
                     }
@@ -122,8 +122,8 @@ public class BoxingActivity extends AppCompatActivity {
                 BoxingTool.startVideo(this, new OnVideoSelectListener() {
                     @Override
                     public void onVideoSelect(VideoMedia videoMedia) {
-                        mMultipleAdapter.getDataSource().clear();
-                        mMultipleAdapter.getDataSource().add(videoMedia.getPath());
+                        mMultipleAdapter.getData().clear();
+                        mMultipleAdapter.getData().add(videoMedia.getPath());
                         mMultipleAdapter.notifyDataSetChanged();
                     }
                 });
