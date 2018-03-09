@@ -16,7 +16,7 @@ implementation 'com.liux:abstracts:x.y.z'
 更新说明
 ---
 ### x.y.z_201x-xx-xx
-    1.
+    1.更新支持库版本
 
 ### 0.2.5_2018-03-04
     1.优化默认的TitleBar尺寸
