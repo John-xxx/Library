@@ -1,5 +1,6 @@
 package com.liux.banner;
 
+import android.annotation.SuppressLint;
 import android.content.Context;
 import android.database.DataSetObserver;
 import android.os.Handler;
@@ -30,9 +31,13 @@ public class BannerView extends RelativeLayout {
     // 无限循环适配器
     private BannerAdapter mBannerAdapter;
 
+    @SuppressLint("HandlerLeak")
     private Handler mHandler = new Handler() {
         @Override
         public void handleMessage(Message msg) {
+            if (mBannerAdapter == null || mBannerAdapter.getRealCount() == 0) {
+                return;
+            }
             if (mViewPager != null) {
                 int position = mViewPager.getCurrentItem();
                 if (position < mBannerAdapter.getCount()) {
@@ -99,7 +104,9 @@ public class BannerView extends RelativeLayout {
                 break;
             case MotionEvent.ACTION_UP:
             case MotionEvent.ACTION_CANCEL:
-                mHandler.sendEmptyMessageDelayed(MESSAGE_WHAT, mInterval);
+                if (mBannerAdapter != null && mBannerAdapter.getRealCount() > 0) {
+                    mHandler.sendEmptyMessageDelayed(MESSAGE_WHAT, mInterval);
+                }
                 break;
 
         }
