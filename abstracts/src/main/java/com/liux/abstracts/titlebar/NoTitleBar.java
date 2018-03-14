@@ -1,7 +1,7 @@
 package com.liux.abstracts.titlebar;
 
-import android.graphics.Color;
 import android.os.Build;
+import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
 
 /**
@@ -17,7 +17,10 @@ public class NoTitleBar extends TitleBar<NoTitleBar> {
 
     @Override
     public void initView() {
-        getActivity().getSupportActionBar().hide();
+        ActionBar actionBar = getActivity().getSupportActionBar();
+        if (actionBar != null) {
+            actionBar.hide();
+        }
     }
 
     @Override

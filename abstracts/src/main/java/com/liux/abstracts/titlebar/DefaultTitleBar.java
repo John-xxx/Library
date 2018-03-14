@@ -1,22 +1,16 @@
 package com.liux.abstracts.titlebar;
 
-import android.graphics.Color;
 import android.os.Build;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
-import android.support.v7.widget.ActionMenuView;
-import android.support.v7.widget.Toolbar;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.FrameLayout;
 import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.liux.abstracts.R;
 import com.liux.abstracts.util.TitleBarUtil;
-
-import java.lang.reflect.Field;
 
 /**
  * 默认的自定义{@link TitleBar}实现 <br>
@@ -58,16 +52,19 @@ public class DefaultTitleBar extends TitleBar<DefaultTitleBar> {
                 null,
                 false
         );
-        getActivity().getSupportActionBar().setDisplayOptions(ActionBar.DISPLAY_SHOW_CUSTOM);
-        getActivity().getSupportActionBar().setCustomView(
-                mRoot,
-                new ActionBar.LayoutParams(
-                        ViewGroup.LayoutParams.MATCH_PARENT,
-                        ViewGroup.LayoutParams.WRAP_CONTENT
-                )
-        );
 
-        TitleBarUtil.operationToolbar(mRoot);
+        ActionBar actionBar = getActivity().getSupportActionBar();
+        if (actionBar != null) {
+            actionBar.setDisplayOptions(ActionBar.DISPLAY_SHOW_CUSTOM);
+            actionBar.setCustomView(
+                    mRoot,
+                    new ActionBar.LayoutParams(
+                            ViewGroup.LayoutParams.MATCH_PARENT,
+                            ViewGroup.LayoutParams.WRAP_CONTENT
+                    )
+            );
+            TitleBarUtil.operationToolbar(mRoot);
+        }
 
         mBack = mRoot.findViewById(R.id.view_titlebar_default_back);
         mMore = mRoot.findViewById(R.id.view_titlebar_default_more);

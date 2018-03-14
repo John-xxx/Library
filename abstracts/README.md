@@ -16,7 +16,11 @@ implementation 'com.liux:abstracts:x.y.z'
 更新说明
 ---
 ### x.y.z_201x-xx-xx
+    1.
+
+### 0.2.6_2018-03-14
     1.更新支持库版本
+    2.修复当设置无标题时自定义TitleBar崩溃问题
 
 ### 0.2.5_2018-03-04
     1.优化默认的TitleBar尺寸
