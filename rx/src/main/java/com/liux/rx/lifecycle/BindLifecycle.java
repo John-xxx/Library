@@ -10,5 +10,7 @@ import com.trello.rxlifecycle2.LifecycleTransformer;
 
 public interface BindLifecycle {
 
-    <T> LifecycleTransformer<T> bindLifeCycle();
+    <T> LifecycleTransformer<T> bindLifecycle();
+
+    <T> LifecycleTransformer<T> bindLifecycle(Event event);
 }

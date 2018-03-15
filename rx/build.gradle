@@ -35,7 +35,7 @@ dependencies {
 ext {
     params = [
             artifactId : 'rx',
-            version : '0.2.3'
+            version : '0.2.4'
     ]
 }
 apply from: '../release.gradle'
