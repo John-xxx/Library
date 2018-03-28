@@ -3,7 +3,9 @@ package com.liux.tool;
 import android.text.InputFilter;
 import android.text.Spanned;
 import android.text.TextUtils;
+import android.widget.EditText;
 
+import java.util.Arrays;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -11,8 +13,20 @@ import java.util.regex.Pattern;
  * 过滤用户输入只能为金额格式
  * Created by Jackie on 2017/2/22
  */
-public class CashierInputFilter implements InputFilter {
-    Pattern mPattern;
+public class MoneyInputFilter implements InputFilter {
+
+    public static void install(EditText editText) {
+        InputFilter[] old_filter = editText.getFilters();
+        if (old_filter == null) old_filter = new InputFilter[0];
+
+        InputFilter[] new_filter = Arrays.copyOf(old_filter, old_filter.length + 1);
+        new_filter[old_filter.length] = new MoneyInputFilter(editText);
+
+        editText.setFilters(new_filter);
+    }
+
+    private Pattern mPattern;
+    private EditText mEditText;
 
     // 输入的最大金额
     private static final int MAX_VALUE = Integer.MAX_VALUE;
@@ -23,8 +37,9 @@ public class CashierInputFilter implements InputFilter {
 
     private static final String ZERO = "0";
 
-    public CashierInputFilter() {
+    public MoneyInputFilter(EditText editText) {
         mPattern = Pattern.compile("([0-9]|\\.)*");
+        mEditText = editText;
     }
 
     /**

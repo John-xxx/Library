@@ -16,7 +16,7 @@ implementation 'com.liux:tool:x.y.z'
 更新说明
 ---
 ### x.y.z_201x-xx-xx
-    1.
+    1.添加正整数输入过滤器
 
 ### 0.2.0_2017-12-21
     1.从other改名为tool,包名同步修改
