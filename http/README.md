@@ -29,7 +29,11 @@ implementation 'com.liux:http:x.y.z'
 更新说明
 ---
 ### x.y.z_201x-xx-xx
+    1.
+
+### 0.3.1_2018-03-28
     1.更新代码结构
+    2.调整Logger打印输出
 
 ### 0.3.0_2018-02-27
     1.完成链式调用的HttpClient

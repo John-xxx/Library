@@ -140,7 +140,7 @@ public class HttpLoggingInterceptor implements Interceptor {
             @Override public void log(String message) {
                 //Platform.get().log(INFO, message, null);
                 for (int i = 0, length = message.length(); i < length; i++) {
-                    int newline = message.indexOf('\n', i);
+                    int newline = message.indexOf(SEPARATOR, i);
                     newline = newline != -1 ? newline : length;
                     do {
                         int end = Math.min(newline, i + MAX_LOG_LENGTH);
@@ -398,7 +398,7 @@ public class HttpLoggingInterceptor implements Interceptor {
                 json = new JSONArray(json).toString(4);
             }
         } catch (JSONException e) {
-            e.printStackTrace();
+
         }
         return json;
     }
@@ -410,7 +410,7 @@ public class HttpLoggingInterceptor implements Interceptor {
      */
     private static String formatXml(String xml) {
         try {
-            if (xml.startsWith("<")) {
+            if (!xml.startsWith("<")) {
                 return xml;
             }
             Source xmlInput = new StreamSource(new StringReader(xml));
@@ -421,7 +421,7 @@ public class HttpLoggingInterceptor implements Interceptor {
             transformer.transform(xmlInput, xmlOutput);
             xml = xmlOutput.getWriter().toString().replaceFirst(">", ">" + SEPARATOR);
         } catch (Exception e) {
-            e.printStackTrace();
+
         }
         return xml;
     }

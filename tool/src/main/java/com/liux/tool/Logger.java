@@ -155,7 +155,7 @@ public class Logger {
                 json = new JSONArray(json).toString(4);
             }
         } catch (JSONException e) {
-            e.printStackTrace();
+
         }
         return json;
     }
@@ -167,7 +167,7 @@ public class Logger {
      */
     private static String formatXml(String xml) {
         try {
-            if (xml.startsWith("<")) {
+            if (!xml.startsWith("<")) {
                 return xml;
             }
             Source xmlInput = new StreamSource(new StringReader(xml));
@@ -178,7 +178,7 @@ public class Logger {
             transformer.transform(xmlInput, xmlOutput);
             xml = xmlOutput.getWriter().toString().replaceFirst(">", ">" + SEPARATOR);
         } catch (Exception e) {
-            e.printStackTrace();
+
         }
         return xml;
     }

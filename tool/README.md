@@ -16,7 +16,11 @@ implementation 'com.liux:tool:x.y.z'
 更新说明
 ---
 ### x.y.z_201x-xx-xx
+    1.
+
+### 0.2.1_2018-03-28
     1.添加正整数输入过滤器
+    2.调整Logger打印输出
 
 ### 0.2.0_2017-12-21
     1.从other改名为tool,包名同步修改
