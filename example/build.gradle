@@ -1,6 +1,8 @@
 apply plugin: 'com.android.application'
 
 android {
+    compileSdkVersion COMPILE_SDK_VERSION as int
+    buildToolsVersion BUILD_TOOLS_VERSION as String
     signingConfigs {
         config {
             Properties properties = new Properties()
@@ -17,8 +19,6 @@ android {
             storeFile file('./public.jks')
         }
     }
-    compileSdkVersion COMPILE_SDK_VERSION as int
-    buildToolsVersion BUILD_TOOLS_VERSION as String
     defaultConfig {
         applicationId "com.liux.example"
         minSdkVersion MIN_SDK_VERSION as int
@@ -37,7 +37,12 @@ android {
             signingConfig signingConfigs.config
         }
         release {
-            minifyEnabled false
+            debuggable false
+            jniDebuggable false
+            minifyEnabled true
+            shrinkResources true
+            zipAlignEnabled true
+            renderscriptDebuggable false
             signingConfig signingConfigs.config
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
         }

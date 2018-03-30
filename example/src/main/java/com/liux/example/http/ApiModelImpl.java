@@ -21,7 +21,7 @@ public class ApiModelImpl implements ApiModel {
     public void queryWeather(String code) {
         HttpClient.getInstance().getService(ApiService.class).queryWeather(
                 "bd15e11291d68ff100ca0be6ad32b15d",
-                "510101",
+                code,
                 "7"
         )
                 .subscribeOn(Schedulers.io())
@@ -48,7 +48,7 @@ public class ApiModelImpl implements ApiModel {
     public void queryIP(String ip) {
         HttpClient.getInstance().getService(ApiService.class).queryIP(
                 "ac1bf65a556b39d1973a40688dacd39f",
-                ""
+                ip
         )
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
@@ -74,7 +74,7 @@ public class ApiModelImpl implements ApiModel {
     public void queryMobile(String mobile) {
         HttpClient.getInstance().getService(ApiService.class).queryMobile(
                 "f38fde6a4395eaebe9fd525a96145925",
-                "13086668581"
+                mobile
         )
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
@@ -100,7 +100,7 @@ public class ApiModelImpl implements ApiModel {
     public void queryExpress(String code) {
         HttpClient.getInstance().getService(ApiService.class).queryExpress(
                 "bd15e11291d68ff100ca0be6ad32b15d",
-                "510101",
+                code,
                 "7"
         )
                 .subscribeOn(Schedulers.io())

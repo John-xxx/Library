@@ -3,6 +3,7 @@ package com.liux.example.http;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v7.app.AppCompatActivity;
+import android.util.Log;
 import android.view.View;
 import android.widget.EditText;
 
@@ -27,9 +28,11 @@ import okhttp3.Response;
  */
 
 public class HTTPActivity extends AppCompatActivity {
+    private static final String TAG = "HTTPActivity";
 
     @BindView(R.id.et_data)
     EditText etData;
+
     private ApiModel mApiModle = new ApiModelImpl();
 
     @Override
@@ -63,6 +66,10 @@ public class HTTPActivity extends AppCompatActivity {
                 mApiModle.queryExpress(data);
                 break;
             case R.id.btn_get:
+                if (HttpUrl.parse(data) == null) {
+                    Log.d(TAG, "URL不正确,必须形如 http://www.domain.com/");
+                    return;
+                }
                 HttpClient.getInstance().get(data)
                         .addHeader("AAA", "bbb")
                         .addQuery("name", "Liux")
@@ -85,6 +92,10 @@ public class HTTPActivity extends AppCompatActivity {
                         });
                 break;
             case R.id.btn_post:
+                if (HttpUrl.parse(data) == null) {
+                    Log.d(TAG, "URL不正确,必须形如 http://www.domain.com/");
+                    return;
+                }
                 HttpClient.getInstance().post(data)
                         .addHeader("AAA", "bbb")
                         .addQuery("name", "Liux")

@@ -23,3 +23,34 @@
 # If you keep the line number information, uncomment this to
 # hide the original source file name.
 #-renamesourcefileattribute SourceFile
+
+-ignorewarnings
+
+# Support
+-keep class android.support.** {*;}
+# Saripaar
+-keep class com.mobsandgeeks.saripaar.** {*;}
+-keep @com.mobsandgeeks.saripaar.annotation.ValidateUsing class * {*;}
+# OkHttp3
+-dontwarn okhttp3.**
+-keep class okhttp3.** {*;}
+-dontwarn okio.**
+-keep class okio.** {*;}
+# Retrofit2
+-dontwarn retrofit2.**
+-keep class retrofit2.** {*;}
+-keepattributes Signature
+-keepattributes Exceptions
+# FastJSON
+-dontwarn com.alibaba.fastjson.**
+-keep class com.alibaba.fastjson.** {*;}
+-keepattributes Exceptions,InnerClasses,Signature,Deprecated,SourceFile,LineNumberTable,LocalVariable*Table,*Annotation*,Synthetic,EnclosingMethod
+# BaiduLBS
+-dontwarn com.baidu.**
+-keep class com.baidu.** { *; }
+-keep class vi.com.gdi.bgl.android.**{*;}
+# AMapLBS
+-dontwarn com.amap.**
+-dontwarn com.autonavi.**
+-keep class com.amap.**{*;}
+-keep class com.autonavi.**{*;}

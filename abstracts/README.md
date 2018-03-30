@@ -10,7 +10,11 @@ implementation 'com.liux:abstracts:x.y.z'
 混淆参考
 ---
 ```
-无
+# Support
+-keep class android.support.** {*;}
+# Saripaar
+-keep class com.mobsandgeeks.saripaar.** {*;}
+-keep @com.mobsandgeeks.saripaar.annotation.ValidateUsing class * {*;}
 ```
 
 更新说明

@@ -22,35 +22,14 @@ implementation 'com.liux:lbs:x.y.z'
 混淆参考
 ---
 ```
-# RxJava2
--dontwarn rx.*
--dontwarn sun.misc.**
--keepclassmembers class rx.internal.util.unsafe.*ArrayQueue*Field* {
-    long producerIndex;
-    long consumerIndex;
-}
--keepclassmembers class rx.internal.util.unsafe.BaseLinkedQueueProducerNodeRef {
-    rx.internal.util.atomic.LinkedQueueNode producerNode;
-}
--keepclassmembers class rx.internal.util.unsafe.BaseLinkedQueueConsumerNodeRef {
-    rx.internal.util.atomic.LinkedQueueNode consumerNode;
-}
 # BaiduLBS
+-dontwarn com.baidu.**
 -keep class com.baidu.** { *; }
--keep class vi.com.gdi.bgl.android.**{*;} 
+-keep class vi.com.gdi.bgl.android.**{*;}
 # AMapLBS
-# 3D 地图
--keep class com.amap.api.maps.**{*;}
--keep class com.autonavi.**{*;}
--keep class com.amap.api.trace.**{*;}
-# 定位
--keep class com.amap.api.location.**{*;}
--keep class com.amap.api.fence.**{*;}
--keep class com.autonavi.aps.amapapi.model.**{*;}
-# 搜索
--keep class com.amap.api.services.**{*;}
-# 导航
--keep class com.amap.api.navi.**{*;}
+-dontwarn com.amap.**
+-dontwarn com.autonavi.**
+-keep class com.amap.**{*;}
 -keep class com.autonavi.**{*;}
 ```
 
