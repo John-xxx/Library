@@ -16,6 +16,9 @@ implementation 'com.liux:permission:x.y.z'
 更新说明
 ---
 ### x.y.z_201x-xx-xx
+    1.
+
+### 0.2.1_2018-04-05
     1.更新支持库版本
 
 ### 0.2.0_2017-12-14
