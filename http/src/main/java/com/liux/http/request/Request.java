@@ -2,6 +2,8 @@ package com.liux.http.request;
 
 import android.text.TextUtils;
 
+import com.liux.http.interceptor.TimeoutInterceptor;
+
 import java.io.IOException;
 import java.util.IdentityHashMap;
 
@@ -17,6 +19,14 @@ import okhttp3.Response;
 
 public abstract class Request<T extends Request> {
 
+    private static final String HEADER_REQUEST_NAME = "Request-From";
+    private static final String HEADER_REQUEST_VALUE = "HttpClient";
+
+    public static boolean isManuallyRequest(okhttp3.Request request) {
+        String from = request.header(HEADER_REQUEST_NAME);
+        return !TextUtils.isEmpty(from) && HEADER_REQUEST_VALUE.equals(from);
+    }
+
     private String mUrl;
     private Object mTag;
     private Method mMethod;
@@ -29,6 +39,8 @@ public abstract class Request<T extends Request> {
     public Request(Call.Factory factory, Method method) {
         mFactory = factory;
         mMethod = method;
+
+        distinguishRequest(true);
     }
 
     public T url(String url) {
@@ -48,6 +60,42 @@ public abstract class Request<T extends Request> {
 
     public T removeHeader(String name) {
         getHeaderHashMap().remove(name);
+        return (T) this;
+    }
+
+    public T connectTimeout(int second) {
+        if (second > 0) {
+            getHeaderHashMap().put(TimeoutInterceptor.HEADER_TIMEOUT_CONNECT, String.valueOf(second));
+        } else {
+            getHeaderHashMap().remove(TimeoutInterceptor.HEADER_TIMEOUT_CONNECT);
+        }
+        return (T) this;
+    }
+
+    public T writeTimeout(int second) {
+        if (second > 0) {
+            getHeaderHashMap().put(TimeoutInterceptor.HEADER_TIMEOUT_WRITE, String.valueOf(second));
+        } else {
+            getHeaderHashMap().remove(TimeoutInterceptor.HEADER_TIMEOUT_WRITE);
+        }
+        return (T) this;
+    }
+
+    public T readTimeout(int second) {
+        if (second > 0) {
+            getHeaderHashMap().put(TimeoutInterceptor.HEADER_TIMEOUT_READ, String.valueOf(second));
+        } else {
+            getHeaderHashMap().remove(TimeoutInterceptor.HEADER_TIMEOUT_READ);
+        }
+        return (T) this;
+    }
+
+    public T distinguishRequest(boolean distinguish) {
+        if (distinguish) {
+            getHeaderHashMap().put(HEADER_REQUEST_NAME, HEADER_REQUEST_VALUE);
+        } else {
+            getHeaderHashMap().remove(HEADER_REQUEST_NAME);
+        }
         return (T) this;
     }
 
@@ -119,14 +167,12 @@ public abstract class Request<T extends Request> {
         okhttp3.Request.Builder builder = new okhttp3.Request.Builder();
         builder = onCreateRequestBuilder(builder);
 
-        okhttp3.Request request = builder
-                .url(httpUrl)
-                .tag(WapperTag.warpper(getTag()))
-                .headers(Headers.of(getHeaderHashMap()))
-                .build();
+         builder.url(httpUrl).tag(getTag()).headers(Headers.of(getHeaderHashMap()));
+
+        okhttp3.Request request = builder.build();
         request = onCreateRequest(request);
 
-        mCall = getFactory().newCall(onCreateRequest(request));
+        mCall = getFactory().newCall(request);
         return mCall;
     }
 

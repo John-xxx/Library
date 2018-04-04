@@ -58,6 +58,36 @@ public class BodyRequest<T extends BodyRequest> extends QueryRequest<T> {
     }
 
     @Override
+    public T connectTimeout(int second) {
+        return super.connectTimeout(second);
+    }
+
+    @Override
+    public T writeTimeout(int second) {
+        return super.writeTimeout(second);
+    }
+
+    @Override
+    public T readTimeout(int second) {
+        return super.readTimeout(second);
+    }
+
+    @Override
+    public T distinguishRequest(boolean distinguish) {
+        return super.distinguishRequest(distinguish);
+    }
+
+    @Override
+    public T fragment(String fragment) {
+        return super.fragment(fragment);
+    }
+
+    @Override
+    public T progress(OnResponseProgressListener listener) {
+        return super.progress(listener);
+    }
+
+    @Override
     public T tag(Object object) {
         return super.tag(object);
     }

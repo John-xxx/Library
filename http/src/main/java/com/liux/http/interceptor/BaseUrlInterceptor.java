@@ -3,11 +3,10 @@ package com.liux.http.interceptor;
 import android.text.TextUtils;
 
 import com.liux.http.HttpClient;
-import com.liux.http.request.WapperTag;
+import com.liux.http.HttpUtil;
 
 import java.io.IOException;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
 import okhttp3.HttpUrl;
@@ -17,7 +16,7 @@ import okhttp3.Response;
 
 /**
  * 根据特定Header更换请求BaseUrl
- * 作用域 BASE_URL > BASE_URL_RULE > BaseUrl
+ * 作用域 HEADER_BASE_URL > HEADER_BASE_RULE > BaseUrl
  * 1.动态更换Scheme       支持
  * 2.动态更换Host         支持
  * 3.动态更换Port         支持
@@ -30,9 +29,9 @@ import okhttp3.Response;
 
 public class BaseUrlInterceptor implements Interceptor {
     // 自定义头部信息,标记Api动态域名信息
-    public static final String BASE_URL = "Domain-Name";
+    public static final String HEADER_BASE_URL = "Base-Url";
     // 自定义头部信息,标记Api动态域名规则信息
-    public static final String BASE_URL_RULE = "Domain-Rule";
+    public static final String HEADER_BASE_RULE = "Base-Rule";
 
     private HttpClient mHttpClient;
     // 全局动态BaseUrl
@@ -49,29 +48,25 @@ public class BaseUrlInterceptor implements Interceptor {
         Request request = chain.request();
 
         // 使用 HttpClient 手动发起的请求不做处理
-        Object tag = request.tag();
-        if (tag instanceof WapperTag) {
-            request = request.newBuilder()
-                    .tag(((WapperTag) tag).getTag())
-                    .build();
+        if (HttpUtil.isManuallyRequest(request)) {
             return chain.proceed(request);
         }
 
         String url = null;
 
-        // 检测有没有 BASE_URL
-        url = request.header(BASE_URL);
+        // 检测有没有 HEADER_BASE_URL
+        url = request.header(HEADER_BASE_URL);
         if (!TextUtils.isEmpty(url)) {
-            request = parseNewRequest(url, request, BASE_URL);
+            request = parseNewRequest(url, request, HEADER_BASE_URL);
             return chain.proceed(request);
         }
 
-        // 检测有没有 BASE_URL_RULE
-        String rule = request.header(BASE_URL_RULE);
+        // 检测有没有 HEADER_BASE_RULE
+        String rule = request.header(HEADER_BASE_RULE);
         if (!TextUtils.isEmpty(rule)) {
             url = getDomainRule(rule);
             if (!TextUtils.isEmpty(url)) {
-                request = parseNewRequest(url, request, BASE_URL_RULE);
+                request = parseNewRequest(url, request, HEADER_BASE_RULE);
                 return chain.proceed(request);
             }
         }
@@ -184,13 +179,6 @@ public class BaseUrlInterceptor implements Interceptor {
         HttpUrl.Builder builder = request.url().newBuilder(newUrl)
                 .encodedUsername(reqHttpUrl.username())
                 .encodedPassword(reqHttpUrl.password());
-        for (String key : reqHttpUrl.queryParameterNames()) {
-            List<String> values = reqHttpUrl.queryParameterValues(key);
-            for (String value : values) {
-                builder.addEncodedQueryParameter(key, value);
-            }
-        }
-        builder.encodedFragment(reqHttpUrl.fragment());
 
         return builder.build();
     }

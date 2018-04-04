@@ -26,10 +26,22 @@ implementation 'com.liux:http:x.y.z'
 -keepattributes Exceptions,InnerClasses,Signature,Deprecated,SourceFile,LineNumberTable,LocalVariable*Table,*Annotation*,Synthetic,EnclosingMethod
 ```
 
+已知问题
+---
+    1.使用全局 Base 无法正确匹配路径以"/"开头的跟路径URL
+
 更新说明
 ---
 ### x.y.z_201x-xx-xx
     1.
+    
+### 0.3.5_2018-04-04
+    1.修复动态BaseUrl造成queryParam重复的问题
+    2.修复上传/下载回调多次并且重复调用的问题
+    3.新增实现对每个请求/全局设定连接/写/读超时时间支持
+    4.新增手动创建Request增加Fragment的支持
+    5.新增鉴别手动创建的Request的支持
+    6.升级Retorfit至2.4.0
 
 ### 0.3.1_2018-03-28
     1.更新代码结构

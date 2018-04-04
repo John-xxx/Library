@@ -9,6 +9,7 @@ import com.liux.http.converter.FastJsonConverterFactory;
 import com.liux.http.interceptor.CheckInterceptor;
 import com.liux.http.interceptor.HttpLoggingInterceptor;
 import com.liux.http.interceptor.BaseUrlInterceptor;
+import com.liux.http.interceptor.TimeoutInterceptor;
 import com.liux.http.interceptor.UserAgentInterceptor;
 import com.liux.http.request.BodyRequest;
 import com.liux.http.request.QueryRequest;
@@ -66,22 +67,31 @@ public class HttpClient {
     private Context mContext;
     private Retrofit mRetrofit;
     private OkHttpClient mOkHttpClient;
+
+    private TimeoutInterceptor mTimeoutInterceptor;
     private BaseUrlInterceptor mBaseUrlInterceptor;
     private UserAgentInterceptor mUserAgentInterceptor;
-    private CheckInterceptor mCheckInterceptor = new CheckInterceptor();
-    private HttpLoggingInterceptor mHttpLoggingInterceptor = new HttpLoggingInterceptor();
+    private CheckInterceptor mCheckInterceptor;
+    private HttpLoggingInterceptor mHttpLoggingInterceptor;
 
     private HttpClient(Context context, OkHttpClient.Builder okHttpBuilder, Retrofit.Builder retrofitBuilder) {
         if (context == null) throw new NullPointerException("Context required.");
 
         mContext = context.getApplicationContext();
 
+        mTimeoutInterceptor = new TimeoutInterceptor();
         mBaseUrlInterceptor = new BaseUrlInterceptor(this);
         mUserAgentInterceptor = new UserAgentInterceptor(mContext);
+        mCheckInterceptor = new CheckInterceptor();
+        mHttpLoggingInterceptor = new HttpLoggingInterceptor();
 
         mOkHttpClient = initOkHttpClient(okHttpBuilder);
 
         mRetrofit = initRetorfit(retrofitBuilder);
+
+        mTimeoutInterceptor.setOverallConnectTimeout(mOkHttpClient.connectTimeoutMillis() / 1000);
+        mTimeoutInterceptor.setOverallWriteTimeout(mOkHttpClient.writeTimeoutMillis() / 1000);
+        mTimeoutInterceptor.setOverallReadTimeout(mOkHttpClient.readTimeoutMillis() / 1000);
     }
 
     public QueryRequest get(String url) {
@@ -182,8 +192,8 @@ public class HttpClient {
         return this;
     }
 
-    public static final String BASE_URL = BaseUrlInterceptor.BASE_URL + ':';
-    public static final String BASE_URL_RULE = BaseUrlInterceptor.BASE_URL_RULE + ':';
+    public static final String HEADER_BASE_URL = BaseUrlInterceptor.HEADER_BASE_URL + ':';
+    public static final String HEADER_BASE_RULE = BaseUrlInterceptor.HEADER_BASE_RULE + ':';
 
     /**
      * 获取当前全局BaseUrl
@@ -197,7 +207,7 @@ public class HttpClient {
      * 设置当前全局BaseUrl
      *
      * @Headers({
-     *         HttpClient.BASE_URL + "https://api.domain.com:88/api/"
+     *         HttpClient.HEADER_BASE_URL + "https://api.domain.com:88/api/"
      * })
      *
      * @param baseUrl
@@ -223,7 +233,7 @@ public class HttpClient {
      * 加入某个URL对应的规则
      *
      * @Headers({
-     *         HttpClient.BASE_URL_RULE + "{rule}"
+     *         HttpClient.HEADER_BASE_RULE + "{rule}"
      * })
      *
      * @param rule
@@ -253,6 +263,64 @@ public class HttpClient {
         return this;
     }
 
+    public static final String HEADER_TIMEOUT_CONNECT = TimeoutInterceptor.HEADER_TIMEOUT_CONNECT + ":";
+    public static final String HEADER_TIMEOUT_WRITE = TimeoutInterceptor.HEADER_TIMEOUT_WRITE + ":";
+    public static final String HEADER_TIMEOUT_READ = TimeoutInterceptor.HEADER_TIMEOUT_READ + ":";
+
+    /**
+     * 获取全局连接超时时间
+     * @return
+     */
+    public int getOverallConnectTimeout() {
+        return mTimeoutInterceptor.getOverallConnectTimeout();
+    }
+
+    /**
+     * 设置全局连接超时时间
+     * @param overallConnectTimeout
+     * @return
+     */
+    public HttpClient setOverallConnectTimeout(int overallConnectTimeout) {
+        mTimeoutInterceptor.setOverallConnectTimeout(overallConnectTimeout);
+        return this;
+    }
+
+    /**
+     * 获取全局写超时时间
+     * @return
+     */
+    public int getOverallWriteTimeout() {
+        return mTimeoutInterceptor.getOverallWriteTimeout();
+    }
+
+    /**
+     * 设置全局写超时时间
+     * @param overallWriteTimeout
+     * @return
+     */
+    public HttpClient setOverallWriteTimeout(int overallWriteTimeout) {
+        mTimeoutInterceptor.setOverallConnectTimeout(overallWriteTimeout);
+        return this;
+    }
+
+    /**
+     * 获取全局读超时时间
+     * @return
+     */
+    public int getOverallReadTimeout() {
+        return mTimeoutInterceptor.getOverallReadTimeout();
+    }
+
+    /**
+     * 设置全局读超时时间
+     * @param overallReadTimeout
+     * @return
+     */
+    public HttpClient setOverallReadTimeout(int overallReadTimeout) {
+        mTimeoutInterceptor.setOverallConnectTimeout(overallReadTimeout);
+        return this;
+    }
+
     /**
      * 初始化 OkHttpClient
      * @param okHttpBuilder
@@ -273,15 +341,15 @@ public class HttpClient {
                     .readTimeout(30, TimeUnit.SECONDS)
                     .cache(new Cache(cacheDir.getAbsoluteFile(), 200 * 1024 * 1024))
                     .retryOnConnectionFailure(true)
+                    .addInterceptor(mTimeoutInterceptor)
                     .addInterceptor(mBaseUrlInterceptor)
                     .addInterceptor(mUserAgentInterceptor)
                     .addInterceptor(mCheckInterceptor)
                     .addInterceptor(mHttpLoggingInterceptor)
-                    // 不能通过网络拦截器修改参数
-                    // .addNetworkInterceptor()
                     .build();
         } else {
             return okHttpBuilder
+                    .addInterceptor(mTimeoutInterceptor)
                     .addInterceptor(mBaseUrlInterceptor)
                     .addInterceptor(mUserAgentInterceptor)
                     .addInterceptor(mCheckInterceptor)

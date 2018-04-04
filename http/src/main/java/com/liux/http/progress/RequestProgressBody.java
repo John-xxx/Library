@@ -42,14 +42,15 @@ public class RequestProgressBody extends RequestBody {
 
     @Override
     public void writeTo(BufferedSink sink) throws IOException {
-//        if (mWrapperBufferedSink == null) {
-//            mWrapperBufferedSink = Okio.buffer(new WrapperForwardingSink(sink, mRequestBody, mOnRequestProgressListener));
-//        }
-        mWrapperBufferedSink = Okio.buffer(new WrapperForwardingSink(sink, mHttpUrl, mRequestBody, mOnRequestProgressListener));
-        // 写入
-        mRequestBody.writeTo(mWrapperBufferedSink);
-        // 必须调用flush，否则最后一部分数据可能不会被写入
-        mWrapperBufferedSink.flush();
+        if (mWrapperBufferedSink == null) {
+            mWrapperBufferedSink = Okio.buffer(new WrapperForwardingSink(sink, mHttpUrl, mRequestBody, mOnRequestProgressListener));
+            // 写入
+            mRequestBody.writeTo(mWrapperBufferedSink);
+            // 必须调用flush，否则最后一部分数据可能不会被写入
+            mWrapperBufferedSink.flush();
+        } else {
+            mRequestBody.writeTo(sink);
+        }
     }
 
     private static class WrapperForwardingSink extends ForwardingSink {
@@ -77,10 +78,13 @@ public class RequestProgressBody extends RequestBody {
             }
 
             //增加当前写入的字节数
-            mTotalBytesWrite += byteCount;
+            long totalBytesWrite = mTotalBytesWrite + byteCount;
 
             //回调
-            mOnRequestProgressListener.onRequestProgress(mHttpUrl, mTotalBytesWrite, mContentLength, mTotalBytesWrite == mContentLength);
+            if (totalBytesWrite == 0 || totalBytesWrite != mTotalBytesWrite) {
+                mTotalBytesWrite = totalBytesWrite;
+                mOnRequestProgressListener.onRequestProgress(mHttpUrl, mTotalBytesWrite, mContentLength, mTotalBytesWrite == mContentLength);
+            }
         }
     }
 }

@@ -20,15 +20,15 @@ public class UserAgentInterceptor implements Interceptor {
     private static String USER_AGENT = System.getProperty("http.agent");
 
     public UserAgentInterceptor(Context context) {
-        USER_AGENT = getDefaultUserAgent(context);
+        setUserAgent(
+                getDefaultUserAgent(context)
+        );
     }
 
     @Override
     public Response intercept(Chain chain) throws IOException {
         Request.Builder builder = chain.request().newBuilder();
-        // 手动添加该请求头时OkHttp不会自动解压响应数据
-        // builder.header("Accept-Encoding", "gzip,deflate");
-        builder.header("User-Agent", HttpUtil.checkHeaderChar(USER_AGENT));
+        builder.header("User-Agent", USER_AGENT);
         return chain.proceed(builder.build());
     }
 
@@ -37,7 +37,7 @@ public class UserAgentInterceptor implements Interceptor {
     }
 
     public void setUserAgent(String userAgent) {
-        USER_AGENT = userAgent;
+        USER_AGENT = HttpUtil.checkHeaderChar(userAgent);
     }
 
     /**

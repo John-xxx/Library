@@ -20,6 +20,7 @@ import okhttp3.Response;
 public class QueryRequest<T extends QueryRequest> extends Request<T> {
 
     private IdentityHashMap<String, String> mQueryHashMap;
+    private String mFragment;
 
     private OnResponseProgressListener mResponseProgressListener;
 
@@ -53,9 +54,32 @@ public class QueryRequest<T extends QueryRequest> extends Request<T> {
     }
 
     @Override
+    public T connectTimeout(int second) {
+        return super.connectTimeout(second);
+    }
+
+    @Override
+    public T writeTimeout(int second) {
+        return super.writeTimeout(second);
+    }
+
+    @Override
+    public T readTimeout(int second) {
+        return super.readTimeout(second);
+    }
+
+    @Override
+    public T distinguishRequest(boolean distinguish) {
+        return super.distinguishRequest(distinguish);
+    }
+
+    @Override
     protected HttpUrl.Builder onCreateHttpUrlBuilder(HttpUrl.Builder builder) {
         for (Map.Entry<String, String> param : getQueryHashMap().entrySet()) {
             builder.addEncodedQueryParameter(param.getKey(), param.getValue());
+        }
+        if (mFragment != null) {
+            builder.encodedFragment(mFragment);
         }
         return builder;
     }
@@ -112,6 +136,11 @@ public class QueryRequest<T extends QueryRequest> extends Request<T> {
                 it.remove();
             }
         }
+        return (T) this;
+    }
+
+    public T fragment(String fragment) {
+        mFragment = fragment;
         return (T) this;
     }
 

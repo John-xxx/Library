@@ -35,6 +35,7 @@ public class CheckInterceptor implements Interceptor {
     @Override
     public Response intercept(Chain chain) throws IOException {
         Request request = chain.request();
+
         Request.Builder requestBuilder = request.newBuilder();
 
         /* 请求定制：自定义请求头 */
@@ -62,15 +63,9 @@ public class CheckInterceptor implements Interceptor {
             }
         }
 
-        // 请求前
-        Request newRequest = requestBuilder.build();
+        request = requestBuilder.build();
 
-        Response response = chain.proceed(newRequest);
-
-        // 请求后
-        int code = response.code();
-
-        return response;
+        return chain.proceed(request);
     }
 
     public void setOnHeaderListener(OnHeaderListener listener) {

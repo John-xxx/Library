@@ -2,6 +2,8 @@ package com.liux.http;
 
 import android.text.TextUtils;
 
+import com.liux.http.request.Request;
+
 import java.io.File;
 import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
@@ -43,6 +45,15 @@ public class HttpUtil {
             default:
                 return false;
         }
+    }
+
+    /**
+     * 是否是通过 HttpClient 手动创建的请求
+     * @param request
+     * @return
+     */
+    public static boolean isManuallyRequest(okhttp3.Request request) {
+        return Request.isManuallyRequest(request);
     }
 
     /**

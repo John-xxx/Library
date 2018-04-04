@@ -13,7 +13,9 @@ import com.liux.http.progress.OnProgressListener;
 import com.liux.http.progress.OnResponseProgressListener;
 
 import java.io.File;
+import java.io.FileOutputStream;
 import java.io.IOException;
+import java.util.Random;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
@@ -40,7 +42,7 @@ public class HTTPActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
 
         // 动态设置全局BaseUrl
-        HttpClient.getInstance().setBaseUrl("http://api.ip138.com/");
+        HttpClient.getInstance().setBaseUrl("http://api.ip138.com/api/");
 
         // 动态设置全局BaseUrl规则
         HttpClient.getInstance().putDomainRule("138", "http://api.ip138.com/");
@@ -54,15 +56,20 @@ public class HTTPActivity extends AppCompatActivity {
         String data = etData.getText().toString();
         switch (view.getId()) {
             case R.id.btn_weather:
+                // 设置Base,正常获取数据
                 mApiModle.queryWeather(data);
                 break;
             case R.id.btn_ip:
+                // 设置Base-Rule,正常获取数据
                 mApiModle.queryIP(data);
                 break;
             case R.id.btn_mobile:
+                // 使用全局 Base, 404
+                // 使用全局 Base 无法正确匹配路径以"/"开头的跟路径URL
                 mApiModle.queryMobile(data);
                 break;
             case R.id.btn_express:
+                // 使用全局Base,但使用根路径,正常获取数据
                 mApiModle.queryExpress(data);
                 break;
             case R.id.btn_get:
@@ -73,6 +80,11 @@ public class HTTPActivity extends AppCompatActivity {
                 HttpClient.getInstance().get(data)
                         .addHeader("AAA", "bbb")
                         .addQuery("name", "Liux")
+                        .fragment("what")
+                        .connectTimeout(5)
+                        .writeTimeout(10)
+                        .readTimeout(10)
+                        .distinguishRequest(true)
                         .progress(new OnResponseProgressListener() {
                             @Override
                             public void onResponseProgress(HttpUrl httpUrl, long bytesRead, long contentLength, boolean done) {
@@ -96,11 +108,44 @@ public class HTTPActivity extends AppCompatActivity {
                     Log.d(TAG, "URL不正确,必须形如 http://www.domain.com/");
                     return;
                 }
+                File temp = null;
+                FileOutputStream fileOutputStream = null;
+                try {
+                    temp = File.createTempFile("temp_", ".txt");
+                    fileOutputStream = new FileOutputStream(temp);
+
+                    String str = "012345678vasdjhklsadfqwiurewopt";
+                    int random = new Random().nextInt(100) + 100;
+                    int len = str.length();
+                    for (int i = 0; i < random; i++) {
+                        StringBuilder s = new StringBuilder();
+                        for (int j = 0; j < random; j++) {
+                            s.append(str.charAt((int)(Math.random() * len)));
+                        }
+                        fileOutputStream.write(s.toString().getBytes());
+                    }
+                } catch (IOException e) {
+                    e.printStackTrace();
+                } finally {
+                    if (temp != null) temp.deleteOnExit();
+                    if (fileOutputStream != null) {
+                        try {
+                            fileOutputStream.close();
+                        } catch (IOException e) {
+                            e.printStackTrace();
+                        }
+                    }
+                }
                 HttpClient.getInstance().post(data)
                         .addHeader("AAA", "bbb")
                         .addQuery("name", "Liux")
                         .addParam("name", "Liux")
-                        .addParam("file", new File(getExternalCacheDir() + "/1.apk"))
+                        .addParam("file", temp)
+                        .fragment("what")
+                        .connectTimeout(5)
+                        .writeTimeout(10)
+                        .readTimeout(10)
+                        .distinguishRequest(true)
                         .progress(new OnProgressListener() {
                             @Override
                             public void onResponseProgress(HttpUrl httpUrl, long bytesRead, long contentLength, boolean done) {

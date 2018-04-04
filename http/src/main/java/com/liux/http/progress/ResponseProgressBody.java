@@ -44,8 +44,10 @@ public class ResponseProgressBody extends ResponseBody {
     public BufferedSource source() {
         if (mWrapperBufferedSource == null) {
             mWrapperBufferedSource = Okio.buffer(new WrapperForwardingSource(mHttpUrl, mResponseBody, mResponseProgressListener));
+            return mWrapperBufferedSource;
+        } else {
+            return mResponseBody.source();
         }
-        return mWrapperBufferedSource;
     }
 
     private static class WrapperForwardingSource extends ForwardingSource {
@@ -73,10 +75,13 @@ public class ResponseProgressBody extends ResponseBody {
             }
 
             //增加当前读取的字节数，如果读取完成了bytesRead会返回-1
-            mTotalBytesRead += bytesRead != -1 ? bytesRead : 0;
+            long totalBytesRead = mTotalBytesRead + (bytesRead != -1 ? bytesRead : 0);
 
             //回调，如果contentLength()不知道长度，会返回-1
-            mResponseProgressListener.onResponseProgress(mHttpUrl, mTotalBytesRead, mContentLength, bytesRead == -1);
+            if (totalBytesRead == 0 || totalBytesRead != mTotalBytesRead) {
+                mTotalBytesRead = totalBytesRead;
+                mResponseProgressListener.onResponseProgress(mHttpUrl, mTotalBytesRead, mContentLength, bytesRead == -1);
+            }
 
             return bytesRead;
         }

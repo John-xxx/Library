@@ -15,11 +15,14 @@ import retrofit2.http.Query;
 
 public interface ApiService {
 
-    @GET("weather/#123455")
+    @GET("weather/")
     @Headers({
-            HttpClient.BASE_URL + "http://api.ip138.com/"
+            HttpClient.HEADER_BASE_URL + "http://api.ip138.com/",
+            HttpClient.HEADER_TIMEOUT_CONNECT + "3",
+            HttpClient.HEADER_TIMEOUT_WRITE + "6",
+            HttpClient.HEADER_TIMEOUT_READ + "6"
     })
-    public Observable<JSONObject> queryWeather(
+    Observable<JSONObject> queryWeather(
             @Header("token") String token,
             @Query("code") String code,
             @Query("type") String type
@@ -27,21 +30,27 @@ public interface ApiService {
 
     @GET("query/")
     @Headers({
-            HttpClient.BASE_URL_RULE + "138"
+            HttpClient.HEADER_BASE_RULE + "138"
     })
-    public Observable<JSONObject> queryIP(
+    Observable<JSONObject> queryIP(
             @Header("token") String token,
             @Query("ip") String ip
     );
 
     @GET("mobile/")
-    public Observable<JSONObject> queryMobile(
+    @Headers({
+            HttpClient.HEADER_TIMEOUT_CONNECT + "7",
+            HttpClient.HEADER_TIMEOUT_WRITE + "12",
+            HttpClient.HEADER_TIMEOUT_READ + "12"
+    })
+    Observable<JSONObject> queryMobile(
             @Header("token") String token,
             @Query("mobile") String mobile
     );
 
-    @GET("express/info/")
-    public Observable<JSONObject> queryExpress(
+    // 以"/"开头的表示从根路径开始
+    @GET("/express/info/#123455")
+    Observable<JSONObject> queryExpress(
             @Header("token") String token,
             @Query("code") String code,
             @Query("type") String type
