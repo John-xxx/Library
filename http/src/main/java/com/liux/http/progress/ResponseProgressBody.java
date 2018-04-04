@@ -80,7 +80,7 @@ public class ResponseProgressBody extends ResponseBody {
             //回调，如果contentLength()不知道长度，会返回-1
             if (totalBytesRead == 0 || totalBytesRead != mTotalBytesRead) {
                 mTotalBytesRead = totalBytesRead;
-                mResponseProgressListener.onResponseProgress(mHttpUrl, mTotalBytesRead, mContentLength, bytesRead == -1);
+                mResponseProgressListener.onResponseProgress(mHttpUrl, mTotalBytesRead, mContentLength, bytesRead != byteCount);
             }
 
             return bytesRead;

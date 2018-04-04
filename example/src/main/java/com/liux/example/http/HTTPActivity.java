@@ -87,12 +87,12 @@ public class HTTPActivity extends AppCompatActivity {
                         .distinguishRequest(true)
                         .progress(new OnResponseProgressListener() {
                             @Override
-                            public void onResponseProgress(final HttpUrl httpUrl, final long bytesRead, final long contentLength, boolean done) {
-                                System.out.println("onResponseProgress:" + httpUrl + "," + bytesRead + "," + contentLength);
+                            public void onResponseProgress(final HttpUrl httpUrl, final long bytesRead, final long contentLength, final boolean done) {
+                                System.out.println("onResponseProgress:" + httpUrl + "," + bytesRead + "," + contentLength + "," + done);
                                 etData.post(new Runnable() {
                                     @Override
                                     public void run() {
-                                        SingleToast.makeText(HTTPActivity.this, "onResponseProgress:" + httpUrl + "," + bytesRead + "," + contentLength, SingleToast.LENGTH_LONG).show();
+                                        SingleToast.makeText(HTTPActivity.this, "onResponseProgress:" + httpUrl + "," + bytesRead + "," + contentLength + "," + done, SingleToast.LENGTH_LONG).show();
                                     }
                                 });
                             }
@@ -168,23 +168,23 @@ public class HTTPActivity extends AppCompatActivity {
                         .distinguishRequest(true)
                         .progress(new OnProgressListener() {
                             @Override
-                            public void onResponseProgress(final HttpUrl httpUrl, final long bytesRead, final long contentLength, boolean done) {
-                                System.out.println("onResponseProgress:" + httpUrl + "," + bytesRead + "," + contentLength);
+                            public void onResponseProgress(final HttpUrl httpUrl, final long bytesRead, final long contentLength, final boolean done) {
+                                System.out.println("onResponseProgress:" + httpUrl + "," + bytesRead + "," + contentLength + "," + done);
                                 etData.post(new Runnable() {
                                     @Override
                                     public void run() {
-                                        SingleToast.makeText(HTTPActivity.this, "onResponseProgress:" + httpUrl + "," + bytesRead + "," + contentLength, SingleToast.LENGTH_LONG).show();
+                                        SingleToast.makeText(HTTPActivity.this, "onResponseProgress:" + httpUrl + "," + bytesRead + "," + contentLength + "," + done, SingleToast.LENGTH_LONG).show();
                                     }
                                 });
                             }
 
                             @Override
-                            public void onRequestProgress(final HttpUrl httpUrl, final long bytesWrite, final long contentLength, boolean done) {
-                                System.out.println("onRequestProgress:" + httpUrl + "," + bytesWrite + "," + contentLength);
+                            public void onRequestProgress(final HttpUrl httpUrl, final long bytesWrite, final long contentLength, final boolean done) {
+                                System.out.println("onRequestProgress:" + httpUrl + "," + bytesWrite + "," + contentLength + "," + done);
                                 etData.post(new Runnable() {
                                     @Override
                                     public void run() {
-                                        SingleToast.makeText(HTTPActivity.this, "onRequestProgress:" + httpUrl + "," + bytesWrite + "," + contentLength , SingleToast.LENGTH_LONG).show();
+                                        SingleToast.makeText(HTTPActivity.this, "onRequestProgress:" + httpUrl + "," + bytesWrite + "," + contentLength + "," + done, SingleToast.LENGTH_LONG).show();
                                     }
                                 });
                             }
