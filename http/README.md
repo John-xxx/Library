@@ -28,7 +28,19 @@ implementation 'com.liux:http:x.y.z'
 
 已知问题
 ---
-    1.使用全局 Base 无法正确匹配路径以"/"开头的跟路径URL
+    1.某些情况下使用全局 Base 无法正确匹配路径以"/"开头的根路径URL
+      初始化设置 http://api.baidu.com/api/
+      全局设置 http://app.google.com/v1.0/
+      请求设置 @GET("/api/xxx")
+      正常应该为 http://app.google.com/api/xxx
+      最终请求地址变成 http://app.google.com/v1.0/xxx
+      
+      原因是初始化请求以"/"开头,经过Retorfit解析后变为
+      http://api.baidu.com/api/xxx
+      在经过全局 Base 替换 http://api.baidu.com/api/ 为 http://app.google.com/v1.0/
+      最终变成 http://app.google.com/v1.0/xxx
+      
+      即当初始化设置URL根Path和请求根Path发生重复时出现
 
 更新说明
 ---

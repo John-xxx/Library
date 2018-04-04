@@ -49,10 +49,9 @@ public interface ApiService {
     );
 
     // 以"/"开头的表示从根路径开始
-    @GET("/express/info/#123455")
+    @GET("/express/info/")
     Observable<JSONObject> queryExpress(
             @Header("token") String token,
-            @Query("code") String code,
-            @Query("type") String type
+            @Query("no") String no
     );
 }

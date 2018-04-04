@@ -3,7 +3,6 @@ package com.liux.example.http;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v7.app.AppCompatActivity;
-import android.util.Log;
 import android.view.View;
 import android.widget.EditText;
 
@@ -11,6 +10,7 @@ import com.liux.example.R;
 import com.liux.http.HttpClient;
 import com.liux.http.progress.OnProgressListener;
 import com.liux.http.progress.OnResponseProgressListener;
+import com.liux.view.SingleToast;
 
 import java.io.File;
 import java.io.FileOutputStream;
@@ -35,14 +35,14 @@ public class HTTPActivity extends AppCompatActivity {
     @BindView(R.id.et_data)
     EditText etData;
 
-    private ApiModel mApiModle = new ApiModelImpl();
+    private ApiModel mApiModle = new ApiModelImpl(this);
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
         // 动态设置全局BaseUrl
-        HttpClient.getInstance().setBaseUrl("http://api.ip138.com/api/");
+        HttpClient.getInstance().setBaseUrl("http://api.ip138.com/v1.0/");
 
         // 动态设置全局BaseUrl规则
         HttpClient.getInstance().putDomainRule("138", "http://api.ip138.com/");
@@ -65,7 +65,6 @@ public class HTTPActivity extends AppCompatActivity {
                 break;
             case R.id.btn_mobile:
                 // 使用全局 Base, 404
-                // 使用全局 Base 无法正确匹配路径以"/"开头的跟路径URL
                 mApiModle.queryMobile(data);
                 break;
             case R.id.btn_express:
@@ -74,7 +73,8 @@ public class HTTPActivity extends AppCompatActivity {
                 break;
             case R.id.btn_get:
                 if (HttpUrl.parse(data) == null) {
-                    Log.d(TAG, "URL不正确,必须形如 http://www.domain.com/");
+                    SingleToast.makeText(this, "URL不正确,必须形如 http://www.domain.com/", SingleToast.LENGTH_LONG).show();
+                    etData.setText("http://6xyun.cn/");
                     return;
                 }
                 HttpClient.getInstance().get(data)
@@ -87,25 +87,45 @@ public class HTTPActivity extends AppCompatActivity {
                         .distinguishRequest(true)
                         .progress(new OnResponseProgressListener() {
                             @Override
-                            public void onResponseProgress(HttpUrl httpUrl, long bytesRead, long contentLength, boolean done) {
+                            public void onResponseProgress(final HttpUrl httpUrl, final long bytesRead, final long contentLength, boolean done) {
                                 System.out.println("onResponseProgress:" + httpUrl + "," + bytesRead + "," + contentLength);
+                                etData.post(new Runnable() {
+                                    @Override
+                                    public void run() {
+                                        SingleToast.makeText(HTTPActivity.this, "onResponseProgress:" + httpUrl + "," + bytesRead + "," + contentLength, SingleToast.LENGTH_LONG).show();
+                                    }
+                                });
                             }
                         })
                         .async(new Callback() {
                             @Override
-                            public void onFailure(Call call, IOException e) {
+                            public void onFailure(Call call, final IOException e) {
                                 System.out.println("onFailure:" + e);
+                                etData.post(new Runnable() {
+                                    @Override
+                                    public void run() {
+                                        SingleToast.makeText(HTTPActivity.this, "onFailure:" + e, SingleToast.LENGTH_LONG).show();
+                                    }
+                                });
                             }
 
                             @Override
                             public void onResponse(Call call, Response response) throws IOException {
-                                System.out.println("onResponse:" + response.body().bytes().length);
+                                final long length = response.body().bytes().length;
+                                System.out.println("onResponse:" + length);
+                                etData.post(new Runnable() {
+                                    @Override
+                                    public void run() {
+                                        SingleToast.makeText(HTTPActivity.this, "onResponse:" + length, SingleToast.LENGTH_LONG).show();
+                                    }
+                                });
                             }
                         });
                 break;
             case R.id.btn_post:
                 if (HttpUrl.parse(data) == null) {
-                    Log.d(TAG, "URL不正确,必须形如 http://www.domain.com/");
+                    SingleToast.makeText(this, "URL不正确,必须形如 http://www.domain.com/", SingleToast.LENGTH_LONG).show();
+                    etData.setText("http://6xyun.cn/");
                     return;
                 }
                 File temp = null;
@@ -148,24 +168,49 @@ public class HTTPActivity extends AppCompatActivity {
                         .distinguishRequest(true)
                         .progress(new OnProgressListener() {
                             @Override
-                            public void onResponseProgress(HttpUrl httpUrl, long bytesRead, long contentLength, boolean done) {
+                            public void onResponseProgress(final HttpUrl httpUrl, final long bytesRead, final long contentLength, boolean done) {
                                 System.out.println("onResponseProgress:" + httpUrl + "," + bytesRead + "," + contentLength);
+                                etData.post(new Runnable() {
+                                    @Override
+                                    public void run() {
+                                        SingleToast.makeText(HTTPActivity.this, "onResponseProgress:" + httpUrl + "," + bytesRead + "," + contentLength, SingleToast.LENGTH_LONG).show();
+                                    }
+                                });
                             }
 
                             @Override
-                            public void onRequestProgress(HttpUrl httpUrl, long bytesWrite, long contentLength, boolean done) {
+                            public void onRequestProgress(final HttpUrl httpUrl, final long bytesWrite, final long contentLength, boolean done) {
                                 System.out.println("onRequestProgress:" + httpUrl + "," + bytesWrite + "," + contentLength);
+                                etData.post(new Runnable() {
+                                    @Override
+                                    public void run() {
+                                        SingleToast.makeText(HTTPActivity.this, "onRequestProgress:" + httpUrl + "," + bytesWrite + "," + contentLength , SingleToast.LENGTH_LONG).show();
+                                    }
+                                });
                             }
                         })
                         .async(new Callback() {
                             @Override
-                            public void onFailure(Call call, IOException e) {
+                            public void onFailure(Call call, final IOException e) {
                                 System.out.println("onFailure:" + e);
+                                etData.post(new Runnable() {
+                                    @Override
+                                    public void run() {
+                                        SingleToast.makeText(HTTPActivity.this, "onFailure:" + e, SingleToast.LENGTH_LONG).show();
+                                    }
+                                });
                             }
 
                             @Override
                             public void onResponse(Call call, Response response) throws IOException {
-                                System.out.println("onResponse:" + response.body().bytes().length);
+                                final long length = response.body().bytes().length;
+                                System.out.println("onResponse:" + length);
+                                etData.post(new Runnable() {
+                                    @Override
+                                    public void run() {
+                                        SingleToast.makeText(HTTPActivity.this, "onResponse:" + length, SingleToast.LENGTH_LONG).show();
+                                    }
+                                });
                             }
                         });
                 break;

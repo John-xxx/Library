@@ -1,9 +1,11 @@
 package com.liux.example.http;
 
+import android.content.Context;
 import android.util.Log;
 
 import com.alibaba.fastjson.JSONObject;
 import com.liux.http.HttpClient;
+import com.liux.view.SingleToast;
 
 import io.reactivex.android.schedulers.AndroidSchedulers;
 import io.reactivex.observers.DisposableObserver;
@@ -16,6 +18,12 @@ import io.reactivex.schedulers.Schedulers;
 public class ApiModelImpl implements ApiModel {
 
     private static final String TAG = "ApiModelImpl";
+
+    private Context mContext;
+
+    public ApiModelImpl(Context context) {
+        mContext = context;
+    }
 
     @Override
     public void queryWeather(String code) {
@@ -30,11 +38,13 @@ public class ApiModelImpl implements ApiModel {
                     @Override
                     public void onNext(JSONObject jsonObject) {
                         Log.d(TAG, "onNext" + jsonObject.toJSONString());
+                        SingleToast.makeText(mContext, "onNext" + jsonObject.toJSONString(), SingleToast.LENGTH_LONG).show();
                     }
 
                     @Override
                     public void onError(Throwable e) {
                         Log.d(TAG, "onError", e);
+                        SingleToast.makeText(mContext, "onError" + e, SingleToast.LENGTH_LONG).show();
                     }
 
                     @Override
@@ -56,11 +66,13 @@ public class ApiModelImpl implements ApiModel {
                     @Override
                     public void onNext(JSONObject jsonObject) {
                         Log.d(TAG, "onNext" + jsonObject.toJSONString());
+                        SingleToast.makeText(mContext, "onNext" + jsonObject.toJSONString(), SingleToast.LENGTH_LONG).show();
                     }
 
                     @Override
                     public void onError(Throwable e) {
                         Log.d(TAG, "onError", e);
+                        SingleToast.makeText(mContext, "onError" + e, SingleToast.LENGTH_LONG).show();
                     }
 
                     @Override
@@ -82,11 +94,13 @@ public class ApiModelImpl implements ApiModel {
                     @Override
                     public void onNext(JSONObject jsonObject) {
                         Log.d(TAG, "onNext" + jsonObject.toJSONString());
+                        SingleToast.makeText(mContext, "onNext" + jsonObject.toJSONString(), SingleToast.LENGTH_LONG).show();
                     }
 
                     @Override
                     public void onError(Throwable e) {
                         Log.d(TAG, "onError", e);
+                        SingleToast.makeText(mContext, "onError" + e, SingleToast.LENGTH_LONG).show();
                     }
 
                     @Override
@@ -99,9 +113,8 @@ public class ApiModelImpl implements ApiModel {
     @Override
     public void queryExpress(String code) {
         HttpClient.getInstance().getService(ApiService.class).queryExpress(
-                "bd15e11291d68ff100ca0be6ad32b15d",
-                code,
-                "7"
+                "f13239b8e9de8d5dc90694337d670c39",
+                code
         )
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
@@ -109,11 +122,14 @@ public class ApiModelImpl implements ApiModel {
                     @Override
                     public void onNext(JSONObject jsonObject) {
                         Log.d(TAG, "onNext" + jsonObject.toJSONString());
+                        SingleToast.makeText(mContext, "onNext" + jsonObject.toJSONString(), SingleToast.LENGTH_LONG).show();
+
                     }
 
                     @Override
                     public void onError(Throwable e) {
                         Log.d(TAG, "onError", e);
+                        SingleToast.makeText(mContext, "onError" + e, SingleToast.LENGTH_LONG).show();
                     }
 
                     @Override
