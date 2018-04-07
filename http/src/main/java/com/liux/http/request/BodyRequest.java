@@ -7,6 +7,7 @@ import com.liux.http.progress.OnResponseProgressListener;
 import com.liux.http.progress.RequestProgressBody;
 
 import java.io.File;
+import java.io.InputStream;
 import java.util.IdentityHashMap;
 import java.util.Iterator;
 import java.util.Map;
@@ -146,8 +147,18 @@ public class BodyRequest<T extends BodyRequest> extends QueryRequest<T> {
         return (T) this;
     }
 
+    public T body(String type, InputStream inputStream) {
+        bodyObject(type, inputStream);
+        return (T) this;
+    }
+
     public T body(String type, File file) {
         bodyObject(type, file);
+        return (T) this;
+    }
+
+    public T body(RequestBody requestBody) {
+        bodyObject(null, requestBody);
         return (T) this;
     }
 
@@ -166,12 +177,41 @@ public class BodyRequest<T extends BodyRequest> extends QueryRequest<T> {
         return (T) this;
     }
 
+    public T param(String name, byte[] bytes) {
+        param(name, null, bytes);
+        return (T) this;
+    }
+
+    public T param(String name, String type, byte[] bytes) {
+        multipart();
+        paramObject(name, ExtendPart.createFormData(name, type, bytes));
+        return (T) this;
+    }
+
+    public T param(String name, InputStream inputStream) {
+        param(name, null, inputStream);
+        return (T) this;
+    }
+
+    public T param(String name, String type, InputStream inputStream) {
+        multipart();
+        paramObject(name, ExtendPart.createFormData(name, type, inputStream));
+        return (T) this;
+    }
+
     public T param(String name, File file) {
         return param(name, file, file.getName());
     }
 
     public T param(String name, File file, String fileName) {
+        multipart();
         paramObject(name, HttpUtil.parseFilePart(name, file, fileName));
+        return (T) this;
+    }
+
+    public T param(String name, MultipartBody.Part part) {
+        multipart();
+        paramObject(name, part);
         return (T) this;
     }
 
@@ -180,13 +220,41 @@ public class BodyRequest<T extends BodyRequest> extends QueryRequest<T> {
         return (T) this;
     }
 
+    public T addParam(String name, byte[] bytes) {
+        addParam(name, null, bytes);
+        return (T) this;
+    }
+
+    public T addParam(String name, String type, byte[] bytes) {
+        multipart();
+        addParamObject(name, ExtendPart.createFormData(name, type, bytes));
+        return (T) this;
+    }
+
+    public T addParam(String name, InputStream inputStream) {
+        addParam(name, null, inputStream);
+        return (T) this;
+    }
+
+    public T addParam(String name, String type, InputStream inputStream) {
+        multipart();
+        addParamObject(name, ExtendPart.createFormData(name, type, inputStream));
+        return (T) this;
+    }
+
     public T addParam(String name, File file) {
         return addParam(name, file, file.getName());
     }
 
     public T addParam(String name, File file, String fileName) {
-        if (!mIsMultipart) mIsMultipart = true;
+        multipart();
         addParamObject(name, HttpUtil.parseFilePart(name, file, fileName));
+        return (T) this;
+    }
+
+    public T addParam(String name, MultipartBody.Part part) {
+        multipart();
+        addParamObject(name, part);
         return (T) this;
     }
 
@@ -266,8 +334,12 @@ public class BodyRequest<T extends BodyRequest> extends QueryRequest<T> {
             return RequestBody.create(MediaType.parse(mBodyType), (ByteString) mBodyObject);
         } else if (mBodyObject instanceof byte[]) {
             return RequestBody.create(MediaType.parse(mBodyType), (byte[]) mBodyObject);
+        } else if (mBodyObject instanceof InputStream) {
+            return StreamRequestBody.create(MediaType.parse(mBodyType), (InputStream) mBodyObject);
         } else if (mBodyObject instanceof File) {
             return RequestBody.create(MediaType.parse(mBodyType), (File) mBodyObject);
+        } else if ((mBodyObject instanceof RequestBody)) {
+            return (RequestBody) mBodyObject;
         }
         return null;
     }

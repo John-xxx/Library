@@ -45,7 +45,7 @@ implementation 'com.liux:http:x.y.z'
 更新说明
 ---
 ### x.y.z_201x-xx-xx
-    1.
+    1.手写请求支持 byte[] 和 InputStream
     
 ### 0.3.6_2018-04-04
     1.修正响应回调完成状态错误的问题

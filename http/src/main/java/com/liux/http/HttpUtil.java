@@ -3,8 +3,11 @@ package com.liux.http;
 import android.text.TextUtils;
 
 import com.liux.http.request.Request;
+import com.liux.http.request.ExtendPart;
+import com.liux.http.request.StreamRequestBody;
 
 import java.io.File;
+import java.io.InputStream;
 import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
 
@@ -166,7 +169,7 @@ public class HttpUtil {
      * @return
      */
     public static RequestBody parseXml(String content) {
-        return parseRaw("text/xml;charset=UTF-8", content);
+        return parseString("text/xml;charset=UTF-8", content);
     }
 
     /**
@@ -175,7 +178,7 @@ public class HttpUtil {
      * @return
      */
     public static RequestBody parseJson(String content) {
-        return parseRaw("application/json;charset=UTF-8", content);
+        return parseString("application/json;charset=UTF-8", content);
     }
 
     /**
@@ -183,33 +186,84 @@ public class HttpUtil {
      * @param content
      * @return
      */
-    public static RequestBody parseRaw(String type, String content) {
-        MediaType mediaType = MediaType.parse(type);
+    public static RequestBody parseString(String type, String content) {
+        MediaType mediaType = null;
+        if (!TextUtils.isEmpty(type)) {
+            mediaType = MediaType.parse(type);
+        }
         return RequestBody.create(mediaType, content);
     }
 
     /**
-     * 生成一个 {@link MultipartBody.Part}
-     * @param key
-     * @param file
+     * 生成一个指定类型请求体
+     * @param bytes
      * @return
      */
-    public static MultipartBody.Part parseFilePart(String key, File file) {
-        return parseFilePart(key, file, null);
+    public static RequestBody parseByte(String type, byte[] bytes) {
+        MediaType mediaType = null;
+        if (!TextUtils.isEmpty(type)) {
+            mediaType = MediaType.parse(type);
+        }
+        return RequestBody.create(mediaType, bytes);
+    }
+
+    /**
+     * 生成一个指定类型请求体
+     * @param inputStream
+     * @return
+     */
+    public static RequestBody parseInputStream(String type, InputStream inputStream) {
+        MediaType mediaType = null;
+        if (!TextUtils.isEmpty(type)) {
+            mediaType = MediaType.parse(type);
+        }
+        return StreamRequestBody.create(mediaType, inputStream);
     }
 
     /**
      * 生成一个 {@link MultipartBody.Part}
-     * @param key
+     * @param name
+     * @param type
+     * @param bytes
+     * @return
+     */
+    public static MultipartBody.Part parseBytePart(String name, String type, byte[] bytes) {
+        return ExtendPart.createFormData(name, type, bytes);
+    }
+
+    /**
+     * 生成一个 {@link MultipartBody.Part}
+     * @param name
+     * @param type
+     * @param inputStream
+     * @return
+     */
+    public static MultipartBody.Part parseInputStreamPart(String name, String type, InputStream inputStream) {
+        return ExtendPart.createFormData(name, type, inputStream);
+    }
+
+    /**
+     * 生成一个 {@link MultipartBody.Part}
+     * @param name
+     * @param file
+     * @return
+     */
+    public static MultipartBody.Part parseFilePart(String name, File file) {
+        return parseFilePart(name, file, null);
+    }
+
+    /**
+     * 生成一个 {@link MultipartBody.Part}
+     * @param name
      * @param file
      * @param fileName
      * @return
      */
-    public static MultipartBody.Part parseFilePart(String key, File file, String fileName) {
+    public static MultipartBody.Part parseFilePart(String name, File file, String fileName) {
         if (TextUtils.isEmpty(fileName)) fileName = file.getName();
         MediaType mediaType = getMimeType(file);
         RequestBody body = RequestBody.create(mediaType, file);
-        return MultipartBody.Part.createFormData(key, fileName, body);
+        return MultipartBody.Part.createFormData(name, fileName, body);
     }
 
     /**
