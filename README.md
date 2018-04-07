@@ -16,15 +16,15 @@ repositories {
 }
 ```
 
+[abstracts](/abstracts/README.md)
+---
+	AbstractsActivity重定义了生命周期细节,增加输入法与触控事件的逻辑,实现可自定义的沉浸式状态栏
+	AbstractsFragment实现了Fragment懒加载模型,处理某些情况下Fragment状态异常的问题
+	AbstractsDialog扩展沉浸式的Dialog
+
 [banner](/banner/README.md)
 ---
 	实现一个适配器模式的伪无限滚动的Banner
-
-[base](/base/README.md)
----
-	BaseActivity重定义了生命周期细节,增加输入法与触控事件的逻辑,实现可自定义的沉浸式状态栏
-	BaseFragment实现了Fragment懒加载模型,处理某些情况下Fragment状态异常的问题
-	BaseDialog扩展沉浸式的Dialog
 
 [boxing](/boxing/README.md)
 ---
@@ -69,7 +69,7 @@ repositories {
 ---
 	基于ReactiveX的RxJava2全家桶部分成员
 
-[other](/other/README.md)/[util](/util/README.md)/[view](/view/README.md)
+[tool](/tool/README.md)/[util](/util/README.md)/[view](/view/README.md)
 ---
 	其他一些库类/组件/控件的集合
 
