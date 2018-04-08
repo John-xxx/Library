@@ -44,9 +44,7 @@ public class RequestProgressBody extends RequestBody {
     public void writeTo(BufferedSink sink) throws IOException {
         if (mWrapperBufferedSink == null) {
             mWrapperBufferedSink = Okio.buffer(new WrapperForwardingSink(sink, mHttpUrl, mRequestBody, mOnRequestProgressListener));
-            // 写入
             mRequestBody.writeTo(mWrapperBufferedSink);
-            // 必须调用flush，否则最后一部分数据可能不会被写入
             mWrapperBufferedSink.flush();
         } else {
             mRequestBody.writeTo(sink);

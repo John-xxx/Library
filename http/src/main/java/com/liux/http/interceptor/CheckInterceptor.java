@@ -143,9 +143,9 @@ public class CheckInterceptor implements Interceptor {
     private void checkBodyRequest(Request request, Request.Builder requestBuilder) throws IOException {
         RequestBody requestBody = request.body();
         RequestBody newRequestBody;
-        if (requestBody instanceof MultipartBody) {
+        if (HttpUtil.isMultipartBody(requestBody)) {
             newRequestBody = checkMultipartBodyParams(request, (MultipartBody) requestBody);
-        } else if (requestBody instanceof FormBody) {
+        } else if (HttpUtil.isFormBody(requestBody)) {
             newRequestBody = checkFormBodyParams(request, (FormBody) requestBody);
         } else {
             newRequestBody = checkRequestBodyParams(request, requestBody);
@@ -161,12 +161,11 @@ public class CheckInterceptor implements Interceptor {
         for (MultipartBody.Part part : multipartBody.parts()) {
             Headers head  = part.headers();
             RequestBody body  = part.body();
-            MediaType type = body.contentType();
-            if (HttpUtil.isTextMediaType(type)) {
+            if (HttpUtil.isTextMediaType(body.contentType())) {
                 Buffer buffer = new Buffer();
                 body.writeTo(buffer);
                 String key = head.value(0).substring(head.value(0).lastIndexOf("=") + 1).replace("\"", "");
-                String value = HttpUtil.json2String(buffer.readUtf8());
+                String value = buffer.readUtf8();
                 params.put(new String(key), value);
             } else {
                 oldParts.add(part);
