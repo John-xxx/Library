@@ -192,8 +192,8 @@ public class HttpClient {
         return this;
     }
 
-    public static final String HEADER_BASE_URL = BaseUrlInterceptor.HEADER_BASE_URL + ':';
-    public static final String HEADER_BASE_RULE = BaseUrlInterceptor.HEADER_BASE_RULE + ':';
+    public static final String HEADER_BASE_URL = BaseUrlInterceptor.HEADER_BASE_URL;
+    public static final String HEADER_BASE_RULE = BaseUrlInterceptor.HEADER_BASE_RULE;
 
     /**
      * 获取当前全局BaseUrl
@@ -263,9 +263,9 @@ public class HttpClient {
         return this;
     }
 
-    public static final String HEADER_TIMEOUT_CONNECT = TimeoutInterceptor.HEADER_TIMEOUT_CONNECT + ":";
-    public static final String HEADER_TIMEOUT_WRITE = TimeoutInterceptor.HEADER_TIMEOUT_WRITE + ":";
-    public static final String HEADER_TIMEOUT_READ = TimeoutInterceptor.HEADER_TIMEOUT_READ + ":";
+    public static final String HEADER_TIMEOUT_CONNECT = TimeoutInterceptor.HEADER_TIMEOUT_CONNECT;
+    public static final String HEADER_TIMEOUT_WRITE = TimeoutInterceptor.HEADER_TIMEOUT_WRITE;
+    public static final String HEADER_TIMEOUT_READ = TimeoutInterceptor.HEADER_TIMEOUT_READ;
 
     /**
      * 获取全局连接超时时间

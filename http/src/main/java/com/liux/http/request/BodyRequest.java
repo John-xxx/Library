@@ -7,6 +7,7 @@ import com.liux.http.progress.OnResponseProgressListener;
 import com.liux.http.progress.RequestProgressBody;
 
 import java.io.File;
+import java.io.InputStream;
 import java.util.IdentityHashMap;
 import java.util.Iterator;
 import java.util.Map;
@@ -21,7 +22,7 @@ import okio.ByteString;
 
 public class BodyRequest<T extends BodyRequest> extends QueryRequest<T> {
     private static final int TYPE_NORMAL = 0;
-    private static final int TYPE_FROM = 1;
+    private static final int TYPE_FORM = 1;
 
     private int mType = TYPE_NORMAL;
 
@@ -146,12 +147,22 @@ public class BodyRequest<T extends BodyRequest> extends QueryRequest<T> {
         return (T) this;
     }
 
+    public T body(String type, InputStream inputStream) {
+        bodyObject(type, inputStream);
+        return (T) this;
+    }
+
     public T body(String type, File file) {
         bodyObject(type, file);
         return (T) this;
     }
 
-    public T from() {
+    public T body(RequestBody requestBody) {
+        bodyObject(null, requestBody);
+        return (T) this;
+    }
+
+    public T form() {
         mIsMultipart = false;
         return (T) this;
     }
@@ -166,12 +177,41 @@ public class BodyRequest<T extends BodyRequest> extends QueryRequest<T> {
         return (T) this;
     }
 
-    public T param(String name, File file) {
-        return param(name, file, file.getName());
+    public T param(String name, byte[] bytes) {
+        param(name, null, bytes);
+        return (T) this;
     }
 
-    public T param(String name, File file, String fileName) {
-        paramObject(name, HttpUtil.parseFilePart(name, file, fileName));
+    public T param(String name, String type, byte[] bytes) {
+        multipart();
+        paramObject(name, ExtendPart.createFormData(name, type, bytes));
+        return (T) this;
+    }
+
+    public T param(String name, InputStream inputStream) {
+        param(name, null, inputStream);
+        return (T) this;
+    }
+
+    public T param(String name, String type, InputStream inputStream) {
+        multipart();
+        paramObject(name, ExtendPart.createFormData(name, type, inputStream));
+        return (T) this;
+    }
+
+    public T param(String name, File file) {
+        return param(name, file.getName(), file);
+    }
+
+    public T param(String name, String fileName, File file) {
+        multipart();
+        paramObject(name, HttpUtil.parseFilePart(name, fileName, file));
+        return (T) this;
+    }
+
+    public T param(String name, MultipartBody.Part part) {
+        multipart();
+        paramObject(name, part);
         return (T) this;
     }
 
@@ -180,13 +220,41 @@ public class BodyRequest<T extends BodyRequest> extends QueryRequest<T> {
         return (T) this;
     }
 
-    public T addParam(String name, File file) {
-        return addParam(name, file, file.getName());
+    public T addParam(String name, byte[] bytes) {
+        addParam(name, null, bytes);
+        return (T) this;
     }
 
-    public T addParam(String name, File file, String fileName) {
-        if (!mIsMultipart) mIsMultipart = true;
-        addParamObject(name, HttpUtil.parseFilePart(name, file, fileName));
+    public T addParam(String name, String type, byte[] bytes) {
+        multipart();
+        addParamObject(name, ExtendPart.createFormData(name, type, bytes));
+        return (T) this;
+    }
+
+    public T addParam(String name, InputStream inputStream) {
+        addParam(name, null, inputStream);
+        return (T) this;
+    }
+
+    public T addParam(String name, String type, InputStream inputStream) {
+        multipart();
+        addParamObject(name, ExtendPart.createFormData(name, type, inputStream));
+        return (T) this;
+    }
+
+    public T addParam(String name, File file) {
+        return addParam(name, file.getName(), file);
+    }
+
+    public T addParam(String name, String fileName, File file) {
+        multipart();
+        addParamObject(name, HttpUtil.parseFilePart(name, fileName, file));
+        return (T) this;
+    }
+
+    public T addParam(String name, MultipartBody.Part part) {
+        multipart();
+        addParamObject(name, part);
         return (T) this;
     }
 
@@ -230,12 +298,12 @@ public class BodyRequest<T extends BodyRequest> extends QueryRequest<T> {
     }
 
     private void paramObject(String name, Object object) {
-        mType = TYPE_FROM;
+        mType = TYPE_FORM;
         getBodyHashMap().put(name, object);
     }
 
     private void addParamObject(String name, Object object) {
-        mType = TYPE_FROM;
+        mType = TYPE_FORM;
         getBodyHashMap().put(new String(name), object);
     }
 
@@ -245,7 +313,7 @@ public class BodyRequest<T extends BodyRequest> extends QueryRequest<T> {
             case TYPE_NORMAL:
                 requestBody = onCreateRequestBody();
                 break;
-            case TYPE_FROM:
+            case TYPE_FORM:
                 if (!mIsMultipart) {
                     requestBody = onCreateFormBody();
                 } else {
@@ -266,8 +334,12 @@ public class BodyRequest<T extends BodyRequest> extends QueryRequest<T> {
             return RequestBody.create(MediaType.parse(mBodyType), (ByteString) mBodyObject);
         } else if (mBodyObject instanceof byte[]) {
             return RequestBody.create(MediaType.parse(mBodyType), (byte[]) mBodyObject);
+        } else if (mBodyObject instanceof InputStream) {
+            return StreamRequestBody.create(MediaType.parse(mBodyType), (InputStream) mBodyObject);
         } else if (mBodyObject instanceof File) {
             return RequestBody.create(MediaType.parse(mBodyType), (File) mBodyObject);
+        } else if ((mBodyObject instanceof RequestBody)) {
+            return (RequestBody) mBodyObject;
         }
         return null;
     }
