@@ -249,7 +249,7 @@ public class HttpUtil {
      * @return
      */
     public static MultipartBody.Part parseFilePart(String name, File file) {
-        return parseFilePart(name, file, null);
+        return parseFilePart(name, file.getName(), file);
     }
 
     /**
@@ -259,8 +259,7 @@ public class HttpUtil {
      * @param fileName
      * @return
      */
-    public static MultipartBody.Part parseFilePart(String name, File file, String fileName) {
-        if (TextUtils.isEmpty(fileName)) fileName = file.getName();
+    public static MultipartBody.Part parseFilePart(String name, String fileName, File file) {
         MediaType mediaType = getMimeType(file);
         RequestBody body = RequestBody.create(mediaType, file);
         return MultipartBody.Part.createFormData(name, fileName, body);

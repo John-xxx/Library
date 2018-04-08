@@ -22,7 +22,7 @@ import okio.ByteString;
 
 public class BodyRequest<T extends BodyRequest> extends QueryRequest<T> {
     private static final int TYPE_NORMAL = 0;
-    private static final int TYPE_FROM = 1;
+    private static final int TYPE_FORM = 1;
 
     private int mType = TYPE_NORMAL;
 
@@ -162,7 +162,7 @@ public class BodyRequest<T extends BodyRequest> extends QueryRequest<T> {
         return (T) this;
     }
 
-    public T from() {
+    public T form() {
         mIsMultipart = false;
         return (T) this;
     }
@@ -200,12 +200,12 @@ public class BodyRequest<T extends BodyRequest> extends QueryRequest<T> {
     }
 
     public T param(String name, File file) {
-        return param(name, file, file.getName());
+        return param(name, file.getName(), file);
     }
 
-    public T param(String name, File file, String fileName) {
+    public T param(String name, String fileName, File file) {
         multipart();
-        paramObject(name, HttpUtil.parseFilePart(name, file, fileName));
+        paramObject(name, HttpUtil.parseFilePart(name, fileName, file));
         return (T) this;
     }
 
@@ -243,12 +243,12 @@ public class BodyRequest<T extends BodyRequest> extends QueryRequest<T> {
     }
 
     public T addParam(String name, File file) {
-        return addParam(name, file, file.getName());
+        return addParam(name, file.getName(), file);
     }
 
-    public T addParam(String name, File file, String fileName) {
+    public T addParam(String name, String fileName, File file) {
         multipart();
-        addParamObject(name, HttpUtil.parseFilePart(name, file, fileName));
+        addParamObject(name, HttpUtil.parseFilePart(name, fileName, file));
         return (T) this;
     }
 
@@ -298,12 +298,12 @@ public class BodyRequest<T extends BodyRequest> extends QueryRequest<T> {
     }
 
     private void paramObject(String name, Object object) {
-        mType = TYPE_FROM;
+        mType = TYPE_FORM;
         getBodyHashMap().put(name, object);
     }
 
     private void addParamObject(String name, Object object) {
-        mType = TYPE_FROM;
+        mType = TYPE_FORM;
         getBodyHashMap().put(new String(name), object);
     }
 
@@ -313,7 +313,7 @@ public class BodyRequest<T extends BodyRequest> extends QueryRequest<T> {
             case TYPE_NORMAL:
                 requestBody = onCreateRequestBody();
                 break;
-            case TYPE_FROM:
+            case TYPE_FORM:
                 if (!mIsMultipart) {
                     requestBody = onCreateFormBody();
                 } else {

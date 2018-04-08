@@ -41,11 +41,19 @@ implementation 'com.liux:http:x.y.z'
       最终变成 http://app.google.com/v1.0/xxx
       
       即当初始化设置URL根Path和请求根Path发生重复时出现
+      
+    2.使用 MultipartBody 上传 InputStream 时,应避免多个线程共享 InputStream
+      因为上传过程中 InputStream 会被 读取/重置 多次,在多线程环境下会造成数据紊乱
+      
+      故,在使用时应达到每个线程单独使用一个 InputStream 实例的条件
+      
+      另: InputStream 输入源要保证 InputStream.available() 能返回流整体长度,
+      如若不能,则应返回 -1
 
 更新说明
 ---
 ### x.y.z_201x-xx-xx
-    1.手写请求支持 byte[] 和 InputStream
+    1.请求支持 byte[] 和 InputStream
     
 ### 0.3.6_2018-04-04
     1.修正响应回调完成状态错误的问题

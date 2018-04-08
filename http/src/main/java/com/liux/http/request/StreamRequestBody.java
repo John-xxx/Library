@@ -21,11 +21,13 @@ public class StreamRequestBody {
 
             @Override
             public long contentLength() throws IOException {
+                inputStream.reset();
                 return inputStream.available();
             }
 
             @Override
             public void writeTo(BufferedSink sink) throws IOException {
+                inputStream.reset();
                 sink.writeAll(Okio.source(inputStream));
             }
         };
