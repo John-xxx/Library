@@ -12,6 +12,19 @@ import okhttp3.RequestBody;
  */
 public class StreamPart {
     public static final MediaType TYPE_STREAM = MediaType.parse("application/octet-stream");
+    public static final MediaType TYPE_TEXT = MediaType.parse("text/plain;charset=UTF-8");
+
+    public static MultipartBody.Part createFormData(String name, String string) {
+        return createFormData(name, TYPE_TEXT.toString(), string);
+    }
+
+    public static MultipartBody.Part createFormData(String name, String type, String string) {
+        MediaType contentType = null;
+        if (type != null) {
+            contentType = MediaType.parse(type);
+        }
+        return createFormData(name, RequestBody.create(contentType, string));
+    }
 
     public static MultipartBody.Part createFormData(String name, byte[] bytes) {
         return createFormData(name, TYPE_STREAM.toString(), bytes);

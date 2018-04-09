@@ -56,6 +56,9 @@ implementation 'com.liux:http:x.y.z'
     所以服务端接收也必须接收原始数据.否则有可能造成数据被强行"字符"转换,导致获得的数据损坏
     并且,传输 InoutStream 到服务器也是按照 byte[] 方式接收
     
+    详情参见:
+    https://github.com/lx0758/Java_Demo/tree/master/Server
+
 ```java
     /**
      * 错误用例(Java):
@@ -101,8 +104,12 @@ implementation 'com.liux:http:x.y.z'
 更新说明
 ---
 ### x.y.z_201x-xx-xx
-    1.修复设置进度监听器后参数监听器失效问题
-    2.请求支持 byte[] 和 InputStream
+    1.请求支持 byte[] 和 InputStream
+    2.更换主类 HttpClient 名称为 Http
+    3.增强参数拦截监听器能力,修复Header丢失问题
+    4.修复设置进度监听器后参数监听器失效问题
+    
+### 0.4.0_2018-04-09
     
 ### 0.3.6_2018-04-04
     1.修正响应回调完成状态错误的问题

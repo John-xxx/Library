@@ -47,12 +47,12 @@ public class ApplocationInstance extends Application {
             }
 
             @Override
-            public void onBodyRequest(Request request, Map<String, String> bodyParams) {
+            public void onBodyRequest(Request request, Map<String, String> queryParams, Map<String, String> bodyParams) {
 
             }
 
             @Override
-            public void onBodyRequest(Request request, String param) {
+            public void onBodyRequest(Request request, Map<String, String> queryParams, BodyParam bodyParam) {
 
             }
         });

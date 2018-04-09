@@ -107,33 +107,14 @@ public class CheckInterceptor implements Interceptor {
      * @return
      */
     private void checkQueryRequest(Request request, Request.Builder requestBuilder) {
-        Map<String, String> params = new IdentityHashMap<>();
+        Map<String, String> queryParams = new IdentityHashMap<>();
+        resolveQueryParam(request, queryParams);
 
-        // 获取原始参数
-        Set<String> parameterNames = request.url().queryParameterNames();
-        for (String key : parameterNames) {
-            params.put(new String(key), request.url().queryParameter(key));
-        }
+        mOnRequestListener.onQueryRequest(request, queryParams);
 
-        mOnRequestListener.onQueryRequest(request, params);
+        HttpUrl httpUrl = revertQueryParam(request, queryParams);
 
-        // 恢复参数并组合成新的 HttpUrl
-        HttpUrl url = request.url();
-        HttpUrl.Builder builder = new HttpUrl.Builder()
-                .scheme(url.scheme())
-                .encodedUsername(url.username())
-                .encodedPassword(url.password())
-                .host(url.host())
-                .port(url.port());
-        for (String path : url.pathSegments()) {
-            builder.addEncodedPathSegment(path);
-        }
-        for (Map.Entry<String, String> param : params.entrySet()) {
-            builder.addEncodedQueryParameter(param.getKey(), param.getValue());
-        }
-        builder.encodedFragment(url.fragment());
-
-        requestBuilder.url(builder.build()).method(request.method(), null);
+        requestBuilder.url(httpUrl).method(request.method(), null);
     }
 
     /**
@@ -143,30 +124,31 @@ public class CheckInterceptor implements Interceptor {
      */
     private void checkBodyRequest(Request request, Request.Builder requestBuilder) throws IOException {
         RequestBody requestBody = request.body();
-        RequestBody newRequestBody;
         if (requestBody instanceof WrapperRequestBody) {
             WrapperRequestBody wrapperRequestBody = (WrapperRequestBody) requestBody;
             if (wrapperRequestBody.isMultipartBody()) {
-                newRequestBody = checkMultipartBodyParams(request, wrapperRequestBody.getMultipartBody());
+                checkMultipartBodyParams(request, wrapperRequestBody.getMultipartBody(), requestBuilder);
             } else if (wrapperRequestBody.isFormBody()) {
-                newRequestBody = checkFormBodyParams(request, wrapperRequestBody.getFormBody());
+                checkFormBodyParams(request, wrapperRequestBody.getFormBody(), requestBuilder);
             } else {
                 throw new ClassCastException(requestBody.getClass() + " must correct implement WrapperRequestBody");
             }
         } else if (requestBody instanceof MultipartBody) {
-            newRequestBody = checkMultipartBodyParams(request, (MultipartBody) requestBody);
+            checkMultipartBodyParams(request, (MultipartBody) requestBody, requestBuilder);
         } else if (requestBody instanceof FormBody) {
-            newRequestBody = checkFormBodyParams(request, (FormBody) requestBody);
+            checkFormBodyParams(request, (FormBody) requestBody, requestBuilder);
         } else {
-            newRequestBody = checkRequestBodyParams(request, requestBody);
+            checkRequestBodyParams(request, requestBody, requestBuilder);
         }
-        requestBuilder.url(request.url()).method(request.method(), newRequestBody);
     }
 
-    private RequestBody checkMultipartBodyParams(Request request, MultipartBody multipartBody) throws IOException {
-        Map<String, String> params = new IdentityHashMap<>();
-        List<MultipartBody.Part> oldParts = new ArrayList<>();
+    private void checkMultipartBodyParams(Request request, MultipartBody multipartBody, Request.Builder requestBuilder) throws IOException {
+        Map<String, String> queryParams = new IdentityHashMap<>();
+        resolveQueryParam(request, queryParams);
 
+        Map<String, String> bodyParams = new IdentityHashMap<>();
+        Map<String, String> bodyTypes = new IdentityHashMap<>();
+        List<MultipartBody.Part> oldParts = new ArrayList<>();
         // 读取原始参数
         for (MultipartBody.Part part : multipartBody.parts()) {
             Headers head  = part.headers();
@@ -176,58 +158,120 @@ public class CheckInterceptor implements Interceptor {
                 body.writeTo(buffer);
                 String key = head.value(0).substring(head.value(0).lastIndexOf("=") + 1).replace("\"", "");
                 String value = buffer.readUtf8();
-                params.put(new String(key), value);
+                String rel_key = new String(key);
+                bodyParams.put(rel_key, value);
+                bodyTypes.put(rel_key, body.contentType().toString());
             } else {
                 oldParts.add(part);
             }
         }
 
-        mOnRequestListener.onBodyRequest(request, params);
+        mOnRequestListener.onBodyRequest(request, queryParams, bodyParams);
 
         // 恢复参数并组合成新的 MultipartBody
-        MultipartBody.Builder builder = new MultipartBody.Builder();
-        builder.setType(multipartBody.type());
+        MultipartBody.Builder bodyBuilder = new MultipartBody.Builder();
+        bodyBuilder.setType(multipartBody.type());
         for (MultipartBody.Part part : oldParts) {
-            builder.addPart(part);
+            bodyBuilder.addPart(part);
         }
-        for (Map.Entry<String, String> entry : params.entrySet()) {
-            builder.addFormDataPart(entry.getKey(), entry.getValue());
+        for (Map.Entry<String, String> entry : bodyParams.entrySet()) {
+            bodyBuilder.addPart(HttpUtil.parseStringPart(entry.getKey(), bodyTypes.get(entry.getKey()), entry.getValue()));
         }
-        return builder.build();
+        multipartBody = bodyBuilder.build();
+
+        HttpUrl httpUrl = revertQueryParam(request, queryParams);
+
+        requestBuilder.url(httpUrl).method(request.method(), multipartBody);
     }
 
-    private RequestBody checkFormBodyParams(Request request, FormBody formBody) throws IOException {
-        Map<String, String> params = new IdentityHashMap<>();
+    private void checkFormBodyParams(Request request, FormBody formBody, Request.Builder requestBuilder) throws IOException {
+        Map<String, String> queryParams = new IdentityHashMap<>();
+        resolveQueryParam(request, queryParams);
 
+        Map<String, String> bodyParams = new IdentityHashMap<>();
         // 读取原始参数
         for (int i = 0; i < formBody.size(); i++) {
-            params.put(new String(formBody.name(i)), formBody.value(i));
+            bodyParams.put(new String(formBody.name(i)), formBody.value(i));
         }
 
-        mOnRequestListener.onBodyRequest(request, params);
+        mOnRequestListener.onBodyRequest(request, queryParams, bodyParams);
 
         // 组合成新的  FormBody
-        FormBody.Builder builder = new FormBody.Builder();
-        for (Map.Entry<String, String> entry : params.entrySet()) {
-            builder.addEncoded(entry.getKey(), entry.getValue());
+        FormBody.Builder bodyBuilder = new FormBody.Builder();
+        for (Map.Entry<String, String> entry : bodyParams.entrySet()) {
+            bodyBuilder.addEncoded(entry.getKey(), entry.getValue());
         }
-        return builder.build();
+        formBody = bodyBuilder.build();
+
+        HttpUrl httpUrl = revertQueryParam(request, queryParams);
+
+        requestBuilder.url(httpUrl).method(request.method(), formBody);
     }
 
-    private RequestBody checkRequestBodyParams(Request request, RequestBody requestBody) throws IOException {
-        String param;
+    private void checkRequestBodyParams(Request request, RequestBody requestBody, Request.Builder requestBuilder) throws IOException {
+        Map<String, String> queryParams = new IdentityHashMap<>();
+        resolveQueryParam(request, queryParams);
 
+        OnRequestListener.BodyParam bodyParam = new OnRequestListener.BodyParam();
         // 读取原始参数
         MediaType mediaType = requestBody.contentType();
-        if (mediaType == null) return requestBody;
-        if (!HttpUtil.isTextMediaType(mediaType)) return requestBody;
-        Buffer buffer = new Buffer();
-        requestBody.writeTo(buffer);
-        param = buffer.readUtf8();
+        if (mediaType != null) bodyParam.setType(mediaType.toString());
+        if (HttpUtil.isTextMediaType(mediaType)) {
+            Buffer buffer = new Buffer();
+            requestBody.writeTo(buffer);
+            bodyParam.setString(buffer.readUtf8());
+        }
 
-        mOnRequestListener.onBodyRequest(request, param);
+        mOnRequestListener.onBodyRequest(request, queryParams, bodyParam);
 
-        // 组合成新的 RequestBody
-        return RequestBody.create(requestBody.contentType(), param.getBytes());
+        MediaType contentType = null;
+        if (bodyParam.getType() != null) {
+            contentType = MediaType.parse(bodyParam.getType());
+        }
+        if (bodyParam.getString() == null) {
+            bodyParam.setString("");
+        }
+        requestBody = RequestBody.create(contentType, bodyParam.getString());
+
+        HttpUrl httpUrl = revertQueryParam(request, queryParams);
+
+        requestBuilder.url(httpUrl).method(request.method(), requestBody);
+    }
+
+    /**
+     * 解析参数
+     * @param request
+     * @param queryParams
+     */
+    private void resolveQueryParam(Request request, Map<String, String> queryParams) {
+        // 获取原始参数
+        Set<String> parameterNames = request.url().queryParameterNames();
+        for (String key : parameterNames) {
+            queryParams.put(new String(key), request.url().queryParameter(key));
+        }
+    }
+
+    /**
+     * 恢复参数并组合成新的 HttpUrl
+     * @param request
+     * @param queryParams
+     * @return
+     */
+    private HttpUrl revertQueryParam(Request request, Map<String, String> queryParams) {
+        HttpUrl url = request.url();
+        HttpUrl.Builder urlBuilder = new HttpUrl.Builder()
+                .scheme(url.scheme())
+                .encodedUsername(url.username())
+                .encodedPassword(url.password())
+                .host(url.host())
+                .port(url.port());
+        for (String path : url.pathSegments()) {
+            urlBuilder.addEncodedPathSegment(path);
+        }
+        for (Map.Entry<String, String> param : queryParams.entrySet()) {
+            urlBuilder.addEncodedQueryParameter(param.getKey(), param.getValue());
+        }
+        urlBuilder.encodedFragment(url.fragment());
+        return urlBuilder.build();
     }
 }
