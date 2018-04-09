@@ -17,7 +17,7 @@ package com.liux.http.interceptor;
 
 import android.util.Log;
 
-import com.liux.http.HttpClient;
+import com.liux.http.Http;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -148,7 +148,7 @@ public class HttpLoggingInterceptor implements Interceptor {
                         if (!DIVIDE_1.equals(lineStr) && !DIVIDE_2.equals(lineStr) && !DIVIDE_3.equals(lineStr)) {
                             lineStr = DIVIDE_0 + lineStr;
                         }
-                        Log.println(Log.DEBUG, HttpClient.TAG, lineStr);
+                        Log.println(Log.DEBUG, Http.TAG, lineStr);
                         i = end;
                     } while (i < newline);
                 }

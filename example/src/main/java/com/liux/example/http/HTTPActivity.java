@@ -8,7 +8,7 @@ import android.widget.EditText;
 
 import com.alibaba.fastjson.JSONObject;
 import com.liux.example.R;
-import com.liux.http.HttpClient;
+import com.liux.http.Http;
 import com.liux.http.HttpUtil;
 import com.liux.http.progress.OnProgressListener;
 import com.liux.http.progress.OnResponseProgressListener;
@@ -19,7 +19,6 @@ import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.math.BigInteger;
 import java.security.MessageDigest;
 import java.util.Arrays;
 import java.util.Random;
@@ -49,10 +48,10 @@ public class HTTPActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
 
         // 动态设置全局BaseUrl
-        HttpClient.getInstance().setBaseUrl("http://api.ip138.com/v1.0/");
+        Http.get().setBaseUrl("http://api.ip138.com/v1.0/");
 
         // 动态设置全局BaseUrl规则
-        HttpClient.getInstance().putDomainRule("138", "http://api.ip138.com/");
+        Http.get().putDomainRule("138", "http://api.ip138.com/");
 
         setContentView(R.layout.activity_http);
         ButterKnife.bind(this);
@@ -103,9 +102,9 @@ public class HTTPActivity extends AppCompatActivity {
                 mApiModle.testTimeout(data);
                 break;
             case R.id.btn_retorfit_timeout_global:
-                HttpClient.getInstance().setOverallConnectTimeout(5);
-                HttpClient.getInstance().setOverallWriteTimeout(20);
-                HttpClient.getInstance().setOverallReadTimeout(20);
+                Http.get().setOverallConnectTimeout(5);
+                Http.get().setOverallWriteTimeout(20);
+                Http.get().setOverallReadTimeout(20);
                 mApiModle.testTimeoutGlobal(data);
                 break;
         }
@@ -121,7 +120,7 @@ public class HTTPActivity extends AppCompatActivity {
         }
         switch (view.getId()) {
             case R.id.btn_request_get:
-                HttpClient.getInstance().get(data)
+                Http.get().get(data)
                         .addHeader("Request-Header-Id", "btn_request_get")
                         .addQuery("Request-Query-Id", "btn_request_get")
                         .fragment("testFragment")
@@ -165,7 +164,7 @@ public class HTTPActivity extends AppCompatActivity {
             case R.id.btn_request_post_body:
                 JSONObject jsonObject = new JSONObject();
                 jsonObject.put("Request-Body-Id", "btn_request_post_body");
-                HttpClient.getInstance().post(data)
+                Http.get().post(data)
                         .addHeader("Request-Header-Id", "btn_request_post_body")
                         .addQuery("Request-Query-Id", "btn_request_post_body")
                         .body(HttpUtil.parseJson(jsonObject.toJSONString()))
@@ -195,7 +194,7 @@ public class HTTPActivity extends AppCompatActivity {
                         });
                 break;
             case R.id.btn_request_post_form:
-                HttpClient.getInstance().post(data)
+                Http.get().post(data)
                         .addHeader("Request-Header-Id", "btn_request_post_form")
                         .addQuery("Request-Query-Id", "btn_request_post_form")
                         .addParam("Request-Param-Id", "btn_request_post_form")
@@ -225,7 +224,7 @@ public class HTTPActivity extends AppCompatActivity {
                         });
                 break;
             case R.id.btn_request_post_multipart:
-                HttpClient.getInstance().post("http://192.168.18.15:8080/api/test-post-multipart")
+                Http.get().post("http://192.168.18.15:8080/api/test-post-multipart")
                         .addHeader("Request-Header-Id", "btn_request_post_multipart")
                         .addQuery("Request-Query-Id", "btn_request_post_multipart")
                         .addParam("Request-Param-Id", "btn_request_post_multipart")
@@ -283,7 +282,7 @@ public class HTTPActivity extends AppCompatActivity {
                         });
                 break;
             case R.id.btn_request_timeout_header:
-                HttpClient.getInstance().post(data)
+                Http.get().post(data)
                         .addHeader("Request-Header-Id", "btn_request_timeout_header")
                         .addQuery("Request-Query-Id", "btn_request_timeout_header")
                         .addParam("Request-Param-Id", "btn_request_timeout_header")
@@ -316,10 +315,10 @@ public class HTTPActivity extends AppCompatActivity {
                         });
                 break;
             case R.id.btn_request_timeout_global:
-                HttpClient.getInstance().setOverallConnectTimeout(5);
-                HttpClient.getInstance().setOverallWriteTimeout(20);
-                HttpClient.getInstance().setOverallReadTimeout(20);
-                HttpClient.getInstance().post(data)
+                Http.get().setOverallConnectTimeout(5);
+                Http.get().setOverallWriteTimeout(20);
+                Http.get().setOverallReadTimeout(20);
+                Http.get().post(data)
                         .addHeader("Request-Header-Id", "btn_request_timeout_header")
                         .addQuery("Request-Query-Id", "btn_request_timeout_header")
                         .addParam("Request-Param-Id", "btn_request_timeout_header")

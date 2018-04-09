@@ -35,34 +35,34 @@ import retrofit2.Retrofit;
  * @author Liux
  */
 
-public class HttpClient {
-    private static volatile HttpClient mInstance;
-    public static HttpClient getInstance() {
-        if (mInstance == null) throw new NullPointerException("HttpClient has not been initialized");
+public class Http {
+    private static volatile Http mInstance;
+    public static Http get() {
+        if (mInstance == null) throw new NullPointerException("Http has not been initialized");
         return mInstance;
     }
 
-    public static boolean isInitialize() {
-        synchronized(HttpClient.class) {
+    public static boolean isInit() {
+        synchronized(Http.class) {
             return mInstance != null;
         }
     }
-    public static void initialize(Context context, String baseUrl) {
-        initialize(
+    public static void init(Context context, String baseUrl) {
+        init(
                 context,
                 null,
                 new Retrofit.Builder().baseUrl(baseUrl)
         );
     }
-    public static void initialize(Context context, OkHttpClient.Builder okHttpBuilder, Retrofit.Builder retrofitBuilder) {
+    public static void init(Context context, OkHttpClient.Builder okHttpBuilder, Retrofit.Builder retrofitBuilder) {
         if (mInstance != null) return;
-        synchronized(HttpClient.class) {
+        synchronized(Http.class) {
             if (mInstance != null) return;
-            mInstance = new HttpClient(context, okHttpBuilder, retrofitBuilder);
+            mInstance = new Http(context, okHttpBuilder, retrofitBuilder);
         }
     }
 
-    public static final String TAG = "[HttpClient]";
+    public static final String TAG = "[Http]";
 
     private Context mContext;
     private Retrofit mRetrofit;
@@ -74,7 +74,7 @@ public class HttpClient {
     private CheckInterceptor mCheckInterceptor;
     private HttpLoggingInterceptor mHttpLoggingInterceptor;
 
-    private HttpClient(Context context, OkHttpClient.Builder okHttpBuilder, Retrofit.Builder retrofitBuilder) {
+    private Http(Context context, OkHttpClient.Builder okHttpBuilder, Retrofit.Builder retrofitBuilder) {
         if (context == null) throw new NullPointerException("Context required.");
 
         mContext = context.getApplicationContext();
@@ -157,7 +157,7 @@ public class HttpClient {
      * @param userAgent
      * @return
      */
-    public HttpClient setUserAgent(String userAgent) {
+    public Http setUserAgent(String userAgent) {
         mUserAgentInterceptor.setUserAgent(userAgent);
         return this;
     }
@@ -167,7 +167,7 @@ public class HttpClient {
      * @param level
      * @return
      */
-    public HttpClient setLoggingLevel(HttpLoggingInterceptor.Level level) {
+    public Http setLoggingLevel(HttpLoggingInterceptor.Level level) {
         mHttpLoggingInterceptor.setLevel(level);
         return this;
     }
@@ -177,7 +177,7 @@ public class HttpClient {
      * @param listener
      * @return
      */
-    public HttpClient setOnHeaderListener(OnHeaderListener listener) {
+    public Http setOnHeaderListener(OnHeaderListener listener) {
         mCheckInterceptor.setOnHeaderListener(listener);
         return this;
     }
@@ -187,7 +187,7 @@ public class HttpClient {
      * @param listener
      * @return
      */
-    public HttpClient setOnRequestListener(OnRequestListener listener) {
+    public Http setOnRequestListener(OnRequestListener listener) {
         mCheckInterceptor.setOnRequestListener(listener);
         return this;
     }
@@ -207,13 +207,13 @@ public class HttpClient {
      * 设置当前全局BaseUrl
      *
      * @Headers({
-     *         HttpClient.HEADER_BASE_URL + "https://api.domain.com:88/api/"
+     *         Http.HEADER_BASE_URL + "https://api.domain.com:88/api/"
      * })
      *
      * @param baseUrl
      * @return
      */
-    public HttpClient setBaseUrl(String baseUrl) {
+    public Http setBaseUrl(String baseUrl) {
         checkBaseUrl(baseUrl);
         mBaseUrlInterceptor.setBaseUrl(baseUrl);
         return this;
@@ -233,14 +233,14 @@ public class HttpClient {
      * 加入某个URL对应的规则
      *
      * @Headers({
-     *         HttpClient.HEADER_BASE_RULE + "{rule}"
+     *         Http.HEADER_BASE_RULE + "{rule}"
      * })
      *
      * @param rule
      * @param baseUrl
      * @return
      */
-    public HttpClient putDomainRule(String rule, String baseUrl) {
+    public Http putDomainRule(String rule, String baseUrl) {
         checkBaseUrl(baseUrl);
         mBaseUrlInterceptor.putDomainRule(rule, baseUrl);
         return this;
@@ -258,7 +258,7 @@ public class HttpClient {
      * 清除所有URL对应规则
      * @return
      */
-    public HttpClient clearDomainRules() {
+    public Http clearDomainRules() {
         mBaseUrlInterceptor.clearDomainRules();
         return this;
     }
@@ -280,7 +280,7 @@ public class HttpClient {
      * @param overallConnectTimeout
      * @return
      */
-    public HttpClient setOverallConnectTimeout(int overallConnectTimeout) {
+    public Http setOverallConnectTimeout(int overallConnectTimeout) {
         mTimeoutInterceptor.setOverallConnectTimeout(overallConnectTimeout);
         return this;
     }
@@ -298,7 +298,7 @@ public class HttpClient {
      * @param overallWriteTimeout
      * @return
      */
-    public HttpClient setOverallWriteTimeout(int overallWriteTimeout) {
+    public Http setOverallWriteTimeout(int overallWriteTimeout) {
         mTimeoutInterceptor.setOverallConnectTimeout(overallWriteTimeout);
         return this;
     }
@@ -316,7 +316,7 @@ public class HttpClient {
      * @param overallReadTimeout
      * @return
      */
-    public HttpClient setOverallReadTimeout(int overallReadTimeout) {
+    public Http setOverallReadTimeout(int overallReadTimeout) {
         mTimeoutInterceptor.setOverallConnectTimeout(overallReadTimeout);
         return this;
     }

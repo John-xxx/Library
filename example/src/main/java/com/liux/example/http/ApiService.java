@@ -1,7 +1,7 @@
 package com.liux.example.http;
 
 import com.alibaba.fastjson.JSONObject;
-import com.liux.http.HttpClient;
+import com.liux.http.Http;
 
 import io.reactivex.Observable;
 import okhttp3.MultipartBody;
@@ -23,7 +23,7 @@ public interface ApiService {
 
     @GET("weather/")
     @Headers({
-            HttpClient.HEADER_BASE_URL + ":http://api.ip138.com/"
+            Http.HEADER_BASE_URL + ":http://api.ip138.com/"
     })
     Observable<JSONObject> queryWeather(
             @Header("token") String token,
@@ -33,7 +33,7 @@ public interface ApiService {
 
     @GET("query/")
     @Headers({
-            HttpClient.HEADER_BASE_RULE + ":138"
+            Http.HEADER_BASE_RULE + ":138"
     })
     Observable<JSONObject> queryIP(
             @Header("token") String token,
@@ -56,9 +56,9 @@ public interface ApiService {
     // 以"/"开头的表示从根路径开始
     @GET("api/test-timeout")
     @Headers({
-            HttpClient.HEADER_TIMEOUT_CONNECT + ":3",
-            HttpClient.HEADER_TIMEOUT_WRITE + ":6",
-            HttpClient.HEADER_TIMEOUT_READ + ":6"
+            Http.HEADER_TIMEOUT_CONNECT + ":3",
+            Http.HEADER_TIMEOUT_WRITE + ":6",
+            Http.HEADER_TIMEOUT_READ + ":6"
     })
     Observable<JSONObject> testTimeout(
             @Query("data") String data
@@ -88,7 +88,7 @@ public interface ApiService {
     @Multipart
     @POST("api/test-post-multipart")
     @Headers({
-            HttpClient.HEADER_BASE_URL + ":http://192.168.18.15:8080/"
+            Http.HEADER_BASE_URL + ":http://192.168.18.15:8080/"
     })
     Observable<JSONObject> testPostMultipart(
             @Query("id") int id,

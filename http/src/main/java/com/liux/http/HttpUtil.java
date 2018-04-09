@@ -54,7 +54,7 @@ public class HttpUtil {
     }
 
     /**
-     * 是否是通过 HttpClient 手动创建的请求
+     * 是否是通过 Http 手动创建的请求
      * @param request
      * @return
      */

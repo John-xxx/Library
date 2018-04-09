@@ -4,7 +4,7 @@ import android.content.Context;
 import android.util.Log;
 
 import com.alibaba.fastjson.JSONObject;
-import com.liux.http.HttpClient;
+import com.liux.http.Http;
 import com.liux.http.HttpUtil;
 import com.liux.view.SingleToast;
 
@@ -31,7 +31,7 @@ public class ApiModelImpl implements ApiModel {
 
     @Override
     public void queryWeather(String code) {
-        HttpClient.getInstance().getService(ApiService.class).queryWeather(
+        Http.get().getService(ApiService.class).queryWeather(
                 "bd15e11291d68ff100ca0be6ad32b15d",
                 code,
                 "7"
@@ -60,7 +60,7 @@ public class ApiModelImpl implements ApiModel {
 
     @Override
     public void queryIP(String ip) {
-        HttpClient.getInstance().getService(ApiService.class).queryIP(
+        Http.get().getService(ApiService.class).queryIP(
                 "ac1bf65a556b39d1973a40688dacd39f",
                 ip
         )
@@ -88,7 +88,7 @@ public class ApiModelImpl implements ApiModel {
 
     @Override
     public void queryMobile(String mobile) {
-        HttpClient.getInstance().getService(ApiService.class).queryMobile(
+        Http.get().getService(ApiService.class).queryMobile(
                 "f38fde6a4395eaebe9fd525a96145925",
                 mobile
         )
@@ -116,7 +116,7 @@ public class ApiModelImpl implements ApiModel {
 
     @Override
     public void queryExpress(String code) {
-        HttpClient.getInstance().getService(ApiService.class).queryExpress(
+        Http.get().getService(ApiService.class).queryExpress(
                 "f13239b8e9de8d5dc90694337d670c39",
                 code
         )
@@ -144,7 +144,7 @@ public class ApiModelImpl implements ApiModel {
 
     @Override
     public void testTimeout(String data) {
-        HttpClient.getInstance().getService(ApiService.class).testTimeout(
+        Http.get().getService(ApiService.class).testTimeout(
                 data
         )
                 .subscribeOn(Schedulers.io())
@@ -171,7 +171,7 @@ public class ApiModelImpl implements ApiModel {
 
     @Override
     public void testTimeoutGlobal(String data) {
-        HttpClient.getInstance().getService(ApiService.class).testTimeoutGlobal(
+        Http.get().getService(ApiService.class).testTimeoutGlobal(
                 data
         )
                 .subscribeOn(Schedulers.io())
@@ -198,7 +198,7 @@ public class ApiModelImpl implements ApiModel {
 
     @Override
     public void testGet(int id, String name) {
-        HttpClient.getInstance().getService(ApiService.class).testGet(
+        Http.get().getService(ApiService.class).testGet(
                 id,
                 name
         )
@@ -226,7 +226,7 @@ public class ApiModelImpl implements ApiModel {
 
     @Override
     public void testPost(int id, String name) {
-        HttpClient.getInstance().getService(ApiService.class).testPost(
+        Http.get().getService(ApiService.class).testPost(
                 id,
                 name,
                 id,
@@ -256,7 +256,7 @@ public class ApiModelImpl implements ApiModel {
 
     @Override
     public void testPostMultipart(int id, String name, File file, byte[] bytes, InputStream stream) {
-        HttpClient.getInstance().getService(ApiService.class).testPostMultipart(
+        Http.get().getService(ApiService.class).testPostMultipart(
                 id,
                 name,
                 id,

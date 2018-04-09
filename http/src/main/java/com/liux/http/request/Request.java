@@ -20,7 +20,7 @@ import okhttp3.Response;
 public abstract class Request<T extends Request> {
 
     private static final String HEADER_REQUEST_NAME = "Request-From";
-    private static final String HEADER_REQUEST_VALUE = "HttpClient";
+    private static final String HEADER_REQUEST_VALUE = "Http";
 
     public static boolean isManuallyRequest(okhttp3.Request request) {
         String from = request.header(HEADER_REQUEST_NAME);

@@ -2,7 +2,7 @@ package com.liux.http.interceptor;
 
 import android.text.TextUtils;
 
-import com.liux.http.HttpClient;
+import com.liux.http.Http;
 import com.liux.http.HttpUtil;
 
 import java.io.IOException;
@@ -33,21 +33,21 @@ public class BaseUrlInterceptor implements Interceptor {
     // 自定义头部信息,标记Api动态域名规则信息
     public static final String HEADER_BASE_RULE = "Base-Rule";
 
-    private HttpClient mHttpClient;
+    private Http mHttp;
     // 全局动态BaseUrl
     private String mBaseUrl = null;
     // 动态域名规则
     private Map<String, String> mDomainRules = new HashMap<>();
 
-    public BaseUrlInterceptor(HttpClient httpClient) {
-        mHttpClient = httpClient;
+    public BaseUrlInterceptor(Http http) {
+        mHttp = http;
     }
 
     @Override
     public Response intercept(Chain chain) throws IOException {
         Request request = chain.request();
 
-        // 使用 HttpClient 手动发起的请求不做处理
+        // 使用 Http 手动发起的请求不做处理
         if (HttpUtil.isManuallyRequest(request)) {
             return chain.proceed(request);
         }
@@ -160,7 +160,7 @@ public class BaseUrlInterceptor implements Interceptor {
         if (!url.endsWith("/")) url += "/";
 
         HttpUrl reqHttpUrl = request.url();
-        HttpUrl oldHttpUrl = mHttpClient.getRetrofit().baseUrl();
+        HttpUrl oldHttpUrl = mHttp.getRetrofit().baseUrl();
 
         String reqUrl = reqHttpUrl.url().toString();
         String oldUrl = oldHttpUrl.url().toString();
@@ -190,7 +190,7 @@ public class BaseUrlInterceptor implements Interceptor {
      */
     private boolean equalsRetorfitBaseUrl(String url) {
         if (url == null || url.length() == 0) return true;
-        String oldUrl = mHttpClient.getRetrofit().baseUrl().url().toString();
+        String oldUrl = mHttp.getRetrofit().baseUrl().url().toString();
         return oldUrl.equals(url);
     }
 }
