@@ -11,7 +11,6 @@ import java.io.InputStream;
 import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
 
-import okhttp3.FormBody;
 import okhttp3.MediaType;
 import okhttp3.MultipartBody;
 import okhttp3.RequestBody;
@@ -25,11 +24,9 @@ import retrofit2.CallAdapter;
 
 public class HttpUtil {
     public static final MediaType TYPE_UNKNOWN = MediaType.parse("*/*");
+    public static final MediaType TYPE_TEXT = MediaType.parse("text/plain;charset=UTF-8");
     public static final MediaType TYPE_JSON = MediaType.parse("application/json;charset=UTF-8");
     public static final MediaType TYPE_XML = MediaType.parse("text/xml;charset=UTF-8");
-
-    private static final MediaType REQUEST_BODY_FORM = MediaType.parse("application/x-www-form-urlencoded");
-    private static final MediaType REQUEST_BODY_MULTIPART = MediaType.parse("multipart/*");
 
     /**
      * 查询某字符串是否是HTTP请求方法(支持HTTP/1.1)
@@ -171,32 +168,6 @@ public class HttpUtil {
     }
 
     /**
-     * 判断目标请求体是否是FormBody
-     * @param requestBody
-     * @return
-     */
-    public static boolean isFormBody(RequestBody requestBody) {
-        if (requestBody == null) return false;
-        if (requestBody instanceof FormBody) return true;
-
-        if (requestBody.contentType() == null || requestBody.contentType().toString() == null) return false;
-        return REQUEST_BODY_FORM.toString().toLowerCase().equals(requestBody.contentType().toString().toLowerCase());
-    }
-
-    /**
-     * 判断目标请求体是否是MultipartBody
-     * @param requestBody
-     * @return
-     */
-    public static boolean isMultipartBody(RequestBody requestBody) {
-        if (requestBody == null) return false;
-        if (requestBody instanceof MultipartBody) return true;
-
-        if (requestBody.contentType() == null || requestBody.contentType().type() == null) return false;
-        return REQUEST_BODY_MULTIPART.type().toLowerCase().equals(requestBody.contentType().type().toLowerCase());
-    }
-
-    /**
      * 生成一个XML请求体
      * @param content
      * @return
@@ -212,6 +183,15 @@ public class HttpUtil {
      */
     public static RequestBody parseJson(String content) {
         return parseString(TYPE_JSON.toString(), content);
+    }
+
+    /**
+     * 生成一个指定类型请求体
+     * @param content
+     * @return
+     */
+    public static RequestBody parseString(String content) {
+        return parseString(TYPE_TEXT.toString(), content);
     }
 
     /**

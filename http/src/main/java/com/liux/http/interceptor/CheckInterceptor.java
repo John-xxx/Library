@@ -3,6 +3,7 @@ package com.liux.http.interceptor;
 import com.liux.http.HttpUtil;
 import com.liux.http.OnHeaderListener;
 import com.liux.http.OnRequestListener;
+import com.liux.http.wrapper.WrapperRequestBody;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -143,9 +144,18 @@ public class CheckInterceptor implements Interceptor {
     private void checkBodyRequest(Request request, Request.Builder requestBuilder) throws IOException {
         RequestBody requestBody = request.body();
         RequestBody newRequestBody;
-        if (HttpUtil.isMultipartBody(requestBody)) {
+        if (requestBody instanceof WrapperRequestBody) {
+            WrapperRequestBody wrapperRequestBody = (WrapperRequestBody) requestBody;
+            if (wrapperRequestBody.isMultipartBody()) {
+                newRequestBody = checkMultipartBodyParams(request, wrapperRequestBody.getMultipartBody());
+            } else if (wrapperRequestBody.isFormBody()) {
+                newRequestBody = checkFormBodyParams(request, wrapperRequestBody.getFormBody());
+            } else {
+                throw new ClassCastException(requestBody.getClass() + " must correct implement WrapperRequestBody");
+            }
+        } else if (requestBody instanceof MultipartBody) {
             newRequestBody = checkMultipartBodyParams(request, (MultipartBody) requestBody);
-        } else if (HttpUtil.isFormBody(requestBody)) {
+        } else if (requestBody instanceof FormBody) {
             newRequestBody = checkFormBodyParams(request, (FormBody) requestBody);
         } else {
             newRequestBody = checkRequestBodyParams(request, requestBody);

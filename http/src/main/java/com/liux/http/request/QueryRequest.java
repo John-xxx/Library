@@ -1,7 +1,7 @@
 package com.liux.http.request;
 
 import com.liux.http.progress.OnResponseProgressListener;
-import com.liux.http.progress.ResponseProgressBody;
+import com.liux.http.progress.ProgressResponseBody;
 
 import java.util.IdentityHashMap;
 import java.util.Iterator;
@@ -108,7 +108,7 @@ public class QueryRequest<T extends QueryRequest> extends Request<T> {
     protected Response onCreateResponse(Response response) {
         if (mResponseProgressListener != null) {
             Response.Builder builder = response.newBuilder();
-            builder.body(new ResponseProgressBody(response.request().url(), response.body(), mResponseProgressListener));
+            builder.body(new ProgressResponseBody(response.request().url(), response.body(), mResponseProgressListener));
             response = builder.build();
         }
         return response;

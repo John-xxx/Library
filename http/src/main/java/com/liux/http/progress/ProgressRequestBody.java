@@ -1,9 +1,13 @@
 package com.liux.http.progress;
 
+import com.liux.http.wrapper.WrapperRequestBody;
+
 import java.io.IOException;
 
+import okhttp3.FormBody;
 import okhttp3.HttpUrl;
 import okhttp3.MediaType;
+import okhttp3.MultipartBody;
 import okhttp3.RequestBody;
 import okio.Buffer;
 import okio.BufferedSink;
@@ -16,7 +20,7 @@ import okio.Okio;
  * lx0758@qq.com
  */
 
-public class RequestProgressBody extends RequestBody {
+public class ProgressRequestBody extends RequestBody implements WrapperRequestBody {
 
     private HttpUrl mHttpUrl;
     private RequestBody mRequestBody;
@@ -24,7 +28,7 @@ public class RequestProgressBody extends RequestBody {
 
     private BufferedSink mWrapperBufferedSink;
 
-    public RequestProgressBody(HttpUrl httpUrl, RequestBody requestBody, OnRequestProgressListener onRequestProgressListener) {
+    public ProgressRequestBody(HttpUrl httpUrl, RequestBody requestBody, OnRequestProgressListener onRequestProgressListener) {
         mHttpUrl = httpUrl;
         mRequestBody = requestBody;
         mOnRequestProgressListener = onRequestProgressListener;
@@ -49,6 +53,28 @@ public class RequestProgressBody extends RequestBody {
         } else {
             mRequestBody.writeTo(sink);
         }
+    }
+
+    @Override
+    public boolean isMultipartBody() {
+        return mRequestBody instanceof MultipartBody;
+    }
+
+    @Override
+    public MultipartBody getMultipartBody() {
+        if (!isMultipartBody()) return null;
+        return (MultipartBody) mRequestBody;
+    }
+
+    @Override
+    public boolean isFormBody() {
+        return mRequestBody instanceof FormBody;
+    }
+
+    @Override
+    public FormBody getFormBody() {
+        if (!isFormBody()) return null;
+        return (FormBody) mRequestBody;
     }
 
     private static class WrapperForwardingSink extends ForwardingSink {

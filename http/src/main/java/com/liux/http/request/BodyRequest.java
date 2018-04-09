@@ -4,7 +4,7 @@ import com.liux.http.HttpUtil;
 import com.liux.http.progress.OnProgressListener;
 import com.liux.http.progress.OnRequestProgressListener;
 import com.liux.http.progress.OnResponseProgressListener;
-import com.liux.http.progress.RequestProgressBody;
+import com.liux.http.progress.ProgressRequestBody;
 
 import java.io.File;
 import java.io.InputStream;
@@ -103,7 +103,7 @@ public class BodyRequest<T extends BodyRequest> extends QueryRequest<T> {
         if (mOnRequestProgressListener != null) {
             RequestBody requestBody = request.body();
             if (requestBody != null) {
-                requestBody = new RequestProgressBody(request.url(), request.body(), mOnRequestProgressListener);
+                requestBody = new ProgressRequestBody(request.url(), request.body(), mOnRequestProgressListener);
             }
             request = request.newBuilder()
                     .method(request.method(), requestBody)
@@ -368,11 +368,11 @@ public class BodyRequest<T extends BodyRequest> extends QueryRequest<T> {
             Object value = entry.getValue();
             if (name != null && value != null) {
                 if (value instanceof String){
-                    builder.addFormDataPart(name, (String) value);
+                    builder.addFormDataPart(name, null, HttpUtil.parseString((String) value));
                 } else if (value instanceof MultipartBody.Part) {
                     builder.addPart((MultipartBody.Part) value);
                 } else {
-                    builder.addFormDataPart(name, value.toString());
+                    builder.addFormDataPart(name, null, HttpUtil.parseString(value.toString()));
                 }
             }
         }

@@ -1,5 +1,7 @@
 package com.liux.http.progress;
 
+import com.liux.http.wrapper.WrapperResponseBody;
+
 import java.io.IOException;
 
 import okhttp3.HttpUrl;
@@ -16,7 +18,7 @@ import okio.Okio;
  * lx0758@qq.com
  */
 
-public class ResponseProgressBody extends ResponseBody {
+public class ProgressResponseBody extends ResponseBody implements WrapperResponseBody {
 
     private HttpUrl mHttpUrl;
     private ResponseBody mResponseBody;
@@ -24,7 +26,7 @@ public class ResponseProgressBody extends ResponseBody {
 
     private BufferedSource mWrapperBufferedSource;
     
-    public ResponseProgressBody(HttpUrl httpUrl, ResponseBody responseBody, OnResponseProgressListener onResponseProgressListener) {
+    public ProgressResponseBody(HttpUrl httpUrl, ResponseBody responseBody, OnResponseProgressListener onResponseProgressListener) {
         mHttpUrl = httpUrl;
         mResponseBody = responseBody;
         mResponseProgressListener = onResponseProgressListener;
@@ -48,6 +50,16 @@ public class ResponseProgressBody extends ResponseBody {
         } else {
             return mResponseBody.source();
         }
+    }
+
+    @Override
+    public boolean isResponseBody() {
+        return true;
+    }
+
+    @Override
+    public ResponseBody getResponseBody() {
+        return mResponseBody;
     }
 
     private static class WrapperForwardingSource extends ForwardingSource {
