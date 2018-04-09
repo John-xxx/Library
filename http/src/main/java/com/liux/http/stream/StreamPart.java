@@ -1,4 +1,4 @@
-package com.liux.http.request;
+package com.liux.http.stream;
 
 import java.io.InputStream;
 
@@ -10,10 +10,11 @@ import okhttp3.RequestBody;
 /**
  * 支持 byte[] 和 输入流的Part
  */
-public class ExtendPart {
+public class StreamPart {
+    public static final MediaType TYPE_STREAM = MediaType.parse("application/octet-stream");
 
     public static MultipartBody.Part createFormData(String name, byte[] bytes) {
-        return createFormData(name, null, bytes);
+        return createFormData(name, TYPE_STREAM.toString(), bytes);
     }
 
     public static MultipartBody.Part createFormData(String name, String type, byte[] bytes) {
@@ -25,7 +26,7 @@ public class ExtendPart {
     }
 
     public static MultipartBody.Part createFormData(String name, InputStream inputStream) {
-        return createFormData(name, null, inputStream);
+        return createFormData(name, TYPE_STREAM.toString(), inputStream);
     }
 
     public static MultipartBody.Part createFormData(String name, String type, InputStream inputStream) {
@@ -43,7 +44,13 @@ public class ExtendPart {
         StringBuilder disposition = new StringBuilder("form-data; name=");
         appendQuotedString(disposition, name);
 
-        return MultipartBody.Part.create(Headers.of("Content-Disposition", disposition.toString()), body);
+        return MultipartBody.Part.create(
+                new Headers.Builder()
+                        .add("Content-Disposition", disposition.toString())
+                        .add("Content-Transfer-Encoding", "binary")
+                        .build(),
+                body
+        );
     }
 
     /**

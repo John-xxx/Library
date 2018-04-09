@@ -50,6 +50,54 @@ implementation 'com.liux:http:x.y.z'
       另: InputStream 输入源要保证 InputStream.available() 能返回流整体长度,
       如若不能,则应返回 -1
 
+注意事项
+---
+    在使用 MultipartBody 传输 byte[] 或 InoutStream 时,因为框架发送的是原始二进制数据,
+    所以服务端接收也必须接收原始数据.否则有可能造成数据被强行"字符"转换,导致获得的数据损坏
+    并且,传输 InoutStream 到服务器也是按照 byte[] 方式接收
+    
+```java
+    /**
+     * 错误用例(Java):
+     * @param modelMap
+     * @param id
+     * @param name
+     * @param data
+     * @param stream
+     * @param file
+     * @return
+     */
+    @PostMapping(value = "/api")
+    public String upload(ModelMap modelMap, int[] id, String[] name, byte[] data, byte[] stream, MultipartFile file) {
+        System.out.println("data:" + Arrays.toString(data));
+        System.out.println("stream:" + Arrays.toString(stream));
+        return "Done!";
+    }
+    
+    /**
+     * 正确用例(Java):
+     * @param modelMap
+     * @param request
+     * @param id
+     * @param name
+     * @param file
+     * @return
+     */
+    @PostMapping(value = "/api")
+    public String upload(ModelMap modelMap, HttpServletRequest request, int[] id, String[] name, MultipartFile file) {
+        try {
+            byte[] data = readInputStream(request.getPart("data").getInputStream());
+            byte[] stream = readInputStream(request.getPart("stream").getInputStream());
+            System.out.println("data:" + Arrays.toString(data));
+            System.out.println("stream:" + Arrays.toString(stream));
+        } catch (Exception e) {
+            
+        }
+        return "Done!";
+    }
+```
+
+
 更新说明
 ---
 ### x.y.z_201x-xx-xx

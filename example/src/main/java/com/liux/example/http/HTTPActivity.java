@@ -225,12 +225,14 @@ public class HTTPActivity extends AppCompatActivity {
                         });
                 break;
             case R.id.btn_request_post_multipart:
-                HttpClient.getInstance().post(data)
+                HttpClient.getInstance().post("http://192.168.18.15:8080/api/test-post-multipart")
                         .addHeader("Request-Header-Id", "btn_request_post_multipart")
                         .addQuery("Request-Query-Id", "btn_request_post_multipart")
                         .addParam("Request-Param-Id", "btn_request_post_multipart")
+                        .addParam("id", "3")
+                        .addParam("name", "liux")
                         .addParam("file", getTempFile())
-                        .addParam("btye", getTempBytes())
+                        .addParam("bytes", getTempBytes())
                         .addParam("stream", getTempInputStream())
                         .progress(new OnProgressListener() {
                             @Override
@@ -363,9 +365,18 @@ public class HTTPActivity extends AppCompatActivity {
                 bytes[i] = (byte) System.nanoTime();
             }
 
-            MessageDigest digest = MessageDigest.getInstance("SHA1");
-            digest.update(bytes);
-            System.out.println("getTempFile():" + new BigInteger(1, digest.digest()).toString(32));
+            MessageDigest messageDigest = MessageDigest.getInstance("SHA1");
+            messageDigest.update(bytes);
+            StringBuffer buf = new StringBuffer();
+            byte[] bits = messageDigest.digest();
+            for (int i = 0; i < bits.length; i++) {
+                int a = bits[i];
+                if (a < 0) a += 256;
+                if (a < 16) buf.append("0");
+                buf.append(Integer.toHexString(a));
+            }
+            System.out.println("getTempFile(len):" + bytes.length);
+            System.out.println("getTempFile(sha1):" + buf.toString().toUpperCase());
 
             fileOutputStream.write(bytes);
         } catch (Exception e) {
@@ -386,24 +397,46 @@ public class HTTPActivity extends AppCompatActivity {
     private byte[] getTempBytes() {
         int random = new Random().nextInt(30) + 50;
 
+        StringBuilder builder = new StringBuilder();
+
         byte[] bytes = new byte[random];
         for (int i = 0; i < random; i++) {
             bytes[i] = (byte) System.nanoTime();
+
+            String hex = Integer.toHexString(bytes[i] & 0xFF);
+            if (hex.length() == 1) {
+                hex = '0' + hex;
+            }
+            builder.append(hex);
+            builder.append(" ");
         }
 
-        System.out.println("getTempBytes():" + Arrays.toString(bytes));
+        System.out.println("getTempBytes(len):" + bytes.length);
+        System.out.println("getTempBytes(int):" + Arrays.toString(bytes));
+        System.out.println("getTempBytes(hex):" + builder.toString().toUpperCase());
         return bytes;
     }
 
     private InputStream getTempInputStream() {
         int random = new Random().nextInt(50) + 200;
 
+        StringBuilder builder = new StringBuilder();
+
         byte[] bytes = new byte[random];
         for (int i = 0; i < random; i++) {
             bytes[i] = (byte) System.nanoTime();
+
+            String hex = Integer.toHexString(bytes[i] & 0xFF);
+            if (hex.length() == 1) {
+                hex = '0' + hex;
+            }
+            builder.append(hex);
+            builder.append(" ");
         }
 
-        System.out.println("getTempInputStream():" + Arrays.toString(bytes));
+        System.out.println("getTempInputStream(len):" + bytes.length);
+        System.out.println("getTempInputStream(int):" + Arrays.toString(bytes));
+        System.out.println("getTempInputStream(hex):" + builder.toString().toUpperCase());
         return new ByteArrayInputStream(bytes);
     }
 }

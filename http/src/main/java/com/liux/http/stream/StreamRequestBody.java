@@ -1,4 +1,4 @@
-package com.liux.http.request;
+package com.liux.http.stream;
 
 import java.io.IOException;
 import java.io.InputStream;

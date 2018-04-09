@@ -72,26 +72,29 @@ public interface ApiService {
 
     @GET("api/test-get")
     Observable<JSONObject> testGet(
-            @Query("int") int i,
-            @Query("string") String s
+            @Query("id") int id,
+            @Query("name") String name
     );
 
     @FormUrlEncoded
     @POST("api/test-post")
     Observable<JSONObject> testPost(
-            @Query("int") int i,
-            @Query("string") String s,
-            @Field("int") int i1,
-            @Field("string") String s1
+            @Query("id") int id,
+            @Query("name") String name,
+            @Field("id") int id2,
+            @Field("name") String name2
     );
 
     @Multipart
     @POST("api/test-post-multipart")
+    @Headers({
+            HttpClient.HEADER_BASE_URL + ":http://192.168.18.15:8080/"
+    })
     Observable<JSONObject> testPostMultipart(
-            @Query("int") int i,
-            @Query("string") String s,
-            @Part("int") int i1,
-            @Part("string") String s1,
+            @Query("id") int id,
+            @Query("name") String name,
+            @Part("id") int id2,
+            @Part("name") String name2,
             @Part MultipartBody.Part file,
             @Part MultipartBody.Part aByte,
             @Part MultipartBody.Part stream

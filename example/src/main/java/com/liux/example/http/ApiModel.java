@@ -21,9 +21,9 @@ public interface ApiModel {
 
     void testTimeoutGlobal(String data);
 
-    void testGet(int i, String s);
+    void testGet(int id, String name);
 
-    void testPost(int i, String s);
+    void testPost(int id, String name);
 
-    void testPostMultipart(int i, String s, File file, byte[] bytes, InputStream stream);
+    void testPostMultipart(int id, String name, File file, byte[] bytes, InputStream stream);
 }

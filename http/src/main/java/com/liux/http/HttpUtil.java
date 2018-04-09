@@ -3,8 +3,8 @@ package com.liux.http;
 import android.text.TextUtils;
 
 import com.liux.http.request.Request;
-import com.liux.http.request.ExtendPart;
-import com.liux.http.request.StreamRequestBody;
+import com.liux.http.stream.StreamPart;
+import com.liux.http.stream.StreamRequestBody;
 
 import java.io.File;
 import java.io.InputStream;
@@ -24,7 +24,9 @@ import retrofit2.CallAdapter;
  */
 
 public class HttpUtil {
-    private static final MediaType TYPE_UNKNOWN = MediaType.parse("*/*");
+    public static final MediaType TYPE_UNKNOWN = MediaType.parse("*/*");
+    public static final MediaType TYPE_JSON = MediaType.parse("application/json;charset=UTF-8");
+    public static final MediaType TYPE_XML = MediaType.parse("text/xml;charset=UTF-8");
 
     private static final MediaType REQUEST_BODY_FORM = MediaType.parse("application/x-www-form-urlencoded");
     private static final MediaType REQUEST_BODY_MULTIPART = MediaType.parse("multipart/*");
@@ -161,11 +163,11 @@ public class HttpUtil {
      */
     public static boolean isTextMediaType(MediaType type) {
         if (type == null) return false;
-        String t2 = type.subtype();
-        String t1 = type.type();
+        String t1 = type.type().toLowerCase();
+        String t2 = type.subtype().toLowerCase();
         String t = t1 + t2;
         return "text".equals(t1)
-                || "application/json".equals(t);
+                || (TYPE_JSON.type() + TYPE_JSON.subtype()).equals(t);
     }
 
     /**
@@ -200,7 +202,7 @@ public class HttpUtil {
      * @return
      */
     public static RequestBody parseXml(String content) {
-        return parseString("text/xml;charset=UTF-8", content);
+        return parseString(TYPE_XML.toString(), content);
     }
 
     /**
@@ -209,7 +211,7 @@ public class HttpUtil {
      * @return
      */
     public static RequestBody parseJson(String content) {
-        return parseString("application/json;charset=UTF-8", content);
+        return parseString(TYPE_JSON.toString(), content);
     }
 
     /**
@@ -259,7 +261,8 @@ public class HttpUtil {
      * @return
      */
     public static MultipartBody.Part parseBytePart(String name, String type, byte[] bytes) {
-        return ExtendPart.createFormData(name, type, bytes);
+        if (type == null) return StreamPart.createFormData(name, bytes);
+        return StreamPart.createFormData(name, type, bytes);
     }
 
     /**
@@ -270,7 +273,8 @@ public class HttpUtil {
      * @return
      */
     public static MultipartBody.Part parseInputStreamPart(String name, String type, InputStream inputStream) {
-        return ExtendPart.createFormData(name, type, inputStream);
+        if (type == null) return StreamPart.createFormData(name, inputStream);
+        return StreamPart.createFormData(name, type, inputStream);
     }
 
     /**

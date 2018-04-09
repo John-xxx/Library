@@ -197,10 +197,10 @@ public class ApiModelImpl implements ApiModel {
     }
 
     @Override
-    public void testGet(int i, String s) {
+    public void testGet(int id, String name) {
         HttpClient.getInstance().getService(ApiService.class).testGet(
-                i,
-                s
+                id,
+                name
         )
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
@@ -225,12 +225,12 @@ public class ApiModelImpl implements ApiModel {
     }
 
     @Override
-    public void testPost(int i, String s) {
+    public void testPost(int id, String name) {
         HttpClient.getInstance().getService(ApiService.class).testPost(
-                i,
-                s,
-                i,
-                s
+                id,
+                name,
+                id,
+                name
         )
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
@@ -255,14 +255,14 @@ public class ApiModelImpl implements ApiModel {
     }
 
     @Override
-    public void testPostMultipart(int i, String s, File file, byte[] bytes, InputStream stream) {
+    public void testPostMultipart(int id, String name, File file, byte[] bytes, InputStream stream) {
         HttpClient.getInstance().getService(ApiService.class).testPostMultipart(
-                i,
-                s,
-                i,
-                s,
+                id,
+                name,
+                id,
+                name,
                 HttpUtil.parseFilePart("file", file),
-                HttpUtil.parseBytePart("byte", null, bytes),
+                HttpUtil.parseBytePart("bytes", null, bytes),
                 HttpUtil.parseInputStreamPart("stream", null, stream)
         )
                 .subscribeOn(Schedulers.io())

@@ -184,7 +184,7 @@ public class BodyRequest<T extends BodyRequest> extends QueryRequest<T> {
 
     public T param(String name, String type, byte[] bytes) {
         multipart();
-        paramObject(name, ExtendPart.createFormData(name, type, bytes));
+        paramObject(name, HttpUtil.parseBytePart(name, type, bytes));
         return (T) this;
     }
 
@@ -195,7 +195,7 @@ public class BodyRequest<T extends BodyRequest> extends QueryRequest<T> {
 
     public T param(String name, String type, InputStream inputStream) {
         multipart();
-        paramObject(name, ExtendPart.createFormData(name, type, inputStream));
+        paramObject(name, HttpUtil.parseInputStreamPart(name, type, inputStream));
         return (T) this;
     }
 
@@ -227,7 +227,7 @@ public class BodyRequest<T extends BodyRequest> extends QueryRequest<T> {
 
     public T addParam(String name, String type, byte[] bytes) {
         multipart();
-        addParamObject(name, ExtendPart.createFormData(name, type, bytes));
+        addParamObject(name, HttpUtil.parseBytePart(name, type, bytes));
         return (T) this;
     }
 
@@ -238,7 +238,7 @@ public class BodyRequest<T extends BodyRequest> extends QueryRequest<T> {
 
     public T addParam(String name, String type, InputStream inputStream) {
         multipart();
-        addParamObject(name, ExtendPart.createFormData(name, type, inputStream));
+        addParamObject(name, HttpUtil.parseInputStreamPart(name, type, inputStream));
         return (T) this;
     }
 
@@ -335,7 +335,7 @@ public class BodyRequest<T extends BodyRequest> extends QueryRequest<T> {
         } else if (mBodyObject instanceof byte[]) {
             return RequestBody.create(MediaType.parse(mBodyType), (byte[]) mBodyObject);
         } else if (mBodyObject instanceof InputStream) {
-            return StreamRequestBody.create(MediaType.parse(mBodyType), (InputStream) mBodyObject);
+            return HttpUtil.parseInputStream(mBodyType, (InputStream) mBodyObject);
         } else if (mBodyObject instanceof File) {
             return RequestBody.create(MediaType.parse(mBodyType), (File) mBodyObject);
         } else if ((mBodyObject instanceof RequestBody)) {
