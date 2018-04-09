@@ -19,7 +19,7 @@ public class FastJsonConverterFactory extends Factory {
     private ParserConfig parserConfig = ParserConfig.getGlobalInstance();
     private int featureValues;
     private Feature[] features;
-    private SerializeConfig serializeConfig;
+    private SerializeConfig serializeConfig = SerializeConfig.getGlobalInstance();
     private SerializerFeature[] serializerFeatures;
 
     public static FastJsonConverterFactory create() {
@@ -28,6 +28,19 @@ public class FastJsonConverterFactory extends Factory {
 
     private FastJsonConverterFactory() {
         this.featureValues = JSON.DEFAULT_PARSER_FEATURE;
+        this.features = new Feature[] {
+                Feature.InitStringFieldAsEmpty,
+                Feature.SupportArrayToBean,
+                Feature.SupportNonPublicField,
+                Feature.SupportAutoType
+        };
+        this.serializerFeatures = new SerializerFeature[] {
+                SerializerFeature.WriteMapNullValue,
+                SerializerFeature.WriteNullBooleanAsFalse,
+                SerializerFeature.WriteNullListAsEmpty,
+                SerializerFeature.WriteNullNumberAsZero,
+                SerializerFeature.WriteNullStringAsEmpty
+        };
     }
 
     @Override

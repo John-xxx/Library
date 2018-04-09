@@ -26,7 +26,7 @@ implementation 'com.liux:http:x.y.z'
 -keepattributes Exceptions,InnerClasses,Signature,Deprecated,SourceFile,LineNumberTable,LocalVariable*Table,*Annotation*,Synthetic,EnclosingMethod
 ```
 
-已知问题
+注意事项
 ---
     1.某些情况下使用全局 Base 无法正确匹配路径以"/"开头的根路径URL
       初始化设置 http://api.baidu.com/api/
@@ -41,7 +41,7 @@ implementation 'com.liux:http:x.y.z'
       最终变成 http://app.google.com/v1.0/xxx
       
       即当初始化设置URL根Path和请求根Path发生重复时出现
-      
+    
     2.使用 MultipartBody 上传 InputStream 时,应避免多个线程共享 InputStream
       因为上传过程中 InputStream 会被 读取/重置 多次,在多线程环境下会造成数据紊乱
       
@@ -49,57 +49,55 @@ implementation 'com.liux:http:x.y.z'
       
       另: InputStream 输入源要保证 InputStream.available() 能返回流整体长度,
       如若不能,则应返回 -1
-
-注意事项
----
-    在使用 MultipartBody 传输 byte[] 或 InoutStream 时,因为框架发送的是原始二进制数据,
-    所以服务端接收也必须接收原始数据.否则有可能造成数据被强行"字符"转换,导致获得的数据损坏
-    并且,传输 InoutStream 到服务器也是按照 byte[] 方式接收
     
-    详情参见:
-    https://github.com/lx0758/Java_Demo/tree/master/Server
-
-```java
-    /**
-     * 错误用例(Java):
-     * @param modelMap
-     * @param id
-     * @param name
-     * @param data
-     * @param stream
-     * @param file
-     * @return
-     */
-    @PostMapping(value = "/api")
-    public String upload(ModelMap modelMap, int[] id, String[] name, byte[] data, byte[] stream, MultipartFile file) {
-        System.out.println("data:" + Arrays.toString(data));
-        System.out.println("stream:" + Arrays.toString(stream));
-        return "Done!";
-    }
-    
-    /**
-     * 正确用例(Java):
-     * @param modelMap
-     * @param request
-     * @param id
-     * @param name
-     * @param file
-     * @return
-     */
-    @PostMapping(value = "/api")
-    public String upload(ModelMap modelMap, HttpServletRequest request, int[] id, String[] name, MultipartFile file) {
-        try {
-            byte[] data = readInputStream(request.getPart("data").getInputStream());
-            byte[] stream = readInputStream(request.getPart("stream").getInputStream());
-            System.out.println("data:" + Arrays.toString(data));
-            System.out.println("stream:" + Arrays.toString(stream));
-        } catch (Exception e) {
-            
-        }
-        return "Done!";
-    }
-```
-
+    3.在使用 MultipartBody 传输 byte[] 或 InoutStream 时,因为框架发送的是原始二进制数据,
+      所以服务端接收也必须接收原始数据.否则有可能造成数据被强行"字符"转换,导致获得的数据损坏
+      并且,传输 InoutStream 到服务器也是按照 byte[] 方式接收
+      
+      /**
+       * 错误用例(Java):
+       * @param modelMap
+       * @param id
+       * @param name
+       * @param data
+       * @param stream
+       * @param file
+       * @return
+       */
+      @PostMapping(value = "/api")
+      public String upload(ModelMap modelMap, int[] id, String[] name, byte[] data, byte[] stream, MultipartFile file) {
+          System.out.println("data:" + Arrays.toString(data));
+          System.out.println("stream:" + Arrays.toString(stream));
+          return "Done!";
+      }
+      
+      /**
+       * 正确用例(Java):
+       * @param modelMap
+       * @param request
+       * @param id
+       * @param name
+       * @param file
+       * @return
+       */
+      @PostMapping(value = "/api")
+      public String upload(ModelMap modelMap, HttpServletRequest request, int[] id, String[] name, MultipartFile file) {
+          try {
+              byte[] data = readInputStream(request.getPart("data").getInputStream());
+              byte[] stream = readInputStream(request.getPart("stream").getInputStream());
+              System.out.println("data:" + Arrays.toString(data));
+              System.out.println("stream:" + Arrays.toString(stream));
+          } catch (Exception e) {
+              
+          }
+          return "Done!";
+      }
+      
+      详情参见:
+      https://github.com/lx0758/Java_Demo/tree/master/Server
+      
+    3.参数拦截器处理 MultipartBody 时,会将 text 类型的文本参数逆解析
+      此动作可能会导致 Part 某些自定义的 Header 丢失,详情请看源码
 
 更新说明
 ---
@@ -108,8 +106,7 @@ implementation 'com.liux:http:x.y.z'
     2.更换主类 HttpClient 名称为 Http
     3.增强参数拦截监听器能力,修复Header丢失问题
     4.修复设置进度监听器后参数监听器失效问题
-    
-### 0.4.0_2018-04-09
+    5.优化 FastJSON 转换器配置
     
 ### 0.3.6_2018-04-04
     1.修正响应回调完成状态错误的问题

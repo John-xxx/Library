@@ -23,7 +23,9 @@ public interface ApiModel {
 
     void testGet(int id, String name);
 
-    void testPost(int id, String name);
+    void testPostBody(int id, String name);
+
+    void testPostForm(int id, String name);
 
     void testPostMultipart(int id, String name, File file, byte[] bytes, InputStream stream);
 }

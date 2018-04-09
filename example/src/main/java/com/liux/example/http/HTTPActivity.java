@@ -48,7 +48,7 @@ public class HTTPActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
 
         // 动态设置全局BaseUrl
-        Http.get().setBaseUrl("http://api.ip138.com/v1.0/");
+        Http.get().setBaseUrl("http://api.6xyun.cn:88/api/");
 
         // 动态设置全局BaseUrl规则
         Http.get().putDomainRule("138", "http://api.ip138.com/");
@@ -57,7 +57,7 @@ public class HTTPActivity extends AppCompatActivity {
         ButterKnife.bind(this);
     }
 
-    @OnClick({R.id.btn_retorfit_get, R.id.btn_retorfit_post, R.id.btn_retorfit_post_multipart, R.id.btn_retorfit_base_header, R.id.btn_retorfit_base_header_rule, R.id.btn_retorfit_base_global, R.id.btn_retorfit_base_global_root, R.id.btn_retorfit_timeout_header, R.id.btn_retorfit_timeout_global})
+    @OnClick({R.id.btn_retorfit_get, R.id.btn_retorfit_post_body, R.id.btn_retorfit_post_form, R.id.btn_retorfit_post_multipart, R.id.btn_retorfit_base_header, R.id.btn_retorfit_base_header_rule, R.id.btn_retorfit_base_global, R.id.btn_retorfit_base_global_root, R.id.btn_retorfit_timeout_header, R.id.btn_retorfit_timeout_global})
     public void onRetorfitClicked(View view) {
         String data = etData.getText().toString();
         switch (view.getId()) {
@@ -67,8 +67,14 @@ public class HTTPActivity extends AppCompatActivity {
                         "liux"
                 );
                 break;
-            case R.id.btn_retorfit_post:
-                mApiModle.testPost(
+            case R.id.btn_retorfit_post_body:
+                mApiModle.testPostBody(
+                        123,
+                        "liux"
+                );
+                break;
+            case R.id.btn_retorfit_post_form:
+                mApiModle.testPostForm(
                         123,
                         "liux"
                 );
@@ -95,7 +101,7 @@ public class HTTPActivity extends AppCompatActivity {
                 mApiModle.queryMobile(data);
                 break;
             case R.id.btn_retorfit_base_global_root:
-                // 使用全局Base,但使用根路径,正常获取数据
+                // 使用全局Base,并使用根路径, 404
                 mApiModle.queryExpress(data);
                 break;
             case R.id.btn_retorfit_timeout_header:
@@ -115,15 +121,16 @@ public class HTTPActivity extends AppCompatActivity {
         String data = etData.getText().toString();
         if (HttpUrl.parse(data) == null) {
             SingleToast.makeText(this, "URL不正确,必须形如 http://www.domain.com/", SingleToast.LENGTH_LONG).show();
-            etData.setText("http://6xyun.cn/");
+            etData.setText("http://api.6xyun.cn:88/");
             return;
         }
         switch (view.getId()) {
             case R.id.btn_request_get:
-                Http.get().get(data)
+                Http.get().get(data + "api/test-get")
                         .addHeader("Request-Header-Id", "btn_request_get")
                         .addQuery("Request-Query-Id", "btn_request_get")
-                        .fragment("testFragment")
+                        // 很多服务不支持
+                        //.fragment("testFragment")
                         .progress(new OnResponseProgressListener() {
                             @Override
                             public void onResponseProgress(final HttpUrl httpUrl, final long bytesRead, final long contentLength, final boolean done) {
@@ -164,7 +171,7 @@ public class HTTPActivity extends AppCompatActivity {
             case R.id.btn_request_post_body:
                 JSONObject jsonObject = new JSONObject();
                 jsonObject.put("Request-Body-Id", "btn_request_post_body");
-                Http.get().post(data)
+                Http.get().post(data + "api/test-post-body")
                         .addHeader("Request-Header-Id", "btn_request_post_body")
                         .addQuery("Request-Query-Id", "btn_request_post_body")
                         .body(HttpUtil.parseJson(jsonObject.toJSONString()))
@@ -194,7 +201,7 @@ public class HTTPActivity extends AppCompatActivity {
                         });
                 break;
             case R.id.btn_request_post_form:
-                Http.get().post(data)
+                Http.get().post(data + "api/test-post-form")
                         .addHeader("Request-Header-Id", "btn_request_post_form")
                         .addQuery("Request-Query-Id", "btn_request_post_form")
                         .addParam("Request-Param-Id", "btn_request_post_form")
@@ -224,7 +231,7 @@ public class HTTPActivity extends AppCompatActivity {
                         });
                 break;
             case R.id.btn_request_post_multipart:
-                Http.get().post("http://192.168.18.15:8080/api/test-post-multipart")
+                Http.get().post(data + "api/test-post-multipart")
                         .addHeader("Request-Header-Id", "btn_request_post_multipart")
                         .addQuery("Request-Query-Id", "btn_request_post_multipart")
                         .addParam("Request-Param-Id", "btn_request_post_multipart")
@@ -282,7 +289,7 @@ public class HTTPActivity extends AppCompatActivity {
                         });
                 break;
             case R.id.btn_request_timeout_header:
-                Http.get().post(data)
+                Http.get().post(data + "api/test-timeout")
                         .addHeader("Request-Header-Id", "btn_request_timeout_header")
                         .addQuery("Request-Query-Id", "btn_request_timeout_header")
                         .addParam("Request-Param-Id", "btn_request_timeout_header")
@@ -318,7 +325,7 @@ public class HTTPActivity extends AppCompatActivity {
                 Http.get().setOverallConnectTimeout(5);
                 Http.get().setOverallWriteTimeout(20);
                 Http.get().setOverallReadTimeout(20);
-                Http.get().post(data)
+                Http.get().post(data + "api/test-timeout-global")
                         .addHeader("Request-Header-Id", "btn_request_timeout_header")
                         .addQuery("Request-Query-Id", "btn_request_timeout_header")
                         .addParam("Request-Param-Id", "btn_request_timeout_header")

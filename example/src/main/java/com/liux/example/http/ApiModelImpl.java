@@ -225,8 +225,38 @@ public class ApiModelImpl implements ApiModel {
     }
 
     @Override
-    public void testPost(int id, String name) {
-        Http.get().getService(ApiService.class).testPost(
+    public void testPostBody(int id, String name) {
+        JSONObject jsonObject = new JSONObject();
+        jsonObject.put("id", id);
+        jsonObject.put("name", name);
+        Http.get().getService(ApiService.class).testPostBody(
+                HttpUtil.parseJson(jsonObject.toJSONString())
+        )
+                .subscribeOn(Schedulers.io())
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe(new DisposableObserver<JSONObject>() {
+                    @Override
+                    public void onNext(JSONObject jsonObject) {
+                        Log.d(TAG, "onNext" + jsonObject.toJSONString());
+                        SingleToast.makeText(mContext, "onNext" + jsonObject.toJSONString(), SingleToast.LENGTH_LONG).show();
+                    }
+
+                    @Override
+                    public void onError(Throwable e) {
+                        Log.d(TAG, "onError", e);
+                        SingleToast.makeText(mContext, "onError" + e, SingleToast.LENGTH_LONG).show();
+                    }
+
+                    @Override
+                    public void onComplete() {
+                        Log.d(TAG, "onComplete");
+                    }
+                });
+    }
+
+    @Override
+    public void testPostForm(int id, String name) {
+        Http.get().getService(ApiService.class).testPostForm(
                 id,
                 name,
                 id,

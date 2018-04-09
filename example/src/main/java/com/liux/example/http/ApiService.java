@@ -5,6 +5,8 @@ import com.liux.http.Http;
 
 import io.reactivex.Observable;
 import okhttp3.MultipartBody;
+import okhttp3.RequestBody;
+import retrofit2.http.Body;
 import retrofit2.http.Field;
 import retrofit2.http.FormUrlEncoded;
 import retrofit2.http.GET;
@@ -20,6 +22,38 @@ import retrofit2.http.Query;
  */
 
 public interface ApiService {
+
+    @GET("test-get")
+    Observable<JSONObject> testGet(
+            @Query("id") int id,
+            @Query("name") String name
+    );
+
+    @POST("test-post-body")
+    Observable<JSONObject> testPostBody(
+            @Body RequestBody body
+    );
+
+    @FormUrlEncoded
+    @POST("test-post-form")
+    Observable<JSONObject> testPostForm(
+            @Query("id") int id,
+            @Query("name") String name,
+            @Field("id") int id2,
+            @Field("name") String name2
+    );
+
+    @Multipart
+    @POST("test-post-multipart")
+    Observable<JSONObject> testPostMultipart(
+            @Query("id") int id,
+            @Query("name") String name,
+            @Part("id") int id2,
+            @Part("name") String name2,
+            @Part MultipartBody.Part file,
+            @Part MultipartBody.Part aByte,
+            @Part MultipartBody.Part stream
+    );
 
     @GET("weather/")
     @Headers({
@@ -40,13 +74,13 @@ public interface ApiService {
             @Query("ip") String ip
     );
 
+    // 以"/"开头的表示从根路径开始
     @GET("mobile/")
     Observable<JSONObject> queryMobile(
             @Header("token") String token,
             @Query("mobile") String mobile
     );
 
-    // 以"/"开头的表示从根路径开始
     @GET("/express/info/")
     Observable<JSONObject> queryExpress(
             @Header("token") String token,
@@ -54,7 +88,7 @@ public interface ApiService {
     );
 
     // 以"/"开头的表示从根路径开始
-    @GET("api/test-timeout")
+    @GET("test-timeout")
     @Headers({
             Http.HEADER_TIMEOUT_CONNECT + ":3",
             Http.HEADER_TIMEOUT_WRITE + ":6",
@@ -65,38 +99,8 @@ public interface ApiService {
     );
 
     // 以"/"开头的表示从根路径开始
-    @GET("api/test-timeout-global")
+    @GET("test-timeout-global")
     Observable<JSONObject> testTimeoutGlobal(
             @Query("data") String data
-    );
-
-    @GET("api/test-get")
-    Observable<JSONObject> testGet(
-            @Query("id") int id,
-            @Query("name") String name
-    );
-
-    @FormUrlEncoded
-    @POST("api/test-post")
-    Observable<JSONObject> testPost(
-            @Query("id") int id,
-            @Query("name") String name,
-            @Field("id") int id2,
-            @Field("name") String name2
-    );
-
-    @Multipart
-    @POST("api/test-post-multipart")
-    @Headers({
-            Http.HEADER_BASE_URL + ":http://192.168.18.15:8080/"
-    })
-    Observable<JSONObject> testPostMultipart(
-            @Query("id") int id,
-            @Query("name") String name,
-            @Part("id") int id2,
-            @Part("name") String name2,
-            @Part MultipartBody.Part file,
-            @Part MultipartBody.Part aByte,
-            @Part MultipartBody.Part stream
     );
 }

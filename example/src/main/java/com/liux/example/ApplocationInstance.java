@@ -32,7 +32,7 @@ public class ApplocationInstance extends Application {
         super.onCreate();
 
         /* 初始化 Http */
-        Http.init(this, "http://6xyun.cn/api/");
+        Http.init(this, "http://6xyun.cn/v1.0/");
         Http.get().setLoggingLevel(HttpLoggingInterceptor.Level.BODY);
         Http.get().setOnHeaderListener(new OnHeaderListener() {
             @Override
