@@ -102,6 +102,9 @@ implementation 'com.liux:http:x.y.z'
 更新说明
 ---
 ### x.y.z_201x-xx-xx
+    1.
+    
+### 0.4.0_2018-04-10
     1.请求支持 byte[] 和 InputStream
     2.更换主类 HttpClient 名称为 Http
     3.增强参数拦截监听器能力,修复Header丢失问题
