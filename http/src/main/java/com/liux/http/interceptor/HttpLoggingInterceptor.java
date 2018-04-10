@@ -148,7 +148,7 @@ public class HttpLoggingInterceptor implements Interceptor {
                         if (!DIVIDE_1.equals(lineStr) && !DIVIDE_2.equals(lineStr) && !DIVIDE_3.equals(lineStr)) {
                             lineStr = DIVIDE_0 + lineStr;
                         }
-                        Log.println(Log.DEBUG, Http.TAG, lineStr);
+                        Log.println(Log.DEBUG, Http.TAG, lineStr.replace(SEPARATOR, ""));
                         i = end;
                     } while (i < newline);
                 }
