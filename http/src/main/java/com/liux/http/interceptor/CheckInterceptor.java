@@ -126,13 +126,7 @@ public class CheckInterceptor implements Interceptor {
         RequestBody requestBody = request.body();
         if (requestBody instanceof WrapperRequestBody) {
             WrapperRequestBody wrapperRequestBody = (WrapperRequestBody) requestBody;
-            if (wrapperRequestBody.isMultipartBody()) {
-                checkMultipartBodyParams(request, wrapperRequestBody.getMultipartBody(), requestBuilder);
-            } else if (wrapperRequestBody.isFormBody()) {
-                checkFormBodyParams(request, wrapperRequestBody.getFormBody(), requestBuilder);
-            } else {
-                throw new ClassCastException(requestBody.getClass() + " must correct implement WrapperRequestBody");
-            }
+            checkWrapperRequestBodyParams(request, wrapperRequestBody, requestBuilder);
         } else if (requestBody instanceof MultipartBody) {
             checkMultipartBodyParams(request, (MultipartBody) requestBody, requestBuilder);
         } else if (requestBody instanceof FormBody) {
@@ -140,6 +134,78 @@ public class CheckInterceptor implements Interceptor {
         } else {
             checkRequestBodyParams(request, requestBody, requestBuilder);
         }
+    }
+
+    private void checkWrapperRequestBodyParams(Request request, WrapperRequestBody wrapperRequestBody, Request.Builder requestBuilder) throws IOException {
+        Map<String, String> queryParams = new IdentityHashMap<>();
+        resolveQueryParam(request, queryParams);
+
+        RequestBody requestBody = wrapperRequestBody.getRequestBody();
+        Map<String, String> bodyParams = new IdentityHashMap<>();
+
+        MultipartBody multipartBody = null;
+        Map<String, String> bodyTypes = null;
+        List<MultipartBody.Part> oldParts = null;
+
+        FormBody formBody = null;
+
+        if (wrapperRequestBody.isMultipartBody()) {
+            multipartBody = (MultipartBody) requestBody;
+            bodyTypes = new IdentityHashMap<>();
+            oldParts = new ArrayList<>();
+            // 读取原始参数
+            for (MultipartBody.Part part : multipartBody.parts()) {
+                Headers head  = part.headers();
+                RequestBody body  = part.body();
+                if (HttpUtil.isTextMediaType(body.contentType())) {
+                    Buffer buffer = new Buffer();
+                    body.writeTo(buffer);
+                    String key = head.value(0).substring(head.value(0).lastIndexOf("=") + 1).replace("\"", "");
+                    String value = buffer.readUtf8();
+                    String rel_key = new String(key);
+                    bodyParams.put(rel_key, value);
+                    bodyTypes.put(rel_key, body.contentType().toString());
+                } else {
+                    oldParts.add(part);
+                }
+            }
+        } else if (wrapperRequestBody.isFormBody()) {
+            formBody = (FormBody) requestBody;
+            // 读取原始参数
+            for (int i = 0; i < formBody.size(); i++) {
+                bodyParams.put(new String(formBody.name(i)), formBody.value(i));
+            }
+        }
+
+        mOnRequestListener.onBodyRequest(request, queryParams, bodyParams);
+
+        if (wrapperRequestBody.isMultipartBody()) {
+            // 恢复参数并组合成新的 MultipartBody
+            MultipartBody.Builder bodyBuilder = new MultipartBody.Builder();
+            bodyBuilder.setType(multipartBody.type());
+            for (MultipartBody.Part part : oldParts) {
+                bodyBuilder.addPart(part);
+            }
+            for (Map.Entry<String, String> entry : bodyParams.entrySet()) {
+                bodyBuilder.addPart(HttpUtil.parseStringPart(entry.getKey(), bodyTypes.get(entry.getKey()), entry.getValue()));
+            }
+            multipartBody = bodyBuilder.build();
+            requestBody = multipartBody;
+        } else if (wrapperRequestBody.isFormBody()) {
+            // 组合成新的  FormBody
+            FormBody.Builder bodyBuilder = new FormBody.Builder();
+            for (Map.Entry<String, String> entry : bodyParams.entrySet()) {
+                bodyBuilder.addEncoded(entry.getKey(), entry.getValue());
+            }
+            formBody = bodyBuilder.build();
+            requestBody = formBody;
+        }
+
+        wrapperRequestBody.setRequestBody(requestBody);
+
+        HttpUrl httpUrl = revertQueryParam(request, queryParams);
+
+        requestBuilder.url(httpUrl).method(request.method(), (RequestBody) wrapperRequestBody);
     }
 
     private void checkMultipartBodyParams(Request request, MultipartBody multipartBody, Request.Builder requestBuilder) throws IOException {

@@ -1,7 +1,6 @@
 package com.liux.http.wrapper;
 
-import okhttp3.FormBody;
-import okhttp3.MultipartBody;
+import okhttp3.RequestBody;
 
 /**
  * 2018/4/9
@@ -10,11 +9,13 @@ import okhttp3.MultipartBody;
  */
 public interface WrapperRequestBody {
 
-    boolean isMultipartBody();
-
-    MultipartBody getMultipartBody();
+    boolean isChildWarpper();
 
     boolean isFormBody();
 
-    FormBody getFormBody();
+    boolean isMultipartBody();
+
+    RequestBody getRequestBody();
+
+    void setRequestBody(RequestBody requestBody);
 }

@@ -56,25 +56,41 @@ public class ProgressRequestBody extends RequestBody implements WrapperRequestBo
     }
 
     @Override
-    public boolean isMultipartBody() {
-        return mRequestBody instanceof MultipartBody;
-    }
-
-    @Override
-    public MultipartBody getMultipartBody() {
-        if (!isMultipartBody()) return null;
-        return (MultipartBody) mRequestBody;
+    public boolean isChildWarpper() {
+        return mRequestBody instanceof WrapperRequestBody;
     }
 
     @Override
     public boolean isFormBody() {
+        if (isChildWarpper()) {
+            return ((WrapperRequestBody) mRequestBody).isFormBody();
+        }
         return mRequestBody instanceof FormBody;
     }
 
     @Override
-    public FormBody getFormBody() {
-        if (!isFormBody()) return null;
-        return (FormBody) mRequestBody;
+    public boolean isMultipartBody() {
+        if (isChildWarpper()) {
+            return ((WrapperRequestBody) mRequestBody).isMultipartBody();
+        }
+        return mRequestBody instanceof MultipartBody;
+    }
+
+    @Override
+    public RequestBody getRequestBody() {
+        if (isChildWarpper()) {
+            return ((WrapperRequestBody) mRequestBody).getRequestBody();
+        }
+        return mRequestBody;
+    }
+
+    @Override
+    public void setRequestBody(RequestBody requestBody) {
+        if (isChildWarpper()) {
+            ((WrapperRequestBody) mRequestBody).setRequestBody(requestBody);
+            return;
+        }
+        mRequestBody = requestBody;
     }
 
     private static class WrapperForwardingSink extends ForwardingSink {

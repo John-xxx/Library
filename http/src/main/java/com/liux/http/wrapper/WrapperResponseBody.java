@@ -9,7 +9,9 @@ import okhttp3.ResponseBody;
  */
 public interface WrapperResponseBody {
 
-    boolean isResponseBody();
+    boolean isChildWarpper();
 
     ResponseBody getResponseBody();
+
+    void setResponseBody(ResponseBody responseBody);
 }

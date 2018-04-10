@@ -53,13 +53,25 @@ public class ProgressResponseBody extends ResponseBody implements WrapperRespons
     }
 
     @Override
-    public boolean isResponseBody() {
-        return true;
+    public boolean isChildWarpper() {
+        return mResponseBody instanceof WrapperResponseBody;
     }
 
     @Override
     public ResponseBody getResponseBody() {
+        if (isChildWarpper()) {
+            return ((WrapperResponseBody) mResponseBody).getResponseBody();
+        }
         return mResponseBody;
+    }
+
+    @Override
+    public void setResponseBody(ResponseBody responseBody) {
+        if (isChildWarpper()) {
+            ((WrapperResponseBody) mResponseBody).setResponseBody(responseBody);
+            return;
+        }
+        mResponseBody = responseBody;
     }
 
     private static class WrapperForwardingSource extends ForwardingSource {

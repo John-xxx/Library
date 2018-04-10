@@ -104,6 +104,7 @@ implementation 'com.liux:http:x.y.z'
 ### x.y.z_201x-xx-xx
     1.添加 Request 生命周期管理
     2.添加 Request 主线程回调接口
+    3.修复进度监听器和参数监听器冲突问题
     
 ### 0.4.0_2018-04-10
     1.请求支持 byte[] 和 InputStream
