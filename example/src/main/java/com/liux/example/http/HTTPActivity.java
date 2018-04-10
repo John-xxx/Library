@@ -12,6 +12,10 @@ import com.liux.http.Http;
 import com.liux.http.HttpUtil;
 import com.liux.http.progress.OnProgressListener;
 import com.liux.http.progress.OnResponseProgressListener;
+import com.liux.http.request.Result;
+import com.liux.http.request.UIResult;
+import com.liux.http.request.Request;
+import com.liux.http.request.RequestManager;
 import com.liux.view.SingleToast;
 
 import java.io.ByteArrayInputStream;
@@ -21,13 +25,13 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.security.MessageDigest;
 import java.util.Arrays;
+import java.util.LinkedList;
+import java.util.List;
 import java.util.Random;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
 import butterknife.OnClick;
-import okhttp3.Call;
-import okhttp3.Callback;
 import okhttp3.HttpUrl;
 import okhttp3.Response;
 
@@ -35,13 +39,14 @@ import okhttp3.Response;
  * Created by Liux on 2017/11/28.
  */
 
-public class HTTPActivity extends AppCompatActivity {
+public class HTTPActivity extends AppCompatActivity implements RequestManager {
     private static final String TAG = "HTTPActivity";
 
     @BindView(R.id.et_data)
     EditText etData;
 
     private ApiModel mApiModle = new ApiModelImpl(this);
+    private RequestManager mRequestManager = RequestManager.Builder.build();
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
@@ -55,6 +60,13 @@ public class HTTPActivity extends AppCompatActivity {
 
         setContentView(R.layout.activity_http);
         ButterKnife.bind(this);
+    }
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        mRequestManager.cancelAll();
+        cancelAll();
     }
 
     @OnClick({R.id.btn_retorfit_get, R.id.btn_retorfit_post_body, R.id.btn_retorfit_post_form, R.id.btn_retorfit_post_multipart, R.id.btn_retorfit_base_header, R.id.btn_retorfit_base_header_rule, R.id.btn_retorfit_base_global, R.id.btn_retorfit_base_global_root, R.id.btn_retorfit_timeout_header, R.id.btn_retorfit_timeout_global})
@@ -143,9 +155,10 @@ public class HTTPActivity extends AppCompatActivity {
                                 });
                             }
                         })
-                        .async(new Callback() {
+                        .manager(mRequestManager)
+                        .async(new Result() {
                             @Override
-                            public void onFailure(Call call, final IOException e) {
+                            public void onFailure(final IOException e) {
                                 System.out.println("onFailure:" + e);
                                 etData.post(new Runnable() {
                                     @Override
@@ -156,7 +169,7 @@ public class HTTPActivity extends AppCompatActivity {
                             }
 
                             @Override
-                            public void onResponse(Call call, Response response) throws IOException {
+                            public void onResponse(Response response) throws IOException {
                                 final long length = response.body().bytes().length;
                                 System.out.println("onResponse:" + length);
                                 etData.post(new Runnable() {
@@ -175,28 +188,19 @@ public class HTTPActivity extends AppCompatActivity {
                         .addHeader("Request-Header-Id", "btn_request_post_body")
                         .addQuery("Request-Query-Id", "btn_request_post_body")
                         .body(HttpUtil.parseJson(jsonObject.toJSONString()))
-                        .async(new Callback() {
+                        .manager(this)
+                        .async(new UIResult() {
                             @Override
-                            public void onFailure(Call call, final IOException e) {
+                            public void onFailure(IOException e) {
                                 System.out.println("onFailure:" + e);
-                                etData.post(new Runnable() {
-                                    @Override
-                                    public void run() {
-                                        SingleToast.makeText(HTTPActivity.this, "onFailure:" + e, SingleToast.LENGTH_LONG).show();
-                                    }
-                                });
+                                SingleToast.makeText(HTTPActivity.this, "onFailure:" + e, SingleToast.LENGTH_LONG).show();
                             }
 
                             @Override
-                            public void onResponse(Call call, Response response) throws IOException {
-                                final long length = response.body().bytes().length;
+                            public void onResponse(Response response) throws IOException {
+                                long length = response.body().bytes().length;
                                 System.out.println("onResponse:" + length);
-                                etData.post(new Runnable() {
-                                    @Override
-                                    public void run() {
-                                        SingleToast.makeText(HTTPActivity.this, "onResponse:" + length, SingleToast.LENGTH_LONG).show();
-                                    }
-                                });
+                                SingleToast.makeText(HTTPActivity.this, "onResponse:" + length, SingleToast.LENGTH_LONG).show();
                             }
                         });
                 break;
@@ -205,28 +209,19 @@ public class HTTPActivity extends AppCompatActivity {
                         .addHeader("Request-Header-Id", "btn_request_post_form")
                         .addQuery("Request-Query-Id", "btn_request_post_form")
                         .addParam("Request-Param-Id", "btn_request_post_form")
-                        .async(new Callback() {
+                        .manager(this)
+                        .async(new UIResult() {
                             @Override
-                            public void onFailure(Call call, final IOException e) {
+                            public void onFailure(IOException e) {
                                 System.out.println("onFailure:" + e);
-                                etData.post(new Runnable() {
-                                    @Override
-                                    public void run() {
-                                        SingleToast.makeText(HTTPActivity.this, "onFailure:" + e, SingleToast.LENGTH_LONG).show();
-                                    }
-                                });
+                                SingleToast.makeText(HTTPActivity.this, "onFailure:" + e, SingleToast.LENGTH_LONG).show();
                             }
 
                             @Override
-                            public void onResponse(Call call, Response response) throws IOException {
-                                final long length = response.body().bytes().length;
+                            public void onResponse(Response response) throws IOException {
+                                long length = response.body().bytes().length;
                                 System.out.println("onResponse:" + length);
-                                etData.post(new Runnable() {
-                                    @Override
-                                    public void run() {
-                                        SingleToast.makeText(HTTPActivity.this, "onResponse:" + length, SingleToast.LENGTH_LONG).show();
-                                    }
-                                });
+                                SingleToast.makeText(HTTPActivity.this, "onResponse:" + length, SingleToast.LENGTH_LONG).show();
                             }
                         });
                 break;
@@ -242,17 +237,6 @@ public class HTTPActivity extends AppCompatActivity {
                         .addParam("stream", getTempInputStream())
                         .progress(new OnProgressListener() {
                             @Override
-                            public void onResponseProgress(final HttpUrl httpUrl, final long bytesRead, final long contentLength, final boolean done) {
-                                System.out.println("onResponseProgress:" + httpUrl + "," + bytesRead + "," + contentLength + "," + done);
-                                etData.post(new Runnable() {
-                                    @Override
-                                    public void run() {
-                                        SingleToast.makeText(HTTPActivity.this, "onResponseProgress:" + httpUrl + "," + bytesRead + "," + contentLength + "," + done, SingleToast.LENGTH_LONG).show();
-                                    }
-                                });
-                            }
-
-                            @Override
                             public void onRequestProgress(final HttpUrl httpUrl, final long bytesWrite, final long contentLength, final boolean done) {
                                 System.out.println("onRequestProgress:" + httpUrl + "," + bytesWrite + "," + contentLength + "," + done);
                                 etData.post(new Runnable() {
@@ -262,29 +246,31 @@ public class HTTPActivity extends AppCompatActivity {
                                     }
                                 });
                             }
-                        })
-                        .async(new Callback() {
+
                             @Override
-                            public void onFailure(Call call, final IOException e) {
-                                System.out.println("onFailure:" + e);
+                            public void onResponseProgress(final HttpUrl httpUrl, final long bytesRead, final long contentLength, final boolean done) {
+                                System.out.println("onResponseProgress:" + httpUrl + "," + bytesRead + "," + contentLength + "," + done);
                                 etData.post(new Runnable() {
                                     @Override
                                     public void run() {
-                                        SingleToast.makeText(HTTPActivity.this, "onFailure:" + e, SingleToast.LENGTH_LONG).show();
+                                        SingleToast.makeText(HTTPActivity.this, "onResponseProgress:" + httpUrl + "," + bytesRead + "," + contentLength + "," + done, SingleToast.LENGTH_LONG).show();
                                     }
                                 });
                             }
+                        })
+                        .manager(this)
+                        .async(new UIResult() {
+                            @Override
+                            public void onFailure(IOException e) {
+                                System.out.println("onFailure:" + e);
+                                SingleToast.makeText(HTTPActivity.this, "onFailure:" + e, SingleToast.LENGTH_LONG).show();
+                            }
 
                             @Override
-                            public void onResponse(Call call, Response response) throws IOException {
-                                final long length = response.body().bytes().length;
+                            public void onResponse(Response response) throws IOException {
+                                long length = response.body().bytes().length;
                                 System.out.println("onResponse:" + length);
-                                etData.post(new Runnable() {
-                                    @Override
-                                    public void run() {
-                                        SingleToast.makeText(HTTPActivity.this, "onResponse:" + length, SingleToast.LENGTH_LONG).show();
-                                    }
-                                });
+                                SingleToast.makeText(HTTPActivity.this, "onResponse:" + length, SingleToast.LENGTH_LONG).show();
                             }
                         });
                 break;
@@ -296,28 +282,19 @@ public class HTTPActivity extends AppCompatActivity {
                         .connectTimeout(5)
                         .writeTimeout(10)
                         .readTimeout(10)
-                        .async(new Callback() {
+                        .manager(this)
+                        .async(new UIResult() {
                             @Override
-                            public void onFailure(Call call, final IOException e) {
+                            public void onFailure(IOException e) {
                                 System.out.println("onFailure:" + e);
-                                etData.post(new Runnable() {
-                                    @Override
-                                    public void run() {
-                                        SingleToast.makeText(HTTPActivity.this, "onFailure:" + e, SingleToast.LENGTH_LONG).show();
-                                    }
-                                });
+                                SingleToast.makeText(HTTPActivity.this, "onFailure:" + e, SingleToast.LENGTH_LONG).show();
                             }
 
                             @Override
-                            public void onResponse(Call call, Response response) throws IOException {
-                                final long length = response.body().bytes().length;
+                            public void onResponse(Response response) throws IOException {
+                                long length = response.body().bytes().length;
                                 System.out.println("onResponse:" + length);
-                                etData.post(new Runnable() {
-                                    @Override
-                                    public void run() {
-                                        SingleToast.makeText(HTTPActivity.this, "onResponse:" + length, SingleToast.LENGTH_LONG).show();
-                                    }
-                                });
+                                SingleToast.makeText(HTTPActivity.this, "onResponse:" + length, SingleToast.LENGTH_LONG).show();
                             }
                         });
                 break;
@@ -329,28 +306,19 @@ public class HTTPActivity extends AppCompatActivity {
                         .addHeader("Request-Header-Id", "btn_request_timeout_header")
                         .addQuery("Request-Query-Id", "btn_request_timeout_header")
                         .addParam("Request-Param-Id", "btn_request_timeout_header")
-                        .async(new Callback() {
+                        .manager(this)
+                        .async(new UIResult() {
                             @Override
-                            public void onFailure(Call call, final IOException e) {
+                            public void onFailure(IOException e) {
                                 System.out.println("onFailure:" + e);
-                                etData.post(new Runnable() {
-                                    @Override
-                                    public void run() {
-                                        SingleToast.makeText(HTTPActivity.this, "onFailure:" + e, SingleToast.LENGTH_LONG).show();
-                                    }
-                                });
+                                SingleToast.makeText(HTTPActivity.this, "onFailure:" + e, SingleToast.LENGTH_LONG).show();
                             }
 
                             @Override
-                            public void onResponse(Call call, Response response) throws IOException {
-                                final long length = response.body().bytes().length;
+                            public void onResponse(Response response) throws IOException {
+                                long length = response.body().bytes().length;
                                 System.out.println("onResponse:" + length);
-                                etData.post(new Runnable() {
-                                    @Override
-                                    public void run() {
-                                        SingleToast.makeText(HTTPActivity.this, "onResponse:" + length, SingleToast.LENGTH_LONG).show();
-                                    }
-                                });
+                                SingleToast.makeText(HTTPActivity.this, "onResponse:" + length, SingleToast.LENGTH_LONG).show();
                             }
                         });
                 break;
@@ -364,7 +332,7 @@ public class HTTPActivity extends AppCompatActivity {
             temp = File.createTempFile("temp_", ".apk");
             fileOutputStream = new FileOutputStream(temp);
 
-            int random = new Random().nextInt(40960) + 102400;
+            int random = new Random().nextInt(10240) + 51200;
 
             byte[] bytes = new byte[random];
             for (int i = 0; i < random; i++) {
@@ -444,5 +412,27 @@ public class HTTPActivity extends AppCompatActivity {
         System.out.println("getTempInputStream(int):" + Arrays.toString(bytes));
         System.out.println("getTempInputStream(hex):" + builder.toString().toUpperCase());
         return new ByteArrayInputStream(bytes);
+    }
+
+    List<Request> mRequests = new LinkedList<>();
+
+    @Override
+    public void add(Request request) {
+        if (!mRequests.contains(request)) {
+            mRequests.add(request);
+        }
+    }
+
+    @Override
+    public void remove(Request cancel) {
+        mRequests.remove(cancel);
+    }
+
+    @Override
+    public void cancelAll() {
+        for (Request cancel : mRequests) {
+            if (cancel != null) cancel.cancel();
+        }
+        mRequests.clear();
     }
 }

@@ -5,6 +5,7 @@ import android.text.TextUtils;
 import com.liux.http.interceptor.TimeoutInterceptor;
 
 import java.io.IOException;
+import java.lang.ref.WeakReference;
 import java.util.IdentityHashMap;
 
 import okhttp3.Call;
@@ -17,7 +18,7 @@ import okhttp3.Response;
  * Created by Liux on 2018/2/26.
  */
 
-public abstract class Request<T extends Request> {
+public abstract class Request<T extends Request> implements Callback {
 
     private static final String HEADER_REQUEST_NAME = "Request-From";
     private static final String HEADER_REQUEST_VALUE = "Http";
@@ -30,6 +31,8 @@ public abstract class Request<T extends Request> {
     private String mUrl;
     private Object mTag;
     private Method mMethod;
+    private Result mResult;
+    private WeakReference<RequestManager> mRequestManagerWeakReference;
 
     private Call mCall;
     private Call.Factory mFactory;
@@ -41,6 +44,21 @@ public abstract class Request<T extends Request> {
         mMethod = method;
 
         distinguishRequest(true);
+    }
+
+    @Override
+    public void onFailure(Call call, IOException e) {
+        Result result = getResult();
+        if (result != null) result.onFailure(call, e);
+        cancel();
+    }
+
+    @Override
+    public void onResponse(Call call, Response response) throws IOException {
+        response = handlerResponse(response);
+        Result result = getResult();
+        if (result != null) result.onResponse(call, response);
+        cancel();
     }
 
     public T url(String url) {
@@ -104,10 +122,18 @@ public abstract class Request<T extends Request> {
         return (T) this;
     }
 
+    public T manager(RequestManager requestManager) {
+        mRequestManagerWeakReference = new WeakReference<>(requestManager);
+        return (T) this;
+    }
+
     public Response sync() throws IOException {
         checkUrl();
+        cancelCall();
+        addManager();
         Response response = handlerCall().execute();
         response = handlerResponse(response);
+        cancel();
         return response;
     }
 
@@ -115,28 +141,18 @@ public abstract class Request<T extends Request> {
         async(null);
     }
 
-    public void async(final Callback callback) {
+    public void async(Result result) {
         checkUrl();
-        handlerCall().enqueue(new Callback() {
-
-            @Override
-            public void onFailure(Call call, IOException e) {
-                if (callback != null) callback.onFailure(call, e);
-            }
-
-            @Override
-            public void onResponse(Call call, Response response) throws IOException {
-                response = handlerResponse(response);
-                if (callback != null) callback.onResponse(call, response);
-            }
-        });
+        cancelCall();
+        addManager();
+        mResult = result;
+        handlerCall().enqueue(this);
     }
 
     public void cancel() {
-        Call call = getCall();
-        if (call != null && !call.isCanceled() && !call.isExecuted()) {
-            call.cancel();
-        }
+        cancelCall();
+        removeManager();
+        mResult = null;
     }
 
     protected abstract HttpUrl.Builder onCreateHttpUrlBuilder(HttpUrl.Builder builder);
@@ -167,19 +183,13 @@ public abstract class Request<T extends Request> {
         okhttp3.Request.Builder builder = new okhttp3.Request.Builder();
         builder = onCreateRequestBuilder(builder);
 
-         builder.url(httpUrl).tag(getTag()).headers(Headers.of(getHeaderHashMap()));
+        builder.url(httpUrl).tag(getTag()).headers(Headers.of(getHeaderHashMap()));
 
         okhttp3.Request request = builder.build();
         request = onCreateRequest(request);
 
         mCall = getFactory().newCall(request);
         return mCall;
-    }
-
-    protected Response handlerResponse(Response response) {
-        Response.Builder builder = onCreateResponseBuilder(response.newBuilder());
-        response = onCreateResponse(builder.build());
-        return response;
     }
 
     protected String getUrl() {
@@ -192,6 +202,15 @@ public abstract class Request<T extends Request> {
 
     protected Method getMethod() {
         return mMethod;
+    }
+
+    protected Result getResult() {
+        return mResult;
+    }
+
+    protected RequestManager getCancelManager() {
+        if (mRequestManagerWeakReference == null) return null;
+        return mRequestManagerWeakReference.get();
     }
 
     protected Call getCall() {
@@ -216,5 +235,32 @@ public abstract class Request<T extends Request> {
         if (HttpUrl.parse(getUrl()) == null) {
             throw new IllegalArgumentException("\"" + getUrl() + "\" is not right");
         }
+    }
+
+    private void cancelCall() {
+        Call call = getCall();
+        if (call != null && !call.isCanceled() && !call.isExecuted()) {
+            call.cancel();
+        }
+    }
+
+    private void addManager() {
+        RequestManager requestManager = getCancelManager();
+        if (requestManager != null) {
+            requestManager.add(this);
+        }
+    }
+
+    private void removeManager() {
+        RequestManager requestManager = getCancelManager();
+        if (requestManager != null) {
+            requestManager.remove(this);
+        }
+    }
+
+    private Response handlerResponse(Response response) {
+        Response.Builder builder = onCreateResponseBuilder(response.newBuilder());
+        response = onCreateResponse(builder.build());
+        return response;
     }
 }

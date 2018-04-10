@@ -54,6 +54,11 @@ public class QueryRequest<T extends QueryRequest> extends Request<T> {
     }
 
     @Override
+    public T manager(RequestManager requestManager) {
+        return super.manager(requestManager);
+    }
+
+    @Override
     public T connectTimeout(int second) {
         return super.connectTimeout(second);
     }

@@ -99,6 +99,11 @@ public class BodyRequest<T extends BodyRequest> extends QueryRequest<T> {
     }
 
     @Override
+    public T manager(RequestManager requestManager) {
+        return super.manager(requestManager);
+    }
+
+    @Override
     protected Request onCreateRequest(Request request) {
         if (mOnRequestProgressListener != null) {
             RequestBody requestBody = request.body();
