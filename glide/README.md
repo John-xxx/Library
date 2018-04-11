@@ -20,6 +20,9 @@ implementation 'com.liux:glide:x.y.z'
 ### x.y.z_201x-xx-xx
     1.
 
+### 0.2.4_2018-04-11
+    1.支持新版 Http 库类
+
 ### 0.2.3_2018-02-27
     1.升级依赖版本
 

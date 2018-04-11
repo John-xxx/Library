@@ -69,13 +69,13 @@ public class GlideModuleConfig extends AppGlideModule {
      */
     @Override
     public void registerComponents(Context context, Glide glide, Registry registry) {
-        // 注册全局唯一OkHttp客户端(HttpClient先于Glide初始化完成的情况下)
-        try {
-            Call.Factory factory = getHttpClient();
+        // 注册全局唯一OkHttp客户端(Http先于Glide初始化完成的情况下)
+        Call.Factory factory = null;
+        if (factory == null) factory = getHttp();
+        if (factory == null) factory = getHttpClient();
+        if (factory != null) {
             OkHttpUrlLoader.Factory factory_glideurl = new OkHttpUrlLoader.Factory(factory);
             registry.replace(GlideUrl.class, InputStream.class, factory_glideurl);
-        } catch (Exception e) {
-
         }
 
         // 注册视频获取缩略图的扩展
@@ -94,14 +94,32 @@ public class GlideModuleConfig extends AppGlideModule {
     }
 
     /**
+     * 通过反射获取Http实例
+     * @return
+     */
+    private Call.Factory getHttp() {
+        try {
+            Class<?> clazz = Class.forName("com.liux.http.Http");
+            Object client = clazz.getMethod("get").invoke(null);
+            Object factory = client.getClass().getMethod("getOkHttpClient").invoke(client);
+            return (Call.Factory) factory;
+        } catch (Exception e) {
+            return null;
+        }
+    }
+
+    /**
      * 通过反射获取HttpClient实例
      * @return
-     * @throws Exception
      */
-    private Call.Factory getHttpClient() throws Exception {
-        Class<?> clazz = Class.forName("com.liux.http.HttpClient");
-        Object client = clazz.getMethod("getInstance").invoke(null);
-        Object factory = client.getClass().getMethod("getOkHttpClient").invoke(client);
-        return (Call.Factory) factory;
+    private Call.Factory getHttpClient() {
+        try {
+            Class<?> clazz = Class.forName("com.liux.http.HttpClient");
+            Object client = clazz.getMethod("getInstance").invoke(null);
+            Object factory = client.getClass().getMethod("getOkHttpClient").invoke(client);
+            return (Call.Factory) factory;
+        } catch (Exception e) {
+            return null;
+        }
     }
 }
