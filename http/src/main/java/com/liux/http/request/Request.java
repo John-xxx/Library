@@ -55,9 +55,10 @@ public abstract class Request<T extends Request> implements Callback {
 
     @Override
     public void onResponse(Call call, Response response) throws IOException {
+        if (!response.isSuccessful()) onFailure(call, new ResponseFailException(response));
         response = handlerResponse(response);
         Result result = getResult();
-        if (result != null) result.onResponse(call, response);
+        if (result != null) result.onSucceed(call, response);
         cancel();
     }
 
@@ -132,6 +133,7 @@ public abstract class Request<T extends Request> implements Callback {
         cancelCall();
         addManager();
         Response response = handlerCall().execute();
+        if (!response.isSuccessful()) throw new ResponseFailException(response);
         response = handlerResponse(response);
         cancel();
         return response;

@@ -16,7 +16,7 @@ implementation 'com.liux:list:x.y.z'
 更新说明
 ---
 ### x.y.z_201x-xx-xx
-    1.
+    1.更新支持库版本
 
 ### 0.2.2_2018-04-05
     1.更新支持库版本

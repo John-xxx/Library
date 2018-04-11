@@ -16,11 +16,11 @@ public abstract class Result {
         onFailure(e);
     }
 
-    protected void onResponse(Call call, Response response) throws IOException {
-        onResponse(response);
+    protected void onSucceed(Call call, Response response) throws IOException {
+        onSucceed(response);
     }
 
     protected abstract void onFailure(IOException e);
 
-    protected abstract void onResponse(Response response) throws IOException;
+    protected abstract void onSucceed(Response response) throws IOException;
 }

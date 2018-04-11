@@ -16,7 +16,7 @@ implementation 'com.liux:banner:x.y.z'
 更新说明
 ---
 ### x.y.z_201x-xx-xx
-    1.
+    1.更新支持库版本
     
 ### 0.2.2_2018-03-09
     1.更新支持库版本

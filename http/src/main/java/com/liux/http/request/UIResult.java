@@ -24,21 +24,21 @@ public abstract class UIResult extends Result {
     }
 
     @Override
-    protected void onResponse(Call call, Response response) throws IOException {
-        mMainHandler.onResponse(response);
+    protected void onSucceed(Call call, Response response) throws IOException {
+        mMainHandler.onSucceed(response);
     }
 
     protected void onMainFailure(IOException e) {
         onFailure(e);
     }
 
-    protected void onMainResponse(Response response) throws IOException {
-        onResponse(response);
+    protected void onMainSucceed(Response response) throws IOException {
+        onSucceed(response);
     }
 
     private static class MainHandler extends Handler {
         private static final int MSG_WHAT_FAILURE = 1;
-        private static final int MSG_WHAT_RESPONSE = 2;
+        private static final int MSG_WHAT_SUCCEED = 2;
 
         private UIResult mUIResult;
 
@@ -53,9 +53,9 @@ public abstract class UIResult extends Result {
                 case MSG_WHAT_FAILURE:
                     mUIResult.onMainFailure((IOException) msg.obj);
                     break;
-                case MSG_WHAT_RESPONSE:
+                case MSG_WHAT_SUCCEED:
                     try {
-                        mUIResult.onMainResponse((Response) msg.obj);
+                        mUIResult.onMainSucceed((Response) msg.obj);
                     } catch (IOException e) {
                         mUIResult.onFailure(e);
                     }
@@ -70,9 +70,9 @@ public abstract class UIResult extends Result {
             sendMessage(msg);
         }
 
-        void onResponse(Response response) {
+        void onSucceed(Response response) {
             Message msg = Message.obtain();
-            msg.what = MSG_WHAT_RESPONSE;
+            msg.what = MSG_WHAT_SUCCEED;
             msg.obj = response;
             sendMessage(msg);
         }

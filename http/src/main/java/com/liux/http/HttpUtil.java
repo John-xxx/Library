@@ -237,24 +237,24 @@ public class HttpUtil {
      * 生成一个 {@link MultipartBody.Part}
      * @param name
      * @param type
-     * @param bytes
-     * @return
-     */
-    public static MultipartBody.Part parseBytePart(String name, String type, byte[] bytes) {
-        if (type == null) return StreamPart.createFormData(name, bytes);
-        return StreamPart.createFormData(name, type, bytes);
-    }
-
-    /**
-     * 生成一个 {@link MultipartBody.Part}
-     * @param name
-     * @param type
      * @param string
      * @return
      */
     public static MultipartBody.Part parseStringPart(String name, String type, String string) {
         if (type == null) return StreamPart.createFormData(name, string);
         return StreamPart.createFormData(name, type, string);
+    }
+
+    /**
+     * 生成一个 {@link MultipartBody.Part}
+     * @param name
+     * @param type
+     * @param bytes
+     * @return
+     */
+    public static MultipartBody.Part parseBytePart(String name, String type, byte[] bytes) {
+        if (type == null) return StreamPart.createFormData(name, bytes);
+        return StreamPart.createFormData(name, type, bytes);
     }
 
     /**

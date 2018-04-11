@@ -392,9 +392,10 @@ public class HttpLoggingInterceptor implements Interceptor {
      */
     private static String formatJson(String json) {
         try {
-            if (json.startsWith("{")) {
+            String check = json.trim();
+            if (check.startsWith("{") && check.endsWith("}")) {
                 json = new JSONObject(json).toString(4);
-            } else if (json.startsWith("[")) {
+            } else if (check.startsWith("[") && check.endsWith("]")) {
                 json = new JSONArray(json).toString(4);
             }
         } catch (JSONException e) {
@@ -410,7 +411,8 @@ public class HttpLoggingInterceptor implements Interceptor {
      */
     private static String formatXml(String xml) {
         try {
-            if (!xml.startsWith("<")) {
+            String check = xml.trim();
+            if (!check.startsWith("<") || !check.endsWith(">")) {
                 return xml;
             }
             Source xmlInput = new StreamSource(new StringReader(xml));

@@ -102,7 +102,12 @@ implementation 'com.liux:http:x.y.z'
 更新说明
 ---
 ### x.y.z_201x-xx-xx
-    1.调整 WrapperBody 代码结构
+    1.
+
+### 0.4.3_2018-04-11
+    1.修复 Request 非 2xx 返回码成功返回问题
+    2.调整 WrapperBody 代码结构
+    3.优化日志输出功能
 
 ### 0.4.2_2018-04-10
     1.添加 Request 生命周期管理

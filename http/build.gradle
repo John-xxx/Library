@@ -21,21 +21,22 @@ android {
 }
 
 dependencies {
-    api fileTree(dir: 'libs', include: ['*.jar'])
-    api "com.squareup.okhttp3:okhttp:3.10.0"
-    api "com.squareup.retrofit2:retrofit:2.4.0"
-    api ("com.squareup.retrofit2:adapter-rxjava2:2.4.0", {
+    api fileTree(include: ['*.jar'], dir: 'libs')
+    api 'com.squareup.okhttp3:okhttp:3.10.0'
+    api 'com.squareup.retrofit2:retrofit:2.4.0'
+    api("com.squareup.retrofit2:adapter-rxjava2:2.4.0", {
         exclude group: 'io.reactivex.rxjava2', module: 'rxjava'
     })
-    api "com.alibaba:fastjson:1.1.68.android"
-    api "com.github.franmontiel:PersistentCookieJar:v1.0.1"
+    api 'com.alibaba:fastjson:1.1.68.android'
+    api 'com.github.franmontiel:PersistentCookieJar:v1.0.1'
+    compileOnly "com.android.support:support-annotations:${LIBRARY_SUPPORT}"
 }
 
 // Release Library Param
 ext {
     params = [
             artifactId : 'http',
-            version : '0.4.2'
+            version : '0.4.3'
     ]
 }
 apply from: '../release.gradle'

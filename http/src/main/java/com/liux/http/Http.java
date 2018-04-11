@@ -1,6 +1,7 @@
 package com.liux.http;
 
 import android.content.Context;
+import android.support.annotation.IntDef;
 
 import com.franmontiel.persistentcookiejar.PersistentCookieJar;
 import com.franmontiel.persistentcookiejar.cache.SetCookieCache;
@@ -15,6 +16,8 @@ import com.liux.http.request.BodyRequest;
 import com.liux.http.request.QueryRequest;
 
 import java.io.File;
+import java.lang.annotation.Retention;
+import java.lang.annotation.RetentionPolicy;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
@@ -162,13 +165,33 @@ public class Http {
         return this;
     }
 
+    public static final int LOG_LEVEL_NONE = 0;
+    public static final int LOG_LEVEL_BASIC = 1;
+    public static final int LOG_LEVEL_HEADERS = 2;
+    public static final int LOG_LEVEL_BODY = 3;
     /**
      * 设置打印日志级别
      * @param level
      * @return
      */
-    public Http setLoggingLevel(HttpLoggingInterceptor.Level level) {
-        mHttpLoggingInterceptor.setLevel(level);
+    public Http setLoggingLevel(@LogLevel int level) {
+        HttpLoggingInterceptor.Level l;
+        switch (level) {
+            case LOG_LEVEL_BODY:
+                l = HttpLoggingInterceptor.Level.BODY;
+                break;
+            case LOG_LEVEL_HEADERS:
+                l = HttpLoggingInterceptor.Level.HEADERS;
+                break;
+            case LOG_LEVEL_BASIC:
+                l = HttpLoggingInterceptor.Level.BASIC;
+                break;
+            case LOG_LEVEL_NONE:
+            default:
+                l = HttpLoggingInterceptor.Level.NONE;
+                break;
+        }
+        mHttpLoggingInterceptor.setLevel(l);
         return this;
     }
 
@@ -398,4 +421,8 @@ public class Http {
             throw new IllegalArgumentException("baseUrl must end in /: " + baseUrl);
         }
     }
+
+    @IntDef({LOG_LEVEL_NONE, LOG_LEVEL_BASIC, LOG_LEVEL_HEADERS, LOG_LEVEL_BODY})
+    @Retention(RetentionPolicy.SOURCE)
+    @interface LogLevel{}
 }

@@ -169,13 +169,13 @@ public class HTTPActivity extends AppCompatActivity implements RequestManager {
                             }
 
                             @Override
-                            public void onResponse(Response response) throws IOException {
+                            public void onSucceed(Response response) throws IOException {
                                 final long length = response.body().bytes().length;
-                                System.out.println("onResponse:" + length);
+                                System.out.println("onSucceed:" + length);
                                 etData.post(new Runnable() {
                                     @Override
                                     public void run() {
-                                        SingleToast.makeText(HTTPActivity.this, "onResponse:" + length, SingleToast.LENGTH_LONG).show();
+                                        SingleToast.makeText(HTTPActivity.this, "onSucceed:" + length, SingleToast.LENGTH_LONG).show();
                                     }
                                 });
                             }
@@ -197,10 +197,10 @@ public class HTTPActivity extends AppCompatActivity implements RequestManager {
                             }
 
                             @Override
-                            public void onResponse(Response response) throws IOException {
+                            public void onSucceed(Response response) throws IOException {
                                 long length = response.body().bytes().length;
-                                System.out.println("onResponse:" + length);
-                                SingleToast.makeText(HTTPActivity.this, "onResponse:" + length, SingleToast.LENGTH_LONG).show();
+                                System.out.println("onSucceed:" + length);
+                                SingleToast.makeText(HTTPActivity.this, "onSucceed:" + length, SingleToast.LENGTH_LONG).show();
                             }
                         });
                 break;
@@ -218,10 +218,10 @@ public class HTTPActivity extends AppCompatActivity implements RequestManager {
                             }
 
                             @Override
-                            public void onResponse(Response response) throws IOException {
+                            public void onSucceed(Response response) throws IOException {
                                 long length = response.body().bytes().length;
-                                System.out.println("onResponse:" + length);
-                                SingleToast.makeText(HTTPActivity.this, "onResponse:" + length, SingleToast.LENGTH_LONG).show();
+                                System.out.println("onSucceed:" + length);
+                                SingleToast.makeText(HTTPActivity.this, "onSucceed:" + length, SingleToast.LENGTH_LONG).show();
                             }
                         });
                 break;
@@ -267,10 +267,10 @@ public class HTTPActivity extends AppCompatActivity implements RequestManager {
                             }
 
                             @Override
-                            public void onResponse(Response response) throws IOException {
+                            public void onSucceed(Response response) throws IOException {
                                 long length = response.body().bytes().length;
-                                System.out.println("onResponse:" + length);
-                                SingleToast.makeText(HTTPActivity.this, "onResponse:" + length, SingleToast.LENGTH_LONG).show();
+                                System.out.println("onSucceed:" + length);
+                                SingleToast.makeText(HTTPActivity.this, "onSucceed:" + length, SingleToast.LENGTH_LONG).show();
                             }
                         });
                 break;
@@ -291,10 +291,10 @@ public class HTTPActivity extends AppCompatActivity implements RequestManager {
                             }
 
                             @Override
-                            public void onResponse(Response response) throws IOException {
+                            public void onSucceed(Response response) throws IOException {
                                 long length = response.body().bytes().length;
-                                System.out.println("onResponse:" + length);
-                                SingleToast.makeText(HTTPActivity.this, "onResponse:" + length, SingleToast.LENGTH_LONG).show();
+                                System.out.println("onSucceed:" + length);
+                                SingleToast.makeText(HTTPActivity.this, "onSucceed:" + length, SingleToast.LENGTH_LONG).show();
                             }
                         });
                 break;
@@ -315,10 +315,10 @@ public class HTTPActivity extends AppCompatActivity implements RequestManager {
                             }
 
                             @Override
-                            public void onResponse(Response response) throws IOException {
+                            public void onSucceed(Response response) throws IOException {
                                 long length = response.body().bytes().length;
-                                System.out.println("onResponse:" + length);
-                                SingleToast.makeText(HTTPActivity.this, "onResponse:" + length, SingleToast.LENGTH_LONG).show();
+                                System.out.println("onSucceed:" + length);
+                                SingleToast.makeText(HTTPActivity.this, "onSucceed:" + length, SingleToast.LENGTH_LONG).show();
                             }
                         });
                 break;

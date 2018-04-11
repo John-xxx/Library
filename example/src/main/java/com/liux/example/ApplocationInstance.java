@@ -7,7 +7,6 @@ import android.support.multidex.MultiDex;
 import com.liux.http.Http;
 import com.liux.http.OnHeaderListener;
 import com.liux.http.OnRequestListener;
-import com.liux.http.interceptor.HttpLoggingInterceptor;
 import com.liux.rx.lifecycle.LifecyleProviderManager;
 
 import java.util.Map;
@@ -33,7 +32,7 @@ public class ApplocationInstance extends Application {
 
         /* 初始化 Http */
         Http.init(this, "http://6xyun.cn/v1.0/");
-        Http.get().setLoggingLevel(HttpLoggingInterceptor.Level.BODY);
+        Http.get().setLoggingLevel(Http.LOG_LEVEL_BODY);
         Http.get().setOnHeaderListener(new OnHeaderListener() {
             @Override
             public void onHeaders(Request request, Map<String, String> headers) {
