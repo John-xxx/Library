@@ -9,9 +9,21 @@ import okhttp3.ResponseBody;
  */
 public interface WrapperResponseBody {
 
+    /**
+     * 被包装 ResponseBody 是否是 WrapperResponseBody
+     * @return
+     */
     boolean isChildWarpper();
 
+    /**
+     * 获取被包装的 ResponseBody
+     * @return
+     */
     ResponseBody getResponseBody();
 
+    /**
+     * 设置包装的 ResponseBody
+     * @param responseBody
+     */
     void setResponseBody(ResponseBody responseBody);
 }

@@ -1,13 +1,12 @@
 package com.liux.http.progress;
 
+import com.liux.http.wrapper.AbstractRequestBody;
 import com.liux.http.wrapper.WrapperRequestBody;
 
 import java.io.IOException;
 
-import okhttp3.FormBody;
 import okhttp3.HttpUrl;
 import okhttp3.MediaType;
-import okhttp3.MultipartBody;
 import okhttp3.RequestBody;
 import okio.Buffer;
 import okio.BufferedSink;
@@ -20,7 +19,7 @@ import okio.Okio;
  * lx0758@qq.com
  */
 
-public class ProgressRequestBody extends RequestBody implements WrapperRequestBody {
+public class ProgressRequestBody extends AbstractRequestBody implements WrapperRequestBody {
 
     private HttpUrl mHttpUrl;
     private RequestBody mRequestBody;
@@ -29,6 +28,7 @@ public class ProgressRequestBody extends RequestBody implements WrapperRequestBo
     private BufferedSink mWrapperBufferedSink;
 
     public ProgressRequestBody(HttpUrl httpUrl, RequestBody requestBody, OnRequestProgressListener onRequestProgressListener) {
+        super(requestBody);
         mHttpUrl = httpUrl;
         mRequestBody = requestBody;
         mOnRequestProgressListener = onRequestProgressListener;
@@ -53,44 +53,6 @@ public class ProgressRequestBody extends RequestBody implements WrapperRequestBo
         } else {
             mRequestBody.writeTo(sink);
         }
-    }
-
-    @Override
-    public boolean isChildWarpper() {
-        return mRequestBody instanceof WrapperRequestBody;
-    }
-
-    @Override
-    public boolean isFormBody() {
-        if (isChildWarpper()) {
-            return ((WrapperRequestBody) mRequestBody).isFormBody();
-        }
-        return mRequestBody instanceof FormBody;
-    }
-
-    @Override
-    public boolean isMultipartBody() {
-        if (isChildWarpper()) {
-            return ((WrapperRequestBody) mRequestBody).isMultipartBody();
-        }
-        return mRequestBody instanceof MultipartBody;
-    }
-
-    @Override
-    public RequestBody getRequestBody() {
-        if (isChildWarpper()) {
-            return ((WrapperRequestBody) mRequestBody).getRequestBody();
-        }
-        return mRequestBody;
-    }
-
-    @Override
-    public void setRequestBody(RequestBody requestBody) {
-        if (isChildWarpper()) {
-            ((WrapperRequestBody) mRequestBody).setRequestBody(requestBody);
-            return;
-        }
-        mRequestBody = requestBody;
     }
 
     private static class WrapperForwardingSink extends ForwardingSink {

@@ -1,5 +1,6 @@
 package com.liux.http.progress;
 
+import com.liux.http.wrapper.AbstractResponseBody;
 import com.liux.http.wrapper.WrapperResponseBody;
 
 import java.io.IOException;
@@ -18,7 +19,7 @@ import okio.Okio;
  * lx0758@qq.com
  */
 
-public class ProgressResponseBody extends ResponseBody implements WrapperResponseBody {
+public class ProgressResponseBody extends AbstractResponseBody implements WrapperResponseBody {
 
     private HttpUrl mHttpUrl;
     private ResponseBody mResponseBody;
@@ -27,6 +28,7 @@ public class ProgressResponseBody extends ResponseBody implements WrapperRespons
     private BufferedSource mWrapperBufferedSource;
     
     public ProgressResponseBody(HttpUrl httpUrl, ResponseBody responseBody, OnResponseProgressListener onResponseProgressListener) {
+        super(responseBody);
         mHttpUrl = httpUrl;
         mResponseBody = responseBody;
         mResponseProgressListener = onResponseProgressListener;
@@ -50,28 +52,6 @@ public class ProgressResponseBody extends ResponseBody implements WrapperRespons
         } else {
             return mResponseBody.source();
         }
-    }
-
-    @Override
-    public boolean isChildWarpper() {
-        return mResponseBody instanceof WrapperResponseBody;
-    }
-
-    @Override
-    public ResponseBody getResponseBody() {
-        if (isChildWarpper()) {
-            return ((WrapperResponseBody) mResponseBody).getResponseBody();
-        }
-        return mResponseBody;
-    }
-
-    @Override
-    public void setResponseBody(ResponseBody responseBody) {
-        if (isChildWarpper()) {
-            ((WrapperResponseBody) mResponseBody).setResponseBody(responseBody);
-            return;
-        }
-        mResponseBody = responseBody;
     }
 
     private static class WrapperForwardingSource extends ForwardingSource {

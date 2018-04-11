@@ -9,13 +9,33 @@ import okhttp3.RequestBody;
  */
 public interface WrapperRequestBody {
 
+    /**
+     * 被包装 RequestBody 是否是 WrapperRequestBody
+     * @return
+     */
     boolean isChildWarpper();
 
+    /**
+     * 被包装 RequestBody 是否是 FormBody
+     * @return
+     */
     boolean isFormBody();
 
+    /**
+     * 被包装 RequestBody 是否是 MultipartBody
+     * @return
+     */
     boolean isMultipartBody();
 
+    /**
+     * 获取被包装的 RequestBody
+     * @return
+     */
     RequestBody getRequestBody();
 
+    /**
+     * 设置包装的 RequestBody
+     * @param requestBody
+     */
     void setRequestBody(RequestBody requestBody);
 }

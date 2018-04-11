@@ -102,7 +102,7 @@ implementation 'com.liux:http:x.y.z'
 更新说明
 ---
 ### x.y.z_201x-xx-xx
-    1.
+    1.调整 WrapperBody 代码结构
 
 ### 0.4.2_2018-04-10
     1.添加 Request 生命周期管理
