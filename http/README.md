@@ -28,31 +28,39 @@ implementation 'com.liux:http:x.y.z'
 
 注意事项
 ---
-    1.某些情况下使用全局 Base 无法正确匹配路径以"/"开头的根路径URL
-      初始化设置 http://api.baidu.com/api/
-      全局设置 http://app.google.com/v1.0/
-      请求设置 @GET("/api/xxx")
-      正常应该为 http://app.google.com/api/xxx
-      最终请求地址变成 http://app.google.com/v1.0/xxx
+    1.使用Retorfit以根Url方式创建请求时,如果全局 Base 的 根Url 以其重叠将无法无法正确匹配
+      过程:
+      初始 BaseUrl 为 http://api.baidu.com/api/
+      全局 BaseUrl 为 http://api.google.com/v1.0/
+      请求接口设置为 @GET("/api/xxx")
+      理想状态应该为 http://api.google.com/api/xxx
+      实际状态变成为 http://api.google.com/v1.0/xxx
       
-      原因是初始化请求以"/"开头,经过Retorfit解析后变为
+      原因:
+      初始化请求以"/"开头,经过Retorfit解析后变为
       http://api.baidu.com/api/xxx
-      在经过全局 Base 替换 http://api.baidu.com/api/ 为 http://app.google.com/v1.0/
-      最终变成 http://app.google.com/v1.0/xxx
+      在经过 BaseUrl 拦截器替换其中 http://api.baidu.com/api/ 为 http://app.google.com/v1.0/
+      最终变成 http://api.google.com/v1.0/xxx
       
-      即当初始化设置URL根Path和请求根Path发生重复时出现
+      结论:
+      即当初始 BaseUrl 的根Path和请求根Path发生重叠时出现此现象
+      
+      注:
+      假设BaseUrl为 http://api.6xyun.cn/v1.0/
+      根Url => @GET("/api/query")
+      根Url方式结果 http://api.6xyun.cn/api/query
+      非根Url => @GET("api/query")
+      非根Url方式结果 http://api.6xyun.cn/v1.0/api/query
     
     2.使用 MultipartBody 上传 InputStream 时,应避免多个线程共享 InputStream
       因为上传过程中 InputStream 会被 读取/重置 多次,在多线程环境下会造成数据紊乱
-      
       故,在使用时应达到每个线程单独使用一个 InputStream 实例的条件
       
-      另: InputStream 输入源要保证 InputStream.available() 能返回流整体长度,
-      如若不能,则应返回 -1
+      另:在发送 InputStream 输入源时, 如果 InputStream.available() 方法不能一次返回流完整长度,则应返回 -1
     
-    3.在使用 MultipartBody 传输 byte[] 或 InoutStream 时,因为框架发送的是原始二进制数据,
+    3.在使用 MultipartBody 传输 byte[] 或 InputStream 时,因为框架发送的是原始二进制数据,
       所以服务端接收也必须接收原始数据.否则有可能造成数据被强行"字符"转换,导致获得的数据损坏
-      并且,传输 InoutStream 到服务器也是按照 byte[] 方式接收
+      并且,传输 InputStream 到服务器也是按照 byte[] 方式接收
       
       /**
        * 错误用例(Java):
@@ -102,7 +110,7 @@ implementation 'com.liux:http:x.y.z'
 更新说明
 ---
 ### x.y.z_201x-xx-xx
-    1.
+    1.优化 BaseUrl 拦截器
 
 ### 0.4.3_2018-04-11
     1.修复 Request 非 2xx 返回码成功返回问题

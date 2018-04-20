@@ -52,29 +52,29 @@ public class BaseUrlInterceptor implements Interceptor {
             return chain.proceed(request);
         }
 
-        String url = null;
+        String baseUrl = null;
 
         // 检测有没有 HEADER_BASE_URL
-        url = request.header(HEADER_BASE_URL);
-        if (!TextUtils.isEmpty(url)) {
-            request = parseNewRequest(url, request, HEADER_BASE_URL);
+        baseUrl = request.header(HEADER_BASE_URL);
+        if (!TextUtils.isEmpty(baseUrl)) {
+            request = parseNewRequest(baseUrl, request, HEADER_BASE_URL);
             return chain.proceed(request);
         }
 
         // 检测有没有 HEADER_BASE_RULE
         String rule = request.header(HEADER_BASE_RULE);
         if (!TextUtils.isEmpty(rule)) {
-            url = getDomainRule(rule);
-            if (!TextUtils.isEmpty(url)) {
-                request = parseNewRequest(url, request, HEADER_BASE_RULE);
+            baseUrl = getDomainRule(rule);
+            if (!TextUtils.isEmpty(baseUrl)) {
+                request = parseNewRequest(baseUrl, request, HEADER_BASE_RULE);
                 return chain.proceed(request);
             }
         }
 
         // 检测全局 BaseUrl
-        url = getBaseUrl();
-        if (!equalsRetorfitBaseUrl(url)) {
-            request = parseNewRequest(url, request, null);
+        baseUrl = getBaseUrl();
+        if (!equalsRetorfitBaseUrl(baseUrl)) {
+            request = parseNewRequest(baseUrl, request, null);
             return chain.proceed(request);
         }
 
@@ -138,45 +138,51 @@ public class BaseUrlInterceptor implements Interceptor {
 
     /**
      * 复制原始请求体并更换Host
-     * @param domain
+     * @param baseUrl
      * @param request
      * @return
      */
-    private Request parseNewRequest(String domain, Request request, String header) {
+    private Request parseNewRequest(String baseUrl, Request request, String header) {
+        HttpUrl newHttpUrl = parseNewHttpUrl(baseUrl, request);
         return request.newBuilder()
-                .url(parseNewHttpUrl(domain, request))
+                .url(newHttpUrl)
                 .removeHeader(header != null ? header : "")
                 .build();
     }
 
     /**
      * 复制原始请求URL并替换BaseUrl信息
-     * @param url
+     * @param baseUrl
      * @param request
      * @return
      */
-    private HttpUrl parseNewHttpUrl(String url, Request request) {
+    private HttpUrl parseNewHttpUrl(String baseUrl, Request request) {
         // 用BASE_URL的时候无法限制BaseUrl格式所以加上判断
-        if (!url.endsWith("/")) url += "/";
+        if (!baseUrl.endsWith("/")) baseUrl += "/";
 
         HttpUrl reqHttpUrl = request.url();
-        HttpUrl oldHttpUrl = mHttp.getRetrofit().baseUrl();
+        HttpUrl oldBaseHttpUrl = mHttp.getRetrofit().baseUrl();
+        HttpUrl newBaseHttpUrl = HttpUrl.parse(baseUrl);
+        if (newBaseHttpUrl == null) throw new IllegalArgumentException("Illegal URL: " + baseUrl);
 
-        String reqUrl = reqHttpUrl.url().toString();
-        String oldUrl = oldHttpUrl.url().toString();
+        String newReqUrl = null;
+        String oldReqUrl = reqHttpUrl.url().toString();
+        String oldBaseUrl = oldBaseHttpUrl.url().toString();
+        String newBaseUrl = newBaseHttpUrl.url().toString();
 
-        String newUrl;
-        // 当Service中路径以"/"开头表示从根路径开始的路径
-        if (reqUrl.startsWith(oldUrl)) {
-            newUrl =  reqUrl.replace(oldUrl, url);
+        // 判断是否是 非根Url 请求
+        if (oldReqUrl.startsWith(oldBaseUrl)) {
+            // @GET("api/xxx") 表示 非根Url ,即拼接的Url
+            newReqUrl =  oldReqUrl.replace(oldBaseUrl, newBaseUrl);
         } else {
-            newUrl = reqUrl.replace(
-                    oldUrl.substring(0, oldUrl.indexOf("/", 10)),
-                    url.substring(0, url.indexOf("/", 10))
+            // @GET("/api/xxx") 表示 根Url ,即从根路径开始的Url
+            newReqUrl = oldReqUrl.replace(
+                    oldBaseUrl.substring(0, oldBaseUrl.indexOf("/", 10)),
+                    newBaseUrl.substring(0, newBaseUrl.indexOf("/", 10))
             );
         }
 
-        HttpUrl.Builder builder = request.url().newBuilder(newUrl)
+        HttpUrl.Builder builder = request.url().newBuilder(newReqUrl)
                 .encodedUsername(reqHttpUrl.username())
                 .encodedPassword(reqHttpUrl.password());
 
@@ -189,8 +195,11 @@ public class BaseUrlInterceptor implements Interceptor {
      * @return
      */
     private boolean equalsRetorfitBaseUrl(String url) {
-        if (url == null || url.length() == 0) return true;
+        if (TextUtils.isEmpty(url)) return true;
+        HttpUrl newHttpUrl = HttpUrl.parse(url);
+        if (newHttpUrl == null) return true;
         String oldUrl = mHttp.getRetrofit().baseUrl().url().toString();
-        return oldUrl.equals(url);
+        String newUrl = newHttpUrl.toString();
+        return oldUrl.equals(newUrl);
     }
 }
