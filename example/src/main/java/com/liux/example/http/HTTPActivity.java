@@ -53,7 +53,7 @@ public class HTTPActivity extends AppCompatActivity implements RequestManager {
         super.onCreate(savedInstanceState);
 
         // 动态设置全局BaseUrl
-        Http.get().setBaseUrl("http://api.6xyun.cn:88/api/");
+        Http.get().setBaseUrl("http://api.6xyun.cn:88/test/");
 
         // 动态设置全局BaseUrl规则
         Http.get().putDomainRule("138", "http://api.ip138.com/");
@@ -138,7 +138,7 @@ public class HTTPActivity extends AppCompatActivity implements RequestManager {
         }
         switch (view.getId()) {
             case R.id.btn_request_get:
-                Http.get().get(data + "api/test-get")
+                Http.get().get(data + "test/get")
                         .addHeader("Request-Header-Id", "btn_request_get")
                         .addQuery("Request-Query-Id", "btn_request_get")
                         // 很多服务不支持
@@ -184,7 +184,7 @@ public class HTTPActivity extends AppCompatActivity implements RequestManager {
             case R.id.btn_request_post_body:
                 JSONObject jsonObject = new JSONObject();
                 jsonObject.put("Request-Body-Id", "btn_request_post_body");
-                Http.get().post(data + "api/test-post-body")
+                Http.get().post(data + "test/post-body")
                         .addHeader("Request-Header-Id", "btn_request_post_body")
                         .addQuery("Request-Query-Id", "btn_request_post_body")
                         .body(HttpUtil.parseJson(jsonObject.toJSONString()))
@@ -205,7 +205,7 @@ public class HTTPActivity extends AppCompatActivity implements RequestManager {
                         });
                 break;
             case R.id.btn_request_post_form:
-                Http.get().post(data + "api/test-post-form")
+                Http.get().post(data + "test/post-form")
                         .addHeader("Request-Header-Id", "btn_request_post_form")
                         .addQuery("Request-Query-Id", "btn_request_post_form")
                         .addParam("Request-Param-Id", "btn_request_post_form")
@@ -226,7 +226,7 @@ public class HTTPActivity extends AppCompatActivity implements RequestManager {
                         });
                 break;
             case R.id.btn_request_post_multipart:
-                Http.get().post(data + "api/test-post-multipart")
+                Http.get().post(data + "test/post-multipart")
                         .addHeader("Request-Header-Id", "btn_request_post_multipart")
                         .addQuery("Request-Query-Id", "btn_request_post_multipart")
                         .addParam("Request-Param-Id", "btn_request_post_multipart")
@@ -275,7 +275,7 @@ public class HTTPActivity extends AppCompatActivity implements RequestManager {
                         });
                 break;
             case R.id.btn_request_timeout_header:
-                Http.get().post(data + "api/test-timeout")
+                Http.get().post(data + "test/timeout")
                         .addHeader("Request-Header-Id", "btn_request_timeout_header")
                         .addQuery("Request-Query-Id", "btn_request_timeout_header")
                         .addParam("Request-Param-Id", "btn_request_timeout_header")
@@ -302,7 +302,7 @@ public class HTTPActivity extends AppCompatActivity implements RequestManager {
                 Http.get().setOverallConnectTimeout(5);
                 Http.get().setOverallWriteTimeout(20);
                 Http.get().setOverallReadTimeout(20);
-                Http.get().post(data + "api/test-timeout-global")
+                Http.get().post(data + "test/timeout-global")
                         .addHeader("Request-Header-Id", "btn_request_timeout_header")
                         .addQuery("Request-Query-Id", "btn_request_timeout_header")
                         .addParam("Request-Param-Id", "btn_request_timeout_header")

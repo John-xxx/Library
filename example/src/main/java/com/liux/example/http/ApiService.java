@@ -23,19 +23,19 @@ import retrofit2.http.Query;
 
 public interface ApiService {
 
-    @GET("test-get")
+    @GET("get")
     Observable<JSONObject> testGet(
             @Query("id") int id,
             @Query("name") String name
     );
 
-    @POST("test-post-body")
+    @POST("post-body")
     Observable<JSONObject> testPostBody(
             @Body RequestBody body
     );
 
     @FormUrlEncoded
-    @POST("test-post-form")
+    @POST("post-form")
     Observable<JSONObject> testPostForm(
             @Query("id") int id,
             @Query("name") String name,
@@ -44,7 +44,7 @@ public interface ApiService {
     );
 
     @Multipart
-    @POST("test-post-multipart")
+    @POST("post-multipart")
     Observable<JSONObject> testPostMultipart(
             @Query("id") int id,
             @Query("name") String name,
@@ -88,7 +88,7 @@ public interface ApiService {
     );
 
     // 以"/"开头的表示从根路径开始
-    @GET("test-timeout")
+    @GET("timeout")
     @Headers({
             Http.HEADER_TIMEOUT_CONNECT + ":3",
             Http.HEADER_TIMEOUT_WRITE + ":6",
@@ -99,7 +99,7 @@ public interface ApiService {
     );
 
     // 以"/"开头的表示从根路径开始
-    @GET("test-timeout-global")
+    @GET("timeout-global")
     Observable<JSONObject> testTimeoutGlobal(
             @Query("data") String data
     );
