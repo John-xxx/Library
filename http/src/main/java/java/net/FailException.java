@@ -1,6 +1,6 @@
-package com.liux.http.request;
+package java.net;
 
-import java.net.UnknownServiceException;
+import java.io.IOException;
 
 import okhttp3.Response;
 
@@ -9,18 +9,18 @@ import okhttp3.Response;
  * By Liux
  * lx0758@qq.com
  */
-public class ResponseFailException extends UnknownServiceException {
+public class FailException extends IOException {
 
     private Response mResponse;
 
-    public ResponseFailException() {
+    public FailException() {
     }
 
-    public ResponseFailException(String msg) {
+    public FailException(String msg) {
         super(msg);
     }
 
-    public ResponseFailException(Response response) {
+    public FailException(Response response) {
         super(response.message());
         mResponse = response;
     }

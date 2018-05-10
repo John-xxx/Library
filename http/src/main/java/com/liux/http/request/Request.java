@@ -6,6 +6,7 @@ import com.liux.http.interceptor.TimeoutInterceptor;
 
 import java.io.IOException;
 import java.lang.ref.WeakReference;
+import java.net.FailException;
 import java.util.IdentityHashMap;
 
 import okhttp3.Call;
@@ -55,7 +56,7 @@ public abstract class Request<T extends Request> implements Callback {
 
     @Override
     public void onResponse(Call call, Response response) throws IOException {
-        if (!response.isSuccessful()) onFailure(call, new ResponseFailException(response));
+        if (!response.isSuccessful()) onFailure(call, new FailException(response));
         response = handlerResponse(response);
         Result result = getResult();
         if (result != null) result.onSucceed(call, response);
@@ -133,7 +134,7 @@ public abstract class Request<T extends Request> implements Callback {
         cancelCall();
         addManager();
         Response response = handlerCall().execute();
-        if (!response.isSuccessful()) throw new ResponseFailException(response);
+        if (!response.isSuccessful()) throw new FailException(response);
         response = handlerResponse(response);
         cancel();
         return response;

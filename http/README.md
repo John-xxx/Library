@@ -110,7 +110,11 @@ implementation 'com.liux:http:x.y.z'
 更新说明
 ---
 ### x.y.z_201x-xx-xx
+    1.
+
+### 0.4.4_2018-05-10
     1.优化 BaseUrl 拦截器
+    2.调整 Request 失败异常
 
 ### 0.4.3_2018-04-11
     1.修复 Request 非 2xx 返回码成功返回问题
